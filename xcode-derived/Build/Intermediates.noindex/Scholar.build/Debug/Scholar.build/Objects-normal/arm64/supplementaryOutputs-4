@@ -1,0 +1,51 @@
+{
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Models/Submission.swift" : {
+    "const-values" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/Submission.swiftconstvalues",
+    "dependencies" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/Submission.d",
+    "diagnostics" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/Submission.dia",
+    "object" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/Submission.o",
+    "swift-dependencies" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/Submission.swiftdeps"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Models/SubmissionLog.swift" : {
+    "const-values" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/SubmissionLog.swiftconstvalues",
+    "dependencies" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/SubmissionLog.d",
+    "diagnostics" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/SubmissionLog.dia",
+    "object" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/SubmissionLog.o",
+    "swift-dependencies" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/SubmissionLog.swiftdeps"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Models/Task.swift" : {
+    "const-values" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/Task.swiftconstvalues",
+    "dependencies" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/Task.d",
+    "diagnostics" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/Task.dia",
+    "object" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/Task.o",
+    "swift-dependencies" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/Task.swiftdeps"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Models/ThesisInfo.swift" : {
+    "const-values" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/ThesisInfo.swiftconstvalues",
+    "dependencies" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/ThesisInfo.d",
+    "diagnostics" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/ThesisInfo.dia",
+    "object" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/ThesisInfo.o",
+    "swift-dependencies" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/ThesisInfo.swiftdeps"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Models/ThesisLog.swift" : {
+    "const-values" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/ThesisLog.swiftconstvalues",
+    "dependencies" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/ThesisLog.d",
+    "diagnostics" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/ThesisLog.dia",
+    "object" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/ThesisLog.o",
+    "swift-dependencies" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/ThesisLog.swiftdeps"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Utilities/Animations.swift" : {
+    "const-values" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/Animations.swiftconstvalues",
+    "dependencies" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/Animations.d",
+    "diagnostics" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/Animations.dia",
+    "object" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/Animations.o",
+    "swift-dependencies" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/Animations.swiftdeps"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Utilities/Extensions.swift" : {
+    "const-values" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/Extensions.swiftconstvalues",
+    "dependencies" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/Extensions.d",
+    "diagnostics" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/Extensions.dia",
+    "object" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/Extensions.o",
+    "swift-dependencies" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/Extensions.swiftdeps"
+  }
+}

@@ -1,0 +1,2 @@
+Target dependency graph (1 target)
+Target 'Scholar' in project 'Scholar' (no dependencies)

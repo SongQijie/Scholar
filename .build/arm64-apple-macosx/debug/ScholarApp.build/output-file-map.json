@@ -1,0 +1,376 @@
+{
+  "": {
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/primary.swiftdeps"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Models/Achievement.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Achievement.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Achievement.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Achievement~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Achievement.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Achievement.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Models/Chapter.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Chapter.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Chapter.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Chapter~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Chapter.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Chapter.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Models/CheckInRecord.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/CheckInRecord.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/CheckInRecord.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/CheckInRecord~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/CheckInRecord.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/CheckInRecord.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Models/Enums.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Enums.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Enums.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Enums~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Enums.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Enums.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Models/FileAttachment.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/FileAttachment.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/FileAttachment.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/FileAttachment~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/FileAttachment.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/FileAttachment.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Models/FocusSession.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/FocusSession.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/FocusSession.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/FocusSession~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/FocusSession.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/FocusSession.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Models/HealthHabit.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/HealthHabit.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/HealthHabit.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/HealthHabit~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/HealthHabit.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/HealthHabit.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Models/HealthRecord.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/HealthRecord.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/HealthRecord.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/HealthRecord~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/HealthRecord.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/HealthRecord.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Models/MentalCareRecord.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/MentalCareRecord.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/MentalCareRecord.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/MentalCareRecord~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/MentalCareRecord.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/MentalCareRecord.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Models/Milestone.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Milestone.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Milestone.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Milestone~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Milestone.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Milestone.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Models/Project.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Project.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Project.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Project~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Project.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Project.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Models/ScheduleBlock.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ScheduleBlock.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ScheduleBlock.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ScheduleBlock~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ScheduleBlock.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ScheduleBlock.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Models/Submission.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Submission.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Submission.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Submission~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Submission.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Submission.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Models/SubmissionLog.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/SubmissionLog.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/SubmissionLog.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/SubmissionLog~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/SubmissionLog.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/SubmissionLog.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Models/Task.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Task.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Task.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Task~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Task.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Task.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Models/ThesisInfo.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ThesisInfo.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ThesisInfo.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ThesisInfo~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ThesisInfo.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ThesisInfo.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Models/ThesisLog.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ThesisLog.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ThesisLog.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ThesisLog~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ThesisLog.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ThesisLog.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/ScholarApp.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ScholarApp.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ScholarApp.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ScholarApp~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ScholarApp.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ScholarApp.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Services/AppDataStore.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/AppDataStore.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/AppDataStore.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/AppDataStore~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/AppDataStore.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/AppDataStore.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Services/ReminderSyncService.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ReminderSyncService.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ReminderSyncService.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ReminderSyncService~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ReminderSyncService.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ReminderSyncService.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Utilities/Animations.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Animations.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Animations.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Animations~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Animations.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Animations.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Utilities/Extensions.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Extensions.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Extensions.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Extensions~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Extensions.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Extensions.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Utilities/Theme.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Theme.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Theme.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Theme~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Theme.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Theme.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/ViewModels/AchievementViewModel.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/AchievementViewModel.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/AchievementViewModel.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/AchievementViewModel~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/AchievementViewModel.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/AchievementViewModel.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/ViewModels/DataDashboardViewModel.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/DataDashboardViewModel.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/DataDashboardViewModel.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/DataDashboardViewModel~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/DataDashboardViewModel.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/DataDashboardViewModel.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/ViewModels/HealthViewModel.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/HealthViewModel.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/HealthViewModel.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/HealthViewModel~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/HealthViewModel.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/HealthViewModel.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/ViewModels/MentalCareViewModel.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/MentalCareViewModel.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/MentalCareViewModel.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/MentalCareViewModel~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/MentalCareViewModel.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/MentalCareViewModel.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/ViewModels/OverviewViewModel.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/OverviewViewModel.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/OverviewViewModel.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/OverviewViewModel~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/OverviewViewModel.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/OverviewViewModel.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/ViewModels/ProjectManagementViewModel.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ProjectManagementViewModel.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ProjectManagementViewModel.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ProjectManagementViewModel~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ProjectManagementViewModel.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ProjectManagementViewModel.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/ViewModels/SubmissionViewModel.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/SubmissionViewModel.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/SubmissionViewModel.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/SubmissionViewModel~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/SubmissionViewModel.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/SubmissionViewModel.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/ViewModels/ThesisManagementViewModel.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ThesisManagementViewModel.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ThesisManagementViewModel.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ThesisManagementViewModel~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ThesisManagementViewModel.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ThesisManagementViewModel.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/AchievementHall/AchievementView.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/AchievementView.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/AchievementView.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/AchievementView~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/AchievementView.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/AchievementView.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/Components/Buttons.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Buttons.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Buttons.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Buttons~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Buttons.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Buttons.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/Components/Cards.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Cards.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Cards.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Cards~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Cards.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Cards.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/Components/StatCardView.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/StatCardView.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/StatCardView.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/StatCardView~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/StatCardView.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/StatCardView.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/DataDashboard/DataDashboardView.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/DataDashboardView.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/DataDashboardView.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/DataDashboardView~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/DataDashboardView.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/DataDashboardView.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/DataManagement/DataManagementView.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/DataManagementView.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/DataManagementView.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/DataManagementView~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/DataManagementView.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/DataManagementView.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/HealthManagement/HealthView.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/HealthView.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/HealthView.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/HealthView~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/HealthView.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/HealthView.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/MainContentView.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/MainContentView.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/MainContentView.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/MainContentView~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/MainContentView.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/MainContentView.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/MentalCare/MentalCareView.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/MentalCareView.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/MentalCareView.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/MentalCareView~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/MentalCareView.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/MentalCareView.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/Overview/OverviewView.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/OverviewView.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/OverviewView.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/OverviewView~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/OverviewView.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/OverviewView.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/Overview/TodayExecutionView.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodayExecutionView.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodayExecutionView.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodayExecutionView~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodayExecutionView.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodayExecutionView.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/Overview/TodayScheduleView.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodayScheduleView.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodayScheduleView.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodayScheduleView~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodayScheduleView.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodayScheduleView.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/Overview/TodaySnapshotView.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodaySnapshotView.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodaySnapshotView.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodaySnapshotView~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodaySnapshotView.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodaySnapshotView.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/ProjectManagement/ProjectManagementView.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ProjectManagementView.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ProjectManagementView.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ProjectManagementView~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ProjectManagementView.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ProjectManagementView.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/ProjectManagement/ProjectsSectionView.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ProjectsSectionView.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ProjectsSectionView.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ProjectsSectionView~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ProjectsSectionView.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ProjectsSectionView.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/ProjectManagement/TasksSectionView.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TasksSectionView.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TasksSectionView.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TasksSectionView~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TasksSectionView.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TasksSectionView.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/SubmissionManagement/SubmissionView.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/SubmissionView.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/SubmissionView.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/SubmissionView~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/SubmissionView.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/SubmissionView.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/ThesisManagement/ThesesSectionView.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ThesesSectionView.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ThesesSectionView.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ThesesSectionView~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ThesesSectionView.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ThesesSectionView.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/ThesisManagement/ThesisManagementView.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ThesisManagementView.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ThesisManagementView.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ThesisManagementView~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ThesisManagementView.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ThesisManagementView.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/ThesisManagement/ThesisTasksSectionView.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ThesisTasksSectionView.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ThesisTasksSectionView.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ThesisTasksSectionView~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ThesisTasksSectionView.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ThesisTasksSectionView.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/WorkspaceSelectionView.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/WorkspaceSelectionView.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/WorkspaceSelectionView.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/WorkspaceSelectionView~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/WorkspaceSelectionView.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/WorkspaceSelectionView.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/DerivedSources/resource_bundle_accessor.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/resource_bundle_accessor.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/resource_bundle_accessor.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/resource_bundle_accessor~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/resource_bundle_accessor.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/resource_bundle_accessor.dia"
+  }
+}
