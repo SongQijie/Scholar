@@ -1,0 +1,5 @@
+.build/
+xcode-derived/
+*.xcodeproj
+*.xcworkspace
+.DS_Store
