@@ -108,6 +108,7 @@
 				<string>249E59C03FA4485EBAA7DCE0</string>
 				<string>C9085A27C366451995BD710F</string>
 				<string>97383051171C496A965FB741</string>
+				<string>A1B2C3D4E5F60718293A4B5C</string>
 				<string>8C31F42F62D844F3BC8CF955</string>
 				<string>C4A0DF1D3FC84C58A612C578</string>
 				<string>C0968287AF2944F7BFDCC19B</string>
@@ -125,11 +126,9 @@
 				<string>63263F3B14E34ACE988AB537</string>
 				<string>054CE39D6DF84D499CEFFA8A</string>
 				<string>14CEA2468D984440B2DBAADC</string>
-				<string>D29EB37EB4634213A69CE62F</string>
 				<string>59B9B952B4EF4F1EAFC9C238</string>
 				<string>A28B2A0145E84990920BF1C5</string>
 				<string>0D7879EBB3FC4B57B1E0CCE5</string>
-				<string>09337D0C7595403089562ED4</string>
 			</array>
 			<key>sourceTree</key>
 			<string>&lt;group&gt;</string>
@@ -505,6 +504,17 @@
 			<key>sourceTree</key>
 			<string>SOURCE_ROOT</string>
 		</dict>
+		<key>A1B2C3D4E5F60718293A4B5C</key>
+		<dict>
+			<key>isa</key>
+			<string>PBXFileReference</string>
+			<key>lastKnownFileType</key>
+			<string>sourcecode.swift</string>
+			<key>path</key>
+			<string>Scholar/Views/TodoManagement/TodoManagementView.swift</string>
+			<key>sourceTree</key>
+			<string>SOURCE_ROOT</string>
+		</dict>
 		<key>8C31F42F62D844F3BC8CF955</key>
 		<dict>
 			<key>isa</key>
@@ -692,17 +702,6 @@
 			<key>sourceTree</key>
 			<string>SOURCE_ROOT</string>
 		</dict>
-		<key>D29EB37EB4634213A69CE62F</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.swift</string>
-			<key>path</key>
-			<string>Scholar/Views/Overview/TodayScheduleView.swift</string>
-			<key>sourceTree</key>
-			<string>SOURCE_ROOT</string>
-		</dict>
 		<key>59B9B952B4EF4F1EAFC9C238</key>
 		<dict>
 			<key>isa</key>
@@ -733,17 +732,6 @@
 			<string>sourcecode.swift</string>
 			<key>path</key>
 			<string>Scholar/Services/AppDataStore.swift</string>
-			<key>sourceTree</key>
-			<string>SOURCE_ROOT</string>
-		</dict>
-		<key>09337D0C7595403089562ED4</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXFileReference</string>
-			<key>lastKnownFileType</key>
-			<string>sourcecode.swift</string>
-			<key>path</key>
-			<string>Scholar/Services/ReminderSyncService.swift</string>
 			<key>sourceTree</key>
 			<string>SOURCE_ROOT</string>
 		</dict>
@@ -1122,13 +1110,6 @@
 			<key>fileRef</key>
 			<string>14CEA2468D984440B2DBAADC</string>
 		</dict>
-		<key>D56510208577439CB09077BF</key>
-		<dict>
-			<key>isa</key>
-			<string>PBXBuildFile</string>
-			<key>fileRef</key>
-			<string>D29EB37EB4634213A69CE62F</string>
-		</dict>
 		<key>70E113D3F245427E8FEC1894</key>
 		<dict>
 			<key>isa</key>
@@ -1150,12 +1131,12 @@
 			<key>fileRef</key>
 			<string>0D7879EBB3FC4B57B1E0CCE5</string>
 		</dict>
-		<key>FE4AC3FD382E476A850589A0</key>
+		<key>B1C2D3E4F5061728394A5B6C</key>
 		<dict>
 			<key>isa</key>
 			<string>PBXBuildFile</string>
 			<key>fileRef</key>
-			<string>09337D0C7595403089562ED4</string>
+			<string>A1B2C3D4E5F60718293A4B5C</string>
 		</dict>
 		<key>E5C53EC0A54643898CEE14EA</key>
 		<dict>
@@ -1251,11 +1232,10 @@
 				<string>8B421D8D834C436DA9717053</string>
 				<string>EB0B6997C02C4B5B9D1BD492</string>
 				<string>B6BD6385FB8E4A1AA64AB6CA</string>
-				<string>D56510208577439CB09077BF</string>
 				<string>70E113D3F245427E8FEC1894</string>
 				<string>C57B385924924FA0A21EA67C</string>
 				<string>FD5F50AF4D9146BE962A694A</string>
-				<string>FE4AC3FD382E476A850589A0</string>
+				<string>B1C2D3E4F5061728394A5B6C</string>
 			</array>
 			<key>runOnlyForDeploymentPostprocessing</key>
 			<integer>0</integer>

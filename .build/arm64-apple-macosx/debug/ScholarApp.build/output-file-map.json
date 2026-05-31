@@ -135,13 +135,6 @@
     "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/AppDataStore.swiftdeps",
     "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/AppDataStore.dia"
   },
-  "/Users/songqijie/STISec/phd/Scholar/Scholar/Services/ReminderSyncService.swift": {
-    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ReminderSyncService.d",
-    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ReminderSyncService.swift.o",
-    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ReminderSyncService~partial.swiftmodule",
-    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ReminderSyncService.swiftdeps",
-    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ReminderSyncService.dia"
-  },
   "/Users/songqijie/STISec/phd/Scholar/Scholar/Utilities/Animations.swift": {
     "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Animations.d",
     "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Animations.swift.o",
@@ -296,13 +289,6 @@
     "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodayExecutionView.swiftdeps",
     "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodayExecutionView.dia"
   },
-  "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/Overview/TodayScheduleView.swift": {
-    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodayScheduleView.d",
-    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodayScheduleView.swift.o",
-    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodayScheduleView~partial.swiftmodule",
-    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodayScheduleView.swiftdeps",
-    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodayScheduleView.dia"
-  },
   "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/Overview/TodaySnapshotView.swift": {
     "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodaySnapshotView.d",
     "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodaySnapshotView.swift.o",
@@ -358,6 +344,13 @@
     "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ThesisTasksSectionView~partial.swiftmodule",
     "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ThesisTasksSectionView.swiftdeps",
     "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ThesisTasksSectionView.dia"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/TodoManagement/TodoManagementView.swift": {
+    "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodoManagementView.d",
+    "object": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodoManagementView.swift.o",
+    "swiftmodule": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodoManagementView~partial.swiftmodule",
+    "swift-dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodoManagementView.swiftdeps",
+    "diagnostics": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodoManagementView.dia"
   },
   "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/WorkspaceSelectionView.swift": {
     "dependencies": "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/WorkspaceSelectionView.d",

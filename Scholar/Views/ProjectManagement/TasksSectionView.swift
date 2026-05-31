@@ -3,6 +3,8 @@ import SwiftUI
 struct TasksSectionView: View {
     @EnvironmentObject private var store: AppDataStore
     @ObservedObject var viewModel: ProjectManagementViewModel
+    @State private var taskToDelete: Task?
+    @State private var showDeleteConfirmation = false
     private var language: AppLanguage { store.appLanguage }
 
     var body: some View {
@@ -18,17 +20,6 @@ struct TasksSectionView: View {
                 }
                 Spacer()
                 Button {
-                    viewModel.syncAllProjectTasksToReminders()
-                } label: {
-                    Label(
-                        viewModel.isReminderSyncing ? language.text("同步中", "Syncing") : language.text("同步提醒事项", "Sync Reminders"),
-                        systemImage: "checklist"
-                    )
-                }
-                .buttonStyle(.bordered)
-                .disabled(viewModel.isReminderSyncing)
-
-                Button {
                     viewModel.beginCreatingTask()
                 } label: {
                     Label(language.text("新建项目任务", "New Project Task"), systemImage: "plus")
@@ -38,19 +29,6 @@ struct TasksSectionView: View {
             }
 
             filterBar
-
-            if !viewModel.reminderSyncMessage.isEmpty {
-                HStack(spacing: AppTheme.spacingXs) {
-                    Image(systemName: "bell.badge")
-                    Text(viewModel.reminderSyncMessage)
-                }
-                .font(AppTheme.captionFont)
-                .foregroundStyle(AppTheme.textSecondary)
-                .padding(.horizontal, AppTheme.spacingSm)
-                .padding(.vertical, AppTheme.spacingXs)
-                .background(AppTheme.background)
-                .clipShape(Capsule())
-            }
 
             if viewModel.showTaskForm {
                 taskForm
@@ -67,7 +45,10 @@ struct TasksSectionView: View {
                             onToggleComplete: { viewModel.toggleTaskCompletion(task) },
                             onToggleToday: { viewModel.toggleTaskToday(task) },
                             onEdit: { viewModel.beginEditingTask(task) },
-                            onDelete: { viewModel.deleteTask(task) }
+                            onDelete: {
+                                taskToDelete = task
+                                showDeleteConfirmation = true
+                            }
                         )
                     }
                 }
@@ -77,6 +58,17 @@ struct TasksSectionView: View {
         .background(AppTheme.surface)
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusLg))
         .shadow(color: AppTheme.cardShadow, radius: 4, x: 0, y: 2)
+        .alert(language.text("删除任务", "Delete Task"), isPresented: $showDeleteConfirmation) {
+            Button(language.text("取消", "Cancel"), role: .cancel) {}
+            Button(language.text("删除", "Delete"), role: .destructive) {
+                if let task = taskToDelete {
+                    viewModel.deleteTask(task)
+                }
+                taskToDelete = nil
+            }
+        } message: {
+            Text(language.text("确定删除这个任务吗？", "Delete this task?"))
+        }
     }
 
     private var filterBar: some View {
@@ -90,16 +82,7 @@ struct TasksSectionView: View {
             .pickerStyle(.menu)
             .workspaceControl()
 
-            Picker(language.text("状态筛选", "Status Filter"), selection: $viewModel.taskStatusFilter) {
-                Text(language.text("全部状态", "All Statuses")).tag(nil as TaskStatus?)
-                ForEach(TaskStatus.allCases, id: \.self) { status in
-                    Text(status.displayName).tag(status as TaskStatus?)
-                }
-            }
-            .pickerStyle(.menu)
-            .workspaceControl()
-
-            Toggle(language.text("显示已完成", "Show Completed"), isOn: $viewModel.showCompletedTasks)
+            Toggle(language.text("隐藏已完成", "Hide Completed"), isOn: $viewModel.hideCompletedTasks)
                 .toggleStyle(.checkbox)
                 .font(AppTheme.captionFont)
 
@@ -108,10 +91,7 @@ struct TasksSectionView: View {
         .onChange(of: viewModel.selectedProjectFilter) {
             viewModel.loadTasks()
         }
-        .onChange(of: viewModel.taskStatusFilter) {
-            viewModel.loadTasks()
-        }
-        .onChange(of: viewModel.showCompletedTasks) {
+        .onChange(of: viewModel.hideCompletedTasks) {
             viewModel.loadTasks()
         }
     }
@@ -125,15 +105,9 @@ struct TasksSectionView: View {
                 Spacer()
             }
 
-            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: AppTheme.spacingSm) {
-                VStack(alignment: .leading, spacing: AppTheme.spacingXs) {
-                    Text(language.text("任务标题", "Task Title"))
-                        .font(AppTheme.captionFont)
-                        .foregroundStyle(AppTheme.textSecondary)
-                    TextField(language.text("任务标题", "Task Title"), text: $viewModel.taskFormTitle)
-                        .textFieldStyle(WorkspaceTextFieldStyle())
-                }
+            formField(language.text("任务标题", "Task Title"), text: $viewModel.taskFormTitle)
 
+            HStack(spacing: AppTheme.spacingSm) {
                 VStack(alignment: .leading, spacing: AppTheme.spacingXs) {
                     Text(language.text("所属项目", "Project"))
                         .font(AppTheme.captionFont)
@@ -147,27 +121,51 @@ struct TasksSectionView: View {
                     .pickerStyle(.menu)
                     .workspaceControl()
                 }
+
+                VStack(alignment: .leading, spacing: AppTheme.spacingXs) {
+                    Text(language.text("优先级", "Priority"))
+                        .font(AppTheme.captionFont)
+                        .foregroundStyle(AppTheme.textSecondary)
+                    Picker(language.text("优先级", "Priority"), selection: $viewModel.taskFormPriority) {
+                        ForEach(TaskPriority.allCases, id: \.self) { priority in
+                            Text(priority.displayName).tag(priority)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .workspaceControl()
+                }
+
+                VStack(alignment: .leading, spacing: AppTheme.spacingXs) {
+                    Text(language.text("循环", "Recurrence"))
+                        .font(AppTheme.captionFont)
+                        .foregroundStyle(AppTheme.textSecondary)
+                    Picker(language.text("循环", "Recurrence"), selection: $viewModel.taskFormRecurrence) {
+                        ForEach(TaskRecurrence.allCases, id: \.self) { recurrence in
+                            Text(recurrence.displayName).tag(recurrence)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .workspaceControl()
+                }
+
+                optionalDatePicker(
+                    title: language.text("截止时间", "Due Time"),
+                    hasDate: $viewModel.taskFormHasDueDate,
+                    date: $viewModel.taskFormDueDate
+                )
+
+                VStack(alignment: .leading, spacing: AppTheme.spacingXs) {
+                    Text(language.text("持续推进", "Keep Active"))
+                        .font(AppTheme.captionFont)
+                        .foregroundStyle(AppTheme.textSecondary)
+                    Toggle(language.text("持续推进", "Keep Active"), isOn: $viewModel.taskFormIsToday)
+                        .labelsHidden()
+                        .toggleStyle(.checkbox)
+                        .frame(height: 38)
+                }
             }
 
-            HStack(spacing: AppTheme.spacingSm) {
-                Picker(language.text("优先级", "Priority"), selection: $viewModel.taskFormPriority) {
-                    ForEach(TaskPriority.allCases, id: \.self) { priority in
-                        Text(priority.displayName).tag(priority)
-                    }
-                }
-                .pickerStyle(.menu)
-                .workspaceControl()
-                Picker(language.text("循环", "Recurrence"), selection: $viewModel.taskFormRecurrence) {
-                    ForEach(TaskRecurrence.allCases, id: \.self) { recurrence in
-                        Text(recurrence.displayName).tag(recurrence)
-                    }
-                }
-                .pickerStyle(.menu)
-                .workspaceControl()
-            }
-
-            DatePicker(language.text("截止时间", "Due Time"), selection: $viewModel.taskFormDueDate, displayedComponents: [.date, .hourAndMinute])
-                .workspaceControl()
+            multilineField(language.text("任务详情", "Details"), text: $viewModel.taskFormDetails)
 
             HStack {
                 Button(viewModel.editingTaskId == nil ? language.text("保存任务", "Save Task") : language.text("更新任务", "Update Task")) {
@@ -185,6 +183,46 @@ struct TasksSectionView: View {
         .padding(AppTheme.spacingMd)
         .background(AppTheme.background)
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusMd))
+    }
+
+    private func formField(_ title: String, text: Binding<String>) -> some View {
+        VStack(alignment: .leading, spacing: AppTheme.spacingXs) {
+            Text(title)
+                .font(AppTheme.captionFont)
+                .foregroundStyle(AppTheme.textSecondary)
+            TextField(title, text: text)
+                .textFieldStyle(WorkspaceTextFieldStyle())
+        }
+    }
+
+    private func multilineField(_ title: String, text: Binding<String>) -> some View {
+        VStack(alignment: .leading, spacing: AppTheme.spacingXs) {
+            Text(title)
+                .font(AppTheme.captionFont)
+                .foregroundStyle(AppTheme.textSecondary)
+            TextField(title, text: text, axis: .vertical)
+                .textFieldStyle(WorkspaceTextFieldStyle())
+                .lineLimit(2...4)
+        }
+    }
+
+    private func optionalDatePicker(title: String, hasDate: Binding<Bool>, date: Binding<Date>) -> some View {
+        VStack(alignment: .leading, spacing: AppTheme.spacingXs) {
+            Toggle(title, isOn: hasDate)
+                .toggleStyle(.checkbox)
+                .font(AppTheme.captionFont)
+                .foregroundStyle(AppTheme.textSecondary)
+
+            HStack(spacing: AppTheme.spacingXs) {
+                DatePicker(language.text("日期", "Date"), selection: date, displayedComponents: .date)
+                    .labelsHidden()
+                DatePicker(language.text("时间", "Time"), selection: date, displayedComponents: .hourAndMinute)
+                    .labelsHidden()
+            }
+            .workspaceControl()
+            .disabled(!hasDate.wrappedValue)
+            .opacity(hasDate.wrappedValue ? 1 : 0.45)
+        }
     }
 
     private func emptyState(_ text: String) -> some View {
@@ -210,13 +248,30 @@ struct ProjectTaskRowView: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: AppTheme.spacingMd) {
+            Button {
+                onToggleComplete()
+            } label: {
+                Image(systemName: task.status == .completed ? "checkmark.circle.fill" : "circle")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(task.status == .completed ? AppTheme.success : AppTheme.textSecondary)
+                    .frame(width: 22, height: 22)
+            }
+            .buttonStyle(.plain)
+
             VStack(alignment: .leading, spacing: AppTheme.spacingXs) {
                 HStack(spacing: AppTheme.spacingSm) {
                     Text(task.title)
                         .font(AppTheme.bodyFont)
-                        .foregroundStyle(AppTheme.textPrimary)
-                    badge(task.priority.shortName, color: Color(hex: task.priority.color))
-                    badge(task.recurrence.displayName, color: AppTheme.secondary)
+                        .foregroundStyle(task.status == .completed ? AppTheme.textTertiary : AppTheme.textPrimary)
+                        .strikethrough(task.status == .completed, color: AppTheme.textTertiary)
+                        .lineLimit(1)
+                    badge(task.priority.displayName, color: Color(hex: task.priority.color))
+                    if task.recurrence != .none {
+                        badge(task.recurrence.displayName, color: AppTheme.secondary)
+                    }
+                    if task.isToday {
+                        badge(language.text("持续推进", "Keep Active"), color: AppTheme.warning)
+                    }
                 }
 
                 Text(projectName)
@@ -224,9 +279,14 @@ struct ProjectTaskRowView: View {
                     .foregroundStyle(AppTheme.textSecondary)
 
                 HStack(spacing: AppTheme.spacingMd) {
-                    meta(language.text("状态", "Status"), task.status.displayName, color: task.status == .completed ? AppTheme.success : AppTheme.textSecondary)
                     meta(language.text("截止", "Due"), task.dueDate?.formatted("MM/dd HH:mm") ?? language.text("未设", "Unset"), color: task.isOverdue ? AppTheme.danger : AppTheme.textSecondary)
-                    meta(language.text("今日推进", "Today"), task.isToday ? language.text("是", "Yes") : language.text("否", "No"), color: task.isToday ? AppTheme.warning : AppTheme.textTertiary)
+                }
+
+                if !task.details.isEmpty {
+                    Text(task.details)
+                        .font(AppTheme.captionFont)
+                        .foregroundStyle(AppTheme.textSecondary)
+                        .lineLimit(2)
                 }
             }
 
@@ -236,15 +296,7 @@ struct ProjectTaskRowView: View {
                 Button {
                     onToggleToday()
                 } label: {
-                    Image(systemName: task.isToday ? "sun.max.fill" : "sun.max")
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.small)
-
-                Button {
-                    onToggleComplete()
-                } label: {
-                    Image(systemName: task.status == .completed ? "arrow.uturn.backward" : "checkmark")
+                    Image(systemName: task.isToday ? "flag.fill" : "flag")
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.small)

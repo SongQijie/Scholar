@@ -6,26 +6,30 @@ struct TodaySnapshotView: View {
     private var language: AppLanguage { store.appLanguage }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.spacingSm) {
+        VStack(alignment: .leading, spacing: AppTheme.spacingMd) {
             HStack {
                 Text(language.text("今日工作面", "Today's Snapshot"))
                     .font(AppTheme.subtitleFont)
                     .foregroundStyle(AppTheme.textPrimary)
                 Spacer()
+                Badge(text: language.text("今日", "Today"), style: .success)
             }
 
             let columns = Array(repeating: GridItem(.flexible(), spacing: AppTheme.spacingSm), count: 4)
             LazyVGrid(columns: columns, spacing: AppTheme.spacingSm) {
-                SnapshotItemView(title: language.text("今日待推进", "Open Today"), value: "\(snapshot.todayOpenTasks)", systemImage: "list.bullet.clipboard")
-                SnapshotItemView(title: language.text("今天截止", "Due Today"), value: "\(snapshot.dueTodayTasks)", systemImage: "calendar.badge.exclamationmark")
-                SnapshotItemView(title: language.text("进行中任务", "In Progress"), value: "\(snapshot.inProgressTasks)", systemImage: "checklist")
-                SnapshotItemView(title: language.text("成果推进", "Submission Flow"), value: "\(snapshot.activeSubmissions)", systemImage: "paperplane")
+                SnapshotItemView(title: language.text("持续推进", "Keep Active"), value: "\(snapshot.todayOpenTasks)", systemImage: "list.bullet.clipboard.fill", color: AppTheme.primary)
+                SnapshotItemView(title: language.text("今天截止", "Due Today"), value: "\(snapshot.dueTodayTasks)", systemImage: "calendar.badge.exclamationmark", color: AppTheme.warning)
+                SnapshotItemView(title: language.text("已经逾期", "Overdue"), value: "\(snapshot.inProgressTasks)", systemImage: "exclamationmark.triangle.fill", color: AppTheme.danger)
+                SnapshotItemView(title: language.text("成果推进", "Submission Flow"), value: "\(snapshot.activeSubmissions)", systemImage: "paperplane.fill", color: AppTheme.success)
             }
         }
         .padding(AppTheme.spacingMd)
         .background(AppTheme.surface)
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusLg))
-        .shadow(color: AppTheme.cardShadow, radius: 4, x: 0, y: 2)
+        .overlay(
+            RoundedRectangle(cornerRadius: AppTheme.radiusLg)
+                .stroke(AppTheme.border.opacity(0.55), lineWidth: 0.75)
+        )
     }
 }
 
@@ -33,25 +37,34 @@ struct SnapshotItemView: View {
     let title: String
     let value: String
     let systemImage: String
+    let color: Color
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.spacingXs) {
+        HStack(spacing: AppTheme.spacingSm) {
             Image(systemName: systemImage)
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundStyle(AppTheme.primary)
-            Text(value)
-                .font(.system(size: 14, weight: .bold))
-                .foregroundStyle(AppTheme.textPrimary)
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
-            Text(title)
-                .font(.system(size: 10))
-                .foregroundStyle(AppTheme.textSecondary)
-                .lineLimit(1)
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(color)
+                .frame(width: 20)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(value)
+                    .font(.system(size: 20, weight: .bold, design: .rounded))
+                    .foregroundStyle(color)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+                Text(title)
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(AppTheme.textSecondary)
+                    .lineLimit(1)
+            }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity, minHeight: 70, alignment: .leading)
         .padding(AppTheme.spacingSm)
-        .background(AppTheme.background)
+        .background(color.opacity(0.08))
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusMd))
+        .overlay(
+            RoundedRectangle(cornerRadius: AppTheme.radiusMd)
+                .stroke(color.opacity(0.14), lineWidth: 0.75)
+        )
     }
 }

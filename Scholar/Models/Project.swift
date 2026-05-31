@@ -18,7 +18,7 @@ struct Project: Codable, Identifiable, Hashable {
     var startDate: Date?
     var deadline: Date?
     var notes: String
-    var reminderCalendarIdentifier: String?
+    var isArchived: Bool
     var createdAt: Date
     var updatedAt: Date
 
@@ -27,7 +27,7 @@ struct Project: Codable, Identifiable, Hashable {
         name: String = "",
         result: String = "",
         sharedDocumentLink: String = "",
-        category: ProjectCategory = .other,
+        category: ProjectCategory = .horizontal,
         stage: ProjectStage = .planning,
         priority: ProjectPriority = .medium,
         owner: String = "",
@@ -40,7 +40,7 @@ struct Project: Codable, Identifiable, Hashable {
         startDate: Date? = nil,
         deadline: Date? = nil,
         notes: String = "",
-        reminderCalendarIdentifier: String? = nil,
+        isArchived: Bool = false,
         createdAt: Date = Date(),
         updatedAt: Date = Date()
     ) {
@@ -61,13 +61,13 @@ struct Project: Codable, Identifiable, Hashable {
         self.startDate = startDate
         self.deadline = deadline
         self.notes = notes
-        self.reminderCalendarIdentifier = reminderCalendarIdentifier
+        self.isArchived = isArchived
         self.createdAt = createdAt
         self.updatedAt = updatedAt
     }
 
     var isActive: Bool {
-        stage != .completed && stage != .paused
+        !isArchived && stage != .completed && stage != .paused
     }
 
     var keywordText: String {
@@ -75,7 +75,7 @@ struct Project: Codable, Identifiable, Hashable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case id, name, result, sharedDocumentLink, category, stage, priority, owner, collaborators, summary, keywords, fundingSource, expectedDeliverables, budget, startDate, deadline, notes, reminderCalendarIdentifier, createdAt, updatedAt
+        case id, name, result, sharedDocumentLink, category, stage, priority, owner, collaborators, summary, keywords, fundingSource, expectedDeliverables, budget, startDate, deadline, notes, isArchived, createdAt, updatedAt
     }
 
     init(from decoder: Decoder) throws {
@@ -84,7 +84,7 @@ struct Project: Codable, Identifiable, Hashable {
         name = try container.decodeIfPresent(String.self, forKey: .name) ?? ""
         result = try container.decodeIfPresent(String.self, forKey: .result) ?? ""
         sharedDocumentLink = try container.decodeIfPresent(String.self, forKey: .sharedDocumentLink) ?? ""
-        category = try container.decodeIfPresent(ProjectCategory.self, forKey: .category) ?? .other
+        category = try container.decodeIfPresent(ProjectCategory.self, forKey: .category) ?? .horizontal
         stage = try container.decodeIfPresent(ProjectStage.self, forKey: .stage) ?? .planning
         priority = try container.decodeIfPresent(ProjectPriority.self, forKey: .priority) ?? .medium
         owner = try container.decodeIfPresent(String.self, forKey: .owner) ?? ""
@@ -97,7 +97,67 @@ struct Project: Codable, Identifiable, Hashable {
         startDate = try container.decodeIfPresent(Date.self, forKey: .startDate)
         deadline = try container.decodeIfPresent(Date.self, forKey: .deadline)
         notes = try container.decodeIfPresent(String.self, forKey: .notes) ?? ""
-        reminderCalendarIdentifier = try container.decodeIfPresent(String.self, forKey: .reminderCalendarIdentifier)
+        isArchived = try container.decodeIfPresent(Bool.self, forKey: .isArchived) ?? false
+        createdAt = try container.decodeIfPresent(Date.self, forKey: .createdAt) ?? Date()
+        updatedAt = try container.decodeIfPresent(Date.self, forKey: .updatedAt) ?? Date()
+    }
+}
+
+struct Affair: Codable, Identifiable, Hashable {
+    var id: UUID
+    var title: String
+    var details: String
+    var dueDate: Date?
+    var source: String
+    var tags: [String]
+    var isArchived: Bool
+    var createdAt: Date
+    var updatedAt: Date
+
+    init(
+        id: UUID = UUID(),
+        title: String = "",
+        details: String = "",
+        dueDate: Date? = nil,
+        source: String = "",
+        tags: [String] = [],
+        isArchived: Bool = false,
+        createdAt: Date = Date(),
+        updatedAt: Date = Date()
+    ) {
+        self.id = id
+        self.title = title
+        self.details = details
+        self.dueDate = dueDate
+        self.source = source
+        self.tags = tags
+        self.isArchived = isArchived
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
+    }
+
+    var tagText: String {
+        tags.joined(separator: " / ")
+    }
+
+    var sectionTitle: String {
+        let ddl = dueDate?.formatted("yyyy-MM-dd") ?? "未设DDL"
+        return "\(title)-\(ddl)"
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case id, title, details, dueDate, source, tags, isArchived, createdAt, updatedAt
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decodeIfPresent(UUID.self, forKey: .id) ?? UUID()
+        title = try container.decodeIfPresent(String.self, forKey: .title) ?? ""
+        details = try container.decodeIfPresent(String.self, forKey: .details) ?? ""
+        dueDate = try container.decodeIfPresent(Date.self, forKey: .dueDate)
+        source = try container.decodeIfPresent(String.self, forKey: .source) ?? ""
+        tags = try container.decodeIfPresent([String].self, forKey: .tags) ?? []
+        isArchived = try container.decodeIfPresent(Bool.self, forKey: .isArchived) ?? false
         createdAt = try container.decodeIfPresent(Date.self, forKey: .createdAt) ?? Date()
         updatedAt = try container.decodeIfPresent(Date.self, forKey: .updatedAt) ?? Date()
     }

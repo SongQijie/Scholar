@@ -6,13 +6,6 @@
     "object" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/AppDataStore.o",
     "swift-dependencies" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/AppDataStore.swiftdeps"
   },
-  "/Users/songqijie/STISec/phd/Scholar/Scholar/Services/ReminderSyncService.swift" : {
-    "const-values" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/ReminderSyncService.swiftconstvalues",
-    "dependencies" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/ReminderSyncService.d",
-    "diagnostics" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/ReminderSyncService.dia",
-    "object" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/ReminderSyncService.o",
-    "swift-dependencies" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/ReminderSyncService.swiftdeps"
-  },
   "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/DataDashboard/DataDashboardView.swift" : {
     "const-values" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/DataDashboardView.swiftconstvalues",
     "dependencies" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/DataDashboardView.d",
@@ -20,12 +13,12 @@
     "object" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/DataDashboardView.o",
     "swift-dependencies" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/DataDashboardView.swiftdeps"
   },
-  "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/Overview/TodayScheduleView.swift" : {
-    "const-values" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/TodayScheduleView.swiftconstvalues",
-    "dependencies" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/TodayScheduleView.d",
-    "diagnostics" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/TodayScheduleView.dia",
-    "object" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/TodayScheduleView.o",
-    "swift-dependencies" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/TodayScheduleView.swiftdeps"
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/Overview/TodayExecutionView.swift" : {
+    "const-values" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/TodayExecutionView.swiftconstvalues",
+    "dependencies" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/TodayExecutionView.d",
+    "diagnostics" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/TodayExecutionView.dia",
+    "object" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/TodayExecutionView.o",
+    "swift-dependencies" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/TodayExecutionView.swiftdeps"
   },
   "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/Overview/TodaySnapshotView.swift" : {
     "const-values" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/TodaySnapshotView.swiftconstvalues",
@@ -33,6 +26,13 @@
     "diagnostics" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/TodaySnapshotView.dia",
     "object" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/TodaySnapshotView.o",
     "swift-dependencies" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/TodaySnapshotView.swiftdeps"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/TodoManagement/TodoManagementView.swift" : {
+    "const-values" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/TodoManagementView.swiftconstvalues",
+    "dependencies" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/TodoManagementView.d",
+    "diagnostics" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/TodoManagementView.dia",
+    "object" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/TodoManagementView.o",
+    "swift-dependencies" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/TodoManagementView.swiftdeps"
   },
   "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/DerivedSources/GeneratedAssetSymbols.swift" : {
     "const-values" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftconstvalues",

@@ -3,6 +3,10 @@ import SwiftUI
 struct HealthView: View {
     @EnvironmentObject private var store: AppDataStore
     @StateObject private var viewModel = HealthViewModel()
+    @State private var habitToDelete: HealthHabit?
+    @State private var weightRecordToDelete: HealthRecord?
+    @State private var showDeleteHabitConfirmation = false
+    @State private var showDeleteWeightRecordConfirmation = false
     private var language: AppLanguage { store.appLanguage }
 
     var body: some View {
@@ -28,6 +32,28 @@ struct HealthView: View {
         }
         .onChange(of: viewModel.weightRange) {
             viewModel.computeStats()
+        }
+        .alert(language.text("删除习惯", "Delete Habit"), isPresented: $showDeleteHabitConfirmation) {
+            Button(language.text("取消", "Cancel"), role: .cancel) {}
+            Button(language.text("删除", "Delete"), role: .destructive) {
+                if let habit = habitToDelete {
+                    viewModel.deleteHabit(habit)
+                }
+                habitToDelete = nil
+            }
+        } message: {
+            Text(language.text("确定删除这个习惯及其打卡记录吗？此操作不可撤销。", "Delete this habit and its check-in records? This cannot be undone."))
+        }
+        .alert(language.text("删除体重记录", "Delete Weight Record"), isPresented: $showDeleteWeightRecordConfirmation) {
+            Button(language.text("取消", "Cancel"), role: .cancel) {}
+            Button(language.text("删除", "Delete"), role: .destructive) {
+                if let record = weightRecordToDelete {
+                    viewModel.deleteWeightRecord(record)
+                }
+                weightRecordToDelete = nil
+            }
+        } message: {
+            Text(language.text("确定删除这条体重记录吗？此操作不可撤销。", "Delete this weight record? This cannot be undone."))
         }
     }
 
@@ -393,7 +419,8 @@ struct HealthView: View {
                 .controlSize(.mini)
 
                 Button(language.text("删", "Del")) {
-                    viewModel.deleteHabit(habit)
+                    habitToDelete = habit
+                    showDeleteHabitConfirmation = true
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.mini)
@@ -416,7 +443,8 @@ struct HealthView: View {
                 .foregroundStyle(AppTheme.textPrimary)
             Spacer()
             Button(language.text("删除", "Delete")) {
-                viewModel.deleteWeightRecord(record)
+                weightRecordToDelete = record
+                showDeleteWeightRecordConfirmation = true
             }
             .buttonStyle(.bordered)
             .controlSize(.mini)

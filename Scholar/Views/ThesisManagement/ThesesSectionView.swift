@@ -1,8 +1,11 @@
+import AppKit
 import SwiftUI
 
 struct ThesesSectionView: View {
     @EnvironmentObject private var store: AppDataStore
     @ObservedObject var viewModel: ThesisManagementViewModel
+    @State private var thesisToDelete: ThesisInfo?
+    @State private var showDeleteThesisConfirmation = false
     private var language: AppLanguage { store.appLanguage }
 
     var body: some View {
@@ -37,20 +40,19 @@ struct ThesesSectionView: View {
                     ForEach(viewModel.theses) { thesis in
                         ThesisRowView(
                             thesis: thesis,
-                            taskCount: AppDataStore.shared.tasks.filter { $0.thesisId == thesis.id && $0.projectId == nil }.count,
-                            reminderListName: viewModel.reminderLists.first { $0.id == thesis.reminderCalendarIdentifier }?.title,
                             onSelect: {
                                 viewModel.selectedThesisFilter = thesis.id
                                 viewModel.loadTasks()
                             },
-                            onSync: {
-                                viewModel.syncThesisToReminders(thesis)
+                            onArchive: {
+                                viewModel.archiveThesis(thesis)
                             },
                             onEdit: {
                                 viewModel.beginEditingThesis(thesis)
                             },
                             onDelete: {
-                                viewModel.deleteThesis(thesis)
+                                thesisToDelete = thesis
+                                showDeleteThesisConfirmation = true
                             }
                         )
                     }
@@ -61,6 +63,17 @@ struct ThesesSectionView: View {
         .background(AppTheme.surface)
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusLg))
         .shadow(color: AppTheme.cardShadow, radius: 4, x: 0, y: 2)
+        .alert(language.text("删除课题", "Delete Thesis"), isPresented: $showDeleteThesisConfirmation) {
+            Button(language.text("取消", "Cancel"), role: .cancel) {}
+            Button(language.text("删除", "Delete"), role: .destructive) {
+                if let thesis = thesisToDelete {
+                    viewModel.deleteThesis(thesis)
+                }
+                thesisToDelete = nil
+            }
+        } message: {
+            Text(language.text("确定删除这个课题及其关联任务吗？此操作不可撤销。", "Delete this thesis and its linked tasks? This cannot be undone."))
+        }
     }
 
     private var thesisForm: some View {
@@ -75,22 +88,35 @@ struct ThesesSectionView: View {
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: AppTheme.spacingSm) {
                 formField(language.text("课题标题", "Thesis Title"), text: $viewModel.thesisFormTitle)
                 formField(language.text("关联学生（逗号分隔）", "Students (comma separated)"), text: $viewModel.thesisFormStudents)
-                formField(language.text("共享文档链接", "Shared Doc Link"), text: $viewModel.thesisFormSharedDocumentLink)
             }
 
-            reminderListPicker
+            HStack(alignment: .bottom, spacing: AppTheme.spacingSm) {
+                formField(language.text("共享文档链接", "Shared Doc Link"), text: $viewModel.thesisFormSharedDocumentLink)
+                    .frame(width: 260)
 
-            VStack(alignment: .leading, spacing: AppTheme.spacingXs) {
-                Text(language.text("课题状态", "Thesis Stage"))
-                    .font(AppTheme.captionFont)
-                    .foregroundStyle(AppTheme.textSecondary)
-                Picker(language.text("课题状态", "Thesis Stage"), selection: $viewModel.thesisFormStage) {
-                    ForEach(ThesisStage.allCases, id: \.self) { stage in
-                        Text(stage.displayName).tag(stage)
+                VStack(alignment: .leading, spacing: AppTheme.spacingXs) {
+                    Text(language.text("课题状态", "Thesis Stage"))
+                        .font(AppTheme.captionFont)
+                        .foregroundStyle(AppTheme.textSecondary)
+                    Picker("", selection: $viewModel.thesisFormStage) {
+                        ForEach(ThesisStage.allCases, id: \.self) { stage in
+                            Text(stage.displayName).tag(stage)
+                        }
                     }
+                    .labelsHidden()
+                    .pickerStyle(.menu)
+                    .workspaceControl()
                 }
-                .pickerStyle(.segmented)
-                .workspaceSegmented()
+                .frame(width: 150)
+
+                thesisDatePicker(
+                    title: language.text("DDL", "DDL"),
+                    hasDate: $viewModel.thesisFormHasDueDate,
+                    date: $viewModel.thesisFormDueDate
+                )
+                .frame(width: 260)
+
+                Spacer(minLength: 0)
             }
 
             multilineField(language.text("备注", "Notes"), text: $viewModel.thesisFormNotes)
@@ -134,19 +160,30 @@ struct ThesesSectionView: View {
         }
     }
 
-    private var reminderListPicker: some View {
+    private func thesisDatePicker(title: String, hasDate: Binding<Bool>, date: Binding<Date>) -> some View {
         VStack(alignment: .leading, spacing: AppTheme.spacingXs) {
-            Text(language.text("关联提醒事项列表", "Linked Reminders List"))
+            Text(title)
                 .font(AppTheme.captionFont)
                 .foregroundStyle(AppTheme.textSecondary)
-            Picker(language.text("关联提醒事项列表", "Linked Reminders List"), selection: $viewModel.thesisFormReminderCalendarIdentifier) {
-                Text(language.text("不关联", "Not Linked")).tag(nil as String?)
-                ForEach(viewModel.reminderLists) { list in
-                    Text(list.title).tag(list.id as String?)
-                }
+
+            HStack(spacing: AppTheme.spacingSm) {
+                Toggle(title, isOn: hasDate)
+                    .labelsHidden()
+                    .toggleStyle(.checkbox)
+
+                DatePicker(title, selection: date, displayedComponents: [.date, .hourAndMinute])
+                    .labelsHidden()
+                    .disabled(!hasDate.wrappedValue)
+                    .opacity(hasDate.wrappedValue ? 1 : 0.45)
             }
-            .pickerStyle(.menu)
-            .workspaceControl()
+            .frame(height: 38)
+            .padding(.horizontal, AppTheme.spacingSm)
+            .background(AppTheme.surface)
+            .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusMd))
+            .overlay(
+                RoundedRectangle(cornerRadius: AppTheme.radiusMd)
+                    .stroke(AppTheme.border, lineWidth: 0.75)
+            )
         }
     }
 
@@ -164,80 +201,86 @@ struct ThesesSectionView: View {
 struct ThesisRowView: View {
     @EnvironmentObject private var store: AppDataStore
     let thesis: ThesisInfo
-    let taskCount: Int
-    let reminderListName: String?
     var onSelect: () -> Void
-    var onSync: () -> Void
+    var onArchive: () -> Void
     var onEdit: () -> Void
     var onDelete: () -> Void
     private var language: AppLanguage { store.appLanguage }
+    private var taskCount: Int {
+        store.tasks.filter { $0.thesisId == thesis.id && $0.projectId == nil && $0.affairId == nil }.count
+    }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.spacingSm) {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: AppTheme.spacingXs) {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: AppTheme.spacingSm) {
-                            Text(thesis.title)
-                                .font(AppTheme.bodyFont)
-                                .foregroundStyle(AppTheme.textPrimary)
-                            infoChip(thesis.stage.displayName, color: AppTheme.warning)
-                            infoChip(language.text("进度 \(Int(thesis.overallProgress * 100))%", "Progress \(Int(thesis.overallProgress * 100))%"), color: AppTheme.primary)
-                            ForEach(thesis.students) { student in
-                                infoChip(student.name, color: AppTheme.secondary)
-                            }
-                        }
+        HStack(spacing: 0) {
+            Rectangle()
+                .fill(AppTheme.primary)
+                .frame(width: 4)
+
+            VStack(alignment: .leading, spacing: AppTheme.spacingSm) {
+                HStack(spacing: AppTheme.spacingMd) {
+                    Text(thesis.title)
+                        .font(AppTheme.bodyFont)
+                        .foregroundStyle(AppTheme.textPrimary)
+
+                    infoChip(thesis.stage.displayName, color: AppTheme.warning)
+
+                    if let dueDate = thesis.dueDate {
+                        infoChip(language.text("DDL \(dueDate.formatted("MM/dd HH:mm"))", "DDL \(dueDate.formatted("MM/dd HH:mm"))"), color: AppTheme.danger)
                     }
-                    Text(thesis.notes.isEmpty ? language.text("可关联学生、文档和课题任务。", "You can link students, documents, and thesis tasks.") : thesis.notes)
-                        .font(AppTheme.captionFont)
-                        .foregroundStyle(AppTheme.textSecondary)
-                        .lineLimit(2)
+                    
+                    if !thesis.sharedDocumentLink.isEmpty {
+                        sharedDocumentChip(thesis.sharedDocumentLink)
+                    }
+
+                    ForEach(thesis.students) { student in
+                        infoChip(student.name, color: AppTheme.secondary)
+                    }
+                    
+                    Spacer()
+                    
+                    infoChip(language.text("进度 \(Int(thesis.overallProgress * 100))%", "Progress \(Int(thesis.overallProgress * 100))%"), color: AppTheme.primary)
+                    infoChip(language.text("\(taskCount) 个任务", "\(taskCount) tasks"), color: AppTheme.accent)
                 }
-                Spacer()
+
+                if !thesis.notes.isEmpty {
+                    HStack(spacing: AppTheme.spacingSm) {
+                        Text(language.text("摘要", "Abstract") + ": ")
+                            .font(AppTheme.captionFont)
+                            .foregroundStyle(AppTheme.textTertiary)
+                        Text(thesis.notes)
+                            .font(AppTheme.captionFont)
+                            .foregroundStyle(AppTheme.textSecondary)
+                            .lineLimit(2)
+                    }
+                }
+
                 HStack(spacing: AppTheme.spacingXs) {
+                    Spacer()
                     Button(language.text("任务", "Tasks")) { onSelect() }
                         .buttonStyle(.bordered)
-                    if thesis.reminderCalendarIdentifier != nil {
-                        Button {
-                            onSync()
-                        } label: {
-                            Image(systemName: "arrow.triangle.2.circlepath")
-                        }
-                        .buttonStyle(.bordered)
+                    Button { onArchive() } label: {
+                        Label(language.text("归档", "Archive"), systemImage: "archivebox")
                     }
-                    Button {
-                        onEdit()
-                    } label: {
+                    .buttonStyle(.bordered)
+                    Button { onEdit() } label: {
                         Image(systemName: "square.and.pencil")
                     }
                     .buttonStyle(.bordered)
-                    Button(role: .destructive) {
-                        onDelete()
-                    } label: {
+                    Button(role: .destructive) { onDelete() } label: {
                         Image(systemName: "trash")
                     }
                     .buttonStyle(.bordered)
                 }
                 .controlSize(.small)
             }
-
-            HStack(spacing: AppTheme.spacingSm) {
-                infoChip(language.text("\(taskCount) 个课题任务", "\(taskCount) thesis tasks"), color: AppTheme.accent)
-                if let reminderListName {
-                    infoChip(language.text("提醒事项：\(reminderListName)", "Reminders: \(reminderListName)"), color: AppTheme.success)
-                }
-            }
-
-            if thesis.sharedDocumentLink.isNotEmpty {
-                Text(language.text("共享文档：\(thesis.sharedDocumentLink)", "Shared doc: \(thesis.sharedDocumentLink)"))
-                    .font(AppTheme.captionFont)
-                    .foregroundStyle(AppTheme.primary)
-                    .lineLimit(1)
-            }
+            .padding(AppTheme.spacingMd)
         }
-        .padding(AppTheme.spacingMd)
         .background(AppTheme.background)
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusMd))
+        .overlay(
+            RoundedRectangle(cornerRadius: AppTheme.radiusMd)
+                .stroke(AppTheme.divider, lineWidth: 0.5)
+        )
     }
 
     private func infoChip(_ text: String, color: Color) -> some View {
@@ -248,5 +291,28 @@ struct ThesisRowView: View {
             .background(color.opacity(0.12))
             .foregroundStyle(color)
             .clipShape(Capsule())
+    }
+
+    private func sharedDocumentChip(_ link: String) -> some View {
+        Button {
+            openSharedDocument(link)
+        } label: {
+            infoChip(language.text("📎 共享文档", "📎 Shared Doc"), color: AppTheme.primary)
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func openSharedDocument(_ link: String) {
+        guard let url = sharedDocumentURL(from: link) else { return }
+        NSWorkspace.shared.open(url)
+    }
+
+    private func sharedDocumentURL(from link: String) -> URL? {
+        let trimmed = link.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+        if let url = URL(string: trimmed), url.scheme != nil {
+            return url
+        }
+        return URL(string: "https://\(trimmed)")
     }
 }

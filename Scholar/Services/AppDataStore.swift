@@ -7,6 +7,7 @@ class AppDataStore: ObservableObject {
 
     @Published var checkInRecords: [CheckInRecord] = []
     @Published var projects: [Project] = []
+    @Published var affairs: [Affair] = []
     @Published var tasks: [Task] = []
     @Published var focusSessions: [FocusSession] = []
     @Published var scheduleBlocks: [ScheduleBlock] = []
@@ -16,22 +17,18 @@ class AppDataStore: ObservableObject {
     @Published var healthRecords: [HealthRecord] = []
     @Published var mentalCareRecords: [MentalCareRecord] = []
     @Published var achievements: [Achievement] = []
+    @Published var busyDaySnapshots: [BusyDaySnapshot] = []
     @Published var workspaceURL: URL?
     @Published var lastErrorMessage: String = ""
     @Published var appDisplayName: String
     @Published var appLanguage: AppLanguage
 
     private let workspaceFolderName = "ScholarData"
-    private let legacyWorkspaceFolderName = "PhDMasterWorkspaceData"
     private let dataFileExtension = "json"
-    private let legacyDataFileExtension = "orzbug"
     private let backupFileName = "workspace_backup.json"
     private let bookmarkKey = "Scholar.SelectedWorkspaceBookmark"
     private let workspacePathKey = "Scholar.SelectedWorkspacePath"
     private let appDisplayNameKey = "Scholar.AppDisplayName"
-    private let legacyBookmarkKey = "PhDMasterWorkspace.SelectedWorkspaceBookmark"
-    private let legacyWorkspacePathKey = "PhDMasterWorkspace.SelectedWorkspacePath"
-    private let legacyAppDisplayNameKey = "PhDMasterWorkspace.AppDisplayName"
     private var activeSecurityScopedWorkspaceURL: URL?
     private var isAccessingSecurityScopedWorkspace = false
     private let encoder: JSONEncoder = {
@@ -48,7 +45,6 @@ class AppDataStore: ObservableObject {
 
     private init() {
         let storedName = UserDefaults.standard.string(forKey: appDisplayNameKey)
-            ?? UserDefaults.standard.string(forKey: legacyAppDisplayNameKey)
         if let storedName, ["SQJ", "Research Flow", "PhDMasterWorkspace", "Workspace", "Schola"].contains(storedName) {
             appDisplayName = "Scholar"
             UserDefaults.standard.set("Scholar", forKey: appDisplayNameKey)
@@ -67,6 +63,7 @@ class AppDataStore: ObservableObject {
     struct AppData: Codable {
         var checkInRecords: [CheckInRecord]
         var projects: [Project]
+        var affairs: [Affair]?
         var tasks: [Task]
         var focusSessions: [FocusSession]
         var scheduleBlocks: [ScheduleBlock]
@@ -76,6 +73,60 @@ class AppDataStore: ObservableObject {
         var healthRecords: [HealthRecord]
         var mentalCareRecords: [MentalCareRecord]
         var achievements: [Achievement]
+        var busyDaySnapshots: [BusyDaySnapshot]?
+    }
+
+    struct BusyDaySnapshot: Codable, Identifiable, Hashable {
+        var id: String { dayKey }
+        var dayKey: String
+        var date: Date
+        var totalTasks: Int
+        var completedTasks: Int
+        var dueTasks: Int?
+        var overdueTasks: Int?
+        var continuousTasks: Int?
+        var workloadTasks: Int?
+        var updatedAt: Date
+    }
+
+    struct BusyDayBreakdown {
+        var dueTasks: [Task]
+        var overdueTasks: [Task]
+        var continuousTasks: [Task]
+        var completedTodayTasks: [Task]
+
+        var denominatorTasks: [Task] {
+            uniqueTasks(dueTasks + overdueTasks)
+        }
+
+        var workloadTasks: [Task] {
+            uniqueTasks(dueTasks + overdueTasks + continuousTasks)
+        }
+
+        var allDisplayTasks: [Task] {
+            uniqueTasks(completedTodayTasks + dueTasks + overdueTasks + continuousTasks)
+        }
+
+        var denominatorCount: Int {
+            dueTasks.count + overdueTasks.count + continuousTasks.count
+        }
+
+        var workloadCount: Int {
+            denominatorCount
+        }
+
+        var completedTodayCount: Int {
+            completedTodayTasks.count
+        }
+
+        private func uniqueTasks(_ tasks: [Task]) -> [Task] {
+            var seen = Set<UUID>()
+            return tasks.filter { task in
+                if seen.contains(task.id) { return false }
+                seen.insert(task.id)
+                return true
+            }
+        }
     }
 
     struct WorkspaceStorageInfo {
@@ -106,8 +157,8 @@ class AppDataStore: ObservableObject {
     var storageInfo: WorkspaceStorageInfo {
         WorkspaceStorageInfo(
             displayPath: workspaceURL?.path ?? appLanguage.text("启动后请选择一个 workspace 文件夹", "Choose a workspace folder after launch"),
-            dataFormat: appLanguage.text("分类目录 + 紧凑 JSON 分片", "Categorized compact JSON shards"),
-            dataVersion: "v3.1"
+            dataFormat: appLanguage.text("ScholarData 分类目录 + JSON 分片", "ScholarData categorized JSON shards"),
+            dataVersion: "v4"
         )
     }
 
@@ -155,8 +206,10 @@ class AppDataStore: ObservableObject {
 
     func save() {
         guard let root = activeDataRoot else { return }
-        let buckets = dataBuckets(for: appDataSnapshot())
         do {
+            updateBusySnapshot(for: Date())
+            finalizePastBusySnapshots()
+            let buckets = dataBuckets(for: appDataSnapshot())
             for bucket in buckets {
                 let encoded = try encoder.encode(bucket.payload)
                 let target = root.appendingPathComponent(bucket.relativePath).appendingPathExtension(dataFileExtension)
@@ -172,7 +225,6 @@ class AppDataStore: ObservableObject {
                 "保存失败：\(error.localizedDescription)",
                 "Save failed: \(error.localizedDescription)"
             )
-            print("Save error: \(error)")
         }
     }
 
@@ -192,7 +244,6 @@ class AppDataStore: ObservableObject {
                 "Failed to load the workspace: \(error.localizedDescription)"
             )
             resetInMemoryData()
-            print("Load error: \(error)")
         }
     }
 
@@ -261,23 +312,18 @@ class AppDataStore: ObservableObject {
     }
 
     private var activeAttachmentsRoot: URL? {
-        activeDataRoot?.appendingPathComponent("attachments/submissions", isDirectory: true)
+        activeDataRoot?.appendingPathComponent(StoragePath.attachmentsSubmissions, isDirectory: true)
     }
 
     private func workspaceDataRoot(for workspace: URL) -> URL {
-        let currentRoot = workspace.appendingPathComponent(workspaceFolderName, isDirectory: true)
-        let legacyRoot = workspace.appendingPathComponent(legacyWorkspaceFolderName, isDirectory: true)
-        if FileManager.default.fileExists(atPath: legacyRoot.path),
-           !FileManager.default.fileExists(atPath: currentRoot.path) {
-            return legacyRoot
-        }
-        return currentRoot
+        workspace.appendingPathComponent(workspaceFolderName, isDirectory: true)
     }
 
     private func appDataSnapshot() -> AppData {
         AppData(
             checkInRecords: checkInRecords,
             projects: projects,
+            affairs: affairs,
             tasks: tasks,
             focusSessions: focusSessions,
             scheduleBlocks: scheduleBlocks,
@@ -286,13 +332,15 @@ class AppDataStore: ObservableObject {
             healthHabits: healthHabits,
             healthRecords: healthRecords,
             mentalCareRecords: mentalCareRecords,
-            achievements: achievements
+            achievements: achievements,
+            busyDaySnapshots: busyDaySnapshots
         )
     }
 
     private func applyAppData(_ decoded: AppData) {
         checkInRecords = decoded.checkInRecords
         projects = decoded.projects
+        affairs = decoded.affairs ?? []
         tasks = decoded.tasks
         focusSessions = decoded.focusSessions
         scheduleBlocks = decoded.scheduleBlocks
@@ -302,11 +350,14 @@ class AppDataStore: ObservableObject {
         healthRecords = decoded.healthRecords
         mentalCareRecords = decoded.mentalCareRecords
         achievements = decoded.achievements
+        busyDaySnapshots = decoded.busyDaySnapshots ?? []
+        finalizePastBusySnapshots()
     }
 
     private func resetInMemoryData() {
         checkInRecords = []
         projects = []
+        affairs = []
         tasks = []
         focusSessions = []
         scheduleBlocks = []
@@ -316,95 +367,91 @@ class AppDataStore: ObservableObject {
         healthRecords = []
         mentalCareRecords = []
         achievements = []
+        busyDaySnapshots = []
     }
 
     private func dataBuckets(for data: AppData) -> [(relativePath: String, payload: AnyEncodable)] {
-        [
-            ("overview/checkins", AnyEncodable(data.checkInRecords)),
-            ("projects/projects", AnyEncodable(data.projects)),
-            ("projects/tasks", AnyEncodable(data.tasks)),
-            ("focus/focus_sessions", AnyEncodable(data.focusSessions)),
-            ("focus/schedule_blocks", AnyEncodable(data.scheduleBlocks)),
-            ("thesis/thesis_infos", AnyEncodable(data.thesisInfos)),
-            ("outcomes/submissions", AnyEncodable(data.submissions)),
-            ("health/health_habits", AnyEncodable(data.healthHabits)),
-            ("health/health_records", AnyEncodable(data.healthRecords)),
-            ("mental/mental_care_records", AnyEncodable(data.mentalCareRecords)),
-            ("milestones/achievements", AnyEncodable(data.achievements))
+        let groupedTasks = groupedTasksByStorageArea(data.tasks)
+        return [
+            (StoragePath.checkins, AnyEncodable(data.checkInRecords)),
+            (StoragePath.projects, AnyEncodable(data.projects)),
+            (StoragePath.affairs, AnyEncodable(data.affairs ?? [])),
+            (StoragePath.projectTasks, AnyEncodable(groupedTasks.projectTasks)),
+            (StoragePath.thesisTasks, AnyEncodable(groupedTasks.thesisTasks)),
+            (StoragePath.affairTasks, AnyEncodable(groupedTasks.affairTasks)),
+            (StoragePath.todoTasks, AnyEncodable(groupedTasks.todoTasks)),
+            (StoragePath.focusSessions, AnyEncodable(data.focusSessions)),
+            (StoragePath.scheduleBlocks, AnyEncodable(data.scheduleBlocks)),
+            (StoragePath.thesisInfos, AnyEncodable(data.thesisInfos)),
+            (StoragePath.submissions, AnyEncodable(data.submissions)),
+            (StoragePath.healthHabits, AnyEncodable(data.healthHabits)),
+            (StoragePath.healthRecords, AnyEncodable(data.healthRecords)),
+            (StoragePath.mentalCareRecords, AnyEncodable(data.mentalCareRecords)),
+            (StoragePath.achievements, AnyEncodable(data.achievements)),
+            (StoragePath.busyDaySnapshots, AnyEncodable(data.busyDaySnapshots ?? []))
         ]
     }
 
     private func loadAppData(from root: URL) throws -> AppData {
-        AppData(
-            checkInRecords: try readArray([CheckInRecord].self, from: root, relativePath: "overview/checkins"),
-            projects: try readArray([Project].self, from: root, relativePath: "projects/projects"),
-            tasks: try readArray([Task].self, from: root, relativePath: "projects/tasks"),
-            focusSessions: try readArray([FocusSession].self, from: root, relativePath: "focus/focus_sessions"),
-            scheduleBlocks: try readArray([ScheduleBlock].self, from: root, relativePath: "focus/schedule_blocks"),
-            thesisInfos: try readArray([ThesisInfo].self, from: root, relativePath: "thesis/thesis_infos"),
-            submissions: try readArray([Submission].self, from: root, relativePath: "outcomes/submissions"),
-            healthHabits: try readArray([HealthHabit].self, from: root, relativePath: "health/health_habits"),
-            healthRecords: try readArray([HealthRecord].self, from: root, relativePath: "health/health_records"),
-            mentalCareRecords: try readArray([MentalCareRecord].self, from: root, relativePath: "mental/mental_care_records"),
-            achievements: try readArray([Achievement].self, from: root, relativePath: "milestones/achievements")
+        let tasks = try [
+            readArray([Task].self, from: root, relativePath: StoragePath.projectTasks),
+            readArray([Task].self, from: root, relativePath: StoragePath.thesisTasks),
+            readArray([Task].self, from: root, relativePath: StoragePath.affairTasks),
+            readArray([Task].self, from: root, relativePath: StoragePath.todoTasks)
+        ].flatMap { $0 }
+
+        return AppData(
+            checkInRecords: try readArray([CheckInRecord].self, from: root, relativePath: StoragePath.checkins),
+            projects: try readArray([Project].self, from: root, relativePath: StoragePath.projects),
+            affairs: try readArray([Affair].self, from: root, relativePath: StoragePath.affairs),
+            tasks: tasks,
+            focusSessions: try readArray([FocusSession].self, from: root, relativePath: StoragePath.focusSessions),
+            scheduleBlocks: try readArray([ScheduleBlock].self, from: root, relativePath: StoragePath.scheduleBlocks),
+            thesisInfos: try readArray([ThesisInfo].self, from: root, relativePath: StoragePath.thesisInfos),
+            submissions: try readArray([Submission].self, from: root, relativePath: StoragePath.submissions),
+            healthHabits: try readArray([HealthHabit].self, from: root, relativePath: StoragePath.healthHabits),
+            healthRecords: try readArray([HealthRecord].self, from: root, relativePath: StoragePath.healthRecords),
+            mentalCareRecords: try readArray([MentalCareRecord].self, from: root, relativePath: StoragePath.mentalCareRecords),
+            achievements: try readArray([Achievement].self, from: root, relativePath: StoragePath.achievements),
+            busyDaySnapshots: try readArray([BusyDaySnapshot].self, from: root, relativePath: StoragePath.busyDaySnapshots)
+        )
+    }
+
+    private func groupedTasksByStorageArea(_ tasks: [Task]) -> (
+        projectTasks: [Task],
+        thesisTasks: [Task],
+        affairTasks: [Task],
+        todoTasks: [Task]
+    ) {
+        (
+            projectTasks: tasks.filter { $0.projectId != nil && $0.thesisId == nil && $0.affairId == nil },
+            thesisTasks: tasks.filter { $0.thesisId != nil && $0.projectId == nil && $0.affairId == nil },
+            affairTasks: tasks.filter { $0.affairId != nil && $0.projectId == nil && $0.thesisId == nil },
+            todoTasks: tasks.filter { $0.projectId == nil && $0.thesisId == nil && $0.affairId == nil }
         )
     }
 
     private func readArray<T: Decodable>(_ type: [T].Type, from root: URL, relativePath: String) throws -> [T] {
         let preferredURL = root.appendingPathComponent(relativePath).appendingPathExtension(dataFileExtension)
-        let legacyURL = root.appendingPathComponent(relativePath).appendingPathExtension(legacyDataFileExtension)
-        let sourceURL: URL
 
         if FileManager.default.fileExists(atPath: preferredURL.path) {
-            sourceURL = preferredURL
-        } else if FileManager.default.fileExists(atPath: legacyURL.path) {
-            sourceURL = legacyURL
-        } else {
-            return []
+            let raw = try Data(contentsOf: preferredURL)
+            let decoded = try decodeStoredPayload(raw)
+            return try decoder.decode([T].self, from: decoded)
         }
 
-        let raw = try Data(contentsOf: sourceURL)
-        let decoded = try decodeStoredPayload(raw)
-        return try decoder.decode([T].self, from: decoded)
+        return []
     }
 
     private func decodeWorkspaceBundle(_ data: Data) -> AppData? {
-        guard let decoded = try? decodeStoredPayload(data) else { return nil }
-        return try? decoder.decode(AppData.self, from: decoded)
+        try? decoder.decode(AppData.self, from: data)
     }
 
     private func decodeStoredPayload(_ data: Data) throws -> Data {
-        if (try? decoder.decode(AppData.self, from: data)) != nil {
-            return data
-        }
         if (try? JSONSerialization.jsonObject(with: data)) != nil {
             return data
         }
-        return try deobfuscate(data)
-    }
-
-    private func obfuscate(_ data: Data) throws -> Data {
-        let key = Array("orzbug.workspace".utf8)
-        let body = Data(data.enumerated().map { index, byte in
-            byte ^ key[index % key.count] ^ 0x5A
-        })
-        let wrapped = EncodedEnvelope(version: 2, payload: body.base64EncodedString())
-        return try encoder.encode(wrapped)
-    }
-
-    private func deobfuscate(_ data: Data) throws -> Data {
-        if let legacy = try? decoder.decode(AppData.self, from: data) {
-            return try encoder.encode(legacy)
-        }
-
-        let envelope = try decoder.decode(EncodedEnvelope.self, from: data)
-        guard let body = Data(base64Encoded: envelope.payload) else {
-            throw NSError(domain: "AppDataStore", code: 10, userInfo: [NSLocalizedDescriptionKey: "数据内容损坏"])
-        }
-        let key = Array("orzbug.workspace".utf8)
-        return Data(body.enumerated().map { index, byte in
-            byte ^ key[index % key.count] ^ 0x5A
-        })
+        throw NSError(domain: "AppDataStore", code: 10, userInfo: [NSLocalizedDescriptionKey: "数据内容不是有效的 JSON"])
     }
 
     private func persistWorkspaceBookmark(for url: URL) throws {
@@ -441,8 +488,7 @@ class AppDataStore: ObservableObject {
     }
 
     private func restoreURLFromBookmark() -> URL? {
-        guard let bookmark = UserDefaults.standard.data(forKey: bookmarkKey)
-            ?? UserDefaults.standard.data(forKey: legacyBookmarkKey) else { return nil }
+        guard let bookmark = UserDefaults.standard.data(forKey: bookmarkKey) else { return nil }
 
         var isStale = false
         if let url = try? URL(
@@ -464,8 +510,7 @@ class AppDataStore: ObservableObject {
     }
 
     private func restoreURLFromStoredPath() -> URL? {
-        guard let path = UserDefaults.standard.string(forKey: workspacePathKey)
-            ?? UserDefaults.standard.string(forKey: legacyWorkspacePathKey),
+        guard let path = UserDefaults.standard.string(forKey: workspacePathKey),
               !path.isEmpty else { return nil }
         return URL(fileURLWithPath: path, isDirectory: true)
     }
@@ -474,8 +519,6 @@ class AppDataStore: ObservableObject {
         let defaults = UserDefaults.standard
         defaults.removeObject(forKey: bookmarkKey)
         defaults.removeObject(forKey: workspacePathKey)
-        defaults.removeObject(forKey: legacyBookmarkKey)
-        defaults.removeObject(forKey: legacyWorkspacePathKey)
         defaults.synchronize()
     }
 
@@ -514,9 +557,24 @@ class AppDataStore: ObservableObject {
         }
     }
 
-    private struct EncodedEnvelope: Codable {
-        var version: Int
-        var payload: String
+    private enum StoragePath {
+        static let checkins = "overview/checkins"
+        static let projects = "projects/projects"
+        static let projectTasks = "projects/tasks"
+        static let affairs = "affairs/affairs"
+        static let affairTasks = "affairs/tasks"
+        static let focusSessions = "focus/focus_sessions"
+        static let scheduleBlocks = "focus/schedule_blocks"
+        static let thesisInfos = "thesis/thesis_infos"
+        static let thesisTasks = "thesis/tasks"
+        static let submissions = "outcomes/submissions"
+        static let healthHabits = "health/health_habits"
+        static let healthRecords = "health/health_records"
+        static let mentalCareRecords = "mental/mental_care_records"
+        static let achievements = "milestones/achievements"
+        static let busyDaySnapshots = "overview/busy_day_snapshots"
+        static let todoTasks = "todos/tasks"
+        static let attachmentsSubmissions = "attachments/submissions"
     }
 
     // MARK: - Date Range Helpers
@@ -571,6 +629,132 @@ class AppDataStore: ObservableObject {
         return s
     }
 
+    func busySnapshot(for date: Date) -> BusyDaySnapshot? {
+        busyDaySnapshots.first { $0.dayKey == Self.dayKey(for: date) }
+    }
+
+    func busyTaskCounts(for date: Date, includeTodayFlag: Bool) -> (totalTasks: Int, completedTasks: Int) {
+        let breakdown = busyTaskBreakdown(for: date, includeTodayFlag: includeTodayFlag)
+        return (breakdown.denominatorCount, breakdown.completedTodayCount)
+    }
+
+    func busyTasks(for date: Date, includeTodayFlag: Bool) -> [Task] {
+        busyTaskBreakdown(for: date, includeTodayFlag: includeTodayFlag).allDisplayTasks
+    }
+
+    func busyTaskBreakdown(for date: Date, includeTodayFlag: Bool) -> BusyDayBreakdown {
+        let dayRange = date.startOfDay..<date.endOfDay
+        let todayStart = Date().startOfDay
+        var dueTasks: [Task] = []
+        var overdueTasks: [Task] = []
+        var continuousTasks: [Task] = []
+        var completedTodayTasks: [Task] = []
+
+        for task in tasks {
+            if task.status == .completed && dayRange.contains(task.updatedAt) {
+                completedTodayTasks.append(task)
+            }
+
+            if let dueDate = task.dueDate,
+               dueDate < date.startOfDay,
+               date.startOfDay <= todayStart,
+               task.status != .completed || dayRange.contains(task.updatedAt) {
+                overdueTasks.append(task)
+            } else if let dueDate = task.dueDate,
+                      dayRange.contains(dueDate) {
+                dueTasks.append(task)
+            } else if includeTodayFlag && task.isToday && task.status != .completed {
+                continuousTasks.append(task)
+            }
+        }
+
+        return BusyDayBreakdown(
+            dueTasks: sortedBusyTasks(dueTasks),
+            overdueTasks: sortedBusyTasks(overdueTasks),
+            continuousTasks: sortedBusyTasks(continuousTasks),
+            completedTodayTasks: sortedBusyTasks(completedTodayTasks)
+        )
+    }
+
+    private func sortedBusyTasks(_ tasks: [Task]) -> [Task] {
+        tasks.sorted { lhs, rhs in
+            if lhs.status == .completed && rhs.status != .completed { return false }
+            if lhs.status != .completed && rhs.status == .completed { return true }
+            let lhsDue = lhs.dueDate ?? .distantFuture
+            let rhsDue = rhs.dueDate ?? .distantFuture
+            if lhsDue != rhsDue { return lhsDue < rhsDue }
+            return lhs.updatedAt > rhs.updatedAt
+        }
+    }
+
+    private func updateBusySnapshot(for date: Date) {
+        let breakdown = busyTaskBreakdown(for: date, includeTodayFlag: Calendar.current.isDateInToday(date))
+        let snapshot = BusyDaySnapshot(
+            dayKey: Self.dayKey(for: date),
+            date: date.startOfDay,
+            totalTasks: breakdown.denominatorCount,
+            completedTasks: breakdown.completedTodayCount,
+            dueTasks: breakdown.dueTasks.count,
+            overdueTasks: breakdown.overdueTasks.count,
+            continuousTasks: breakdown.continuousTasks.count,
+            workloadTasks: breakdown.workloadCount,
+            updatedAt: Date()
+        )
+
+        if let index = busyDaySnapshots.firstIndex(where: { $0.dayKey == snapshot.dayKey }) {
+            busyDaySnapshots[index] = snapshot
+        } else {
+            busyDaySnapshots.append(snapshot)
+        }
+    }
+
+    private func finalizePastBusySnapshots() {
+        let todayStart = Date().startOfDay
+        var candidateDays = Set<String>()
+
+        for task in tasks {
+            if let dueDate = task.dueDate, dueDate.startOfDay < todayStart {
+                candidateDays.insert(Self.dayKey(for: dueDate))
+            }
+            if task.status == .completed && task.updatedAt.startOfDay < todayStart {
+                candidateDays.insert(Self.dayKey(for: task.updatedAt))
+            }
+        }
+
+        for snapshot in busyDaySnapshots where snapshot.date.startOfDay < todayStart {
+            candidateDays.insert(snapshot.dayKey)
+        }
+
+        for dayKey in candidateDays where busyDaySnapshots.contains(where: { $0.dayKey == dayKey }) == false {
+            guard let date = Self.date(fromDayKey: dayKey) else { continue }
+            let breakdown = busyTaskBreakdown(for: date, includeTodayFlag: false)
+            busyDaySnapshots.append(
+                BusyDaySnapshot(
+                    dayKey: dayKey,
+                    date: date.startOfDay,
+                    totalTasks: breakdown.denominatorCount,
+                    completedTasks: breakdown.completedTodayCount,
+                    dueTasks: breakdown.dueTasks.count,
+                    overdueTasks: breakdown.overdueTasks.count,
+                    continuousTasks: breakdown.continuousTasks.count,
+                    workloadTasks: breakdown.workloadCount,
+                    updatedAt: Date()
+                )
+            )
+        }
+    }
+
+    private static func dayKey(for date: Date) -> String {
+        date.formatted("yyyy-MM-dd")
+    }
+
+    private static func date(fromDayKey dayKey: String) -> Date? {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        return formatter.date(from: dayKey)
+    }
+
     struct TodaySnapshot {
         var todayOpenTasks: Int = 0
         var dueTodayTasks: Int = 0
@@ -581,12 +765,21 @@ class AppDataStore: ObservableObject {
     func computeTodaySnapshot() -> TodaySnapshot {
         let range = Date().startOfDay..<Date().endOfDay
         var snap = TodaySnapshot()
-        let openTasks = tasks.filter { $0.status != .completed }
+        let activeProjectIds = Set(projects.filter { !$0.isArchived }.map(\.id))
+        let activeThesisIds = Set(thesisInfos.filter { !$0.isArchived }.map(\.id))
+        let activeAffairIds = Set(affairs.filter { !$0.isArchived }.map(\.id))
+        let openTasks = tasks.filter { task in
+            guard task.status != .completed else { return false }
+            if let projectId = task.projectId { return activeProjectIds.contains(projectId) }
+            if let thesisId = task.thesisId { return activeThesisIds.contains(thesisId) }
+            if let affairId = task.affairId { return activeAffairIds.contains(affairId) }
+            return true
+        }
         snap.todayOpenTasks = openTasks.filter(\.isToday).count
         snap.dueTodayTasks = openTasks.filter { task in
             task.dueDate.map { range.contains($0) } ?? false
         }.count
-        snap.inProgressTasks = tasks.filter { $0.status == .inProgress }.count
+        snap.inProgressTasks = openTasks.filter(\.isOverdue).count
         snap.activeSubmissions = submissions.filter(\.isActive).count
         return snap
     }
@@ -606,21 +799,137 @@ class AppDataStore: ObservableObject {
         var todayShouldDo: Int = 0
     }
 
+    struct ThesisBoardStats {
+        var totalTheses: Int = 0
+        var activeTheses: Int = 0
+        var completedTheses: Int = 0
+        var totalTasks: Int = 0
+        var incompleteTasks: Int = 0
+        var completedTasks: Int = 0
+        var dueWithin7Days: Int = 0
+        var q1Tasks: Int = 0
+        var q2Tasks: Int = 0
+        var q3Tasks: Int = 0
+        var q4Tasks: Int = 0
+        var todayMustDo: Int = 0
+        var todayShouldDo: Int = 0
+    }
+
+    struct AffairBoardStats {
+        var totalAffairs: Int = 0
+        var activeAffairs: Int = 0
+        var completedAffairs: Int = 0
+        var totalTasks: Int = 0
+        var incompleteTasks: Int = 0
+        var completedTasks: Int = 0
+        var dueWithin7Days: Int = 0
+        var q1Tasks: Int = 0
+        var q2Tasks: Int = 0
+        var q3Tasks: Int = 0
+        var q4Tasks: Int = 0
+        var todayMustDo: Int = 0
+        var todayShouldDo: Int = 0
+    }
+
+    struct TodoBoardStats {
+        var totalTasks: Int = 0
+        var incompleteTasks: Int = 0
+        var completedTasks: Int = 0
+        var dueWithin7Days: Int = 0
+        var overdueTasks: Int = 0
+        var q1Tasks: Int = 0
+        var q2Tasks: Int = 0
+        var q3Tasks: Int = 0
+        var q4Tasks: Int = 0
+        var todayMustDo: Int = 0
+        var todayShouldDo: Int = 0
+    }
+
     func computeProjectBoardStats() -> ProjectBoardStats {
         var s = ProjectBoardStats()
-        let projectTasks = tasks.filter { $0.projectId != nil && $0.thesisId == nil }
-        s.totalProjects = projects.count
-        s.activeProjects = projects.filter(\.isActive).count
+        let activeProjectIds = Set(projects.filter { !$0.isArchived }.map(\.id))
+        let projectTasks = tasks.filter { task in
+            guard let projectId = task.projectId else { return false }
+            return activeProjectIds.contains(projectId) && task.thesisId == nil && task.affairId == nil
+        }
+        let activeProjects = projects.filter { !$0.isArchived }
+        s.totalProjects = activeProjects.count
+        s.activeProjects = activeProjects.filter(\.isActive).count
         s.totalTasks = projectTasks.count
         s.incompleteTasks = projectTasks.filter { $0.status != .completed }.count
         s.dueWithin7Days = projectTasks.filter(\.isDueWithin7Days).count
-        s.unassignedTasks = tasks.filter { $0.projectId == nil && $0.thesisId == nil }.count
+        s.unassignedTasks = tasks.filter { $0.projectId == nil && $0.thesisId == nil && $0.affairId == nil }.count
         s.q1Tasks = projectTasks.filter { $0.priority == .urgentImportant && $0.status != .completed }.count
         s.q2Tasks = projectTasks.filter { $0.priority == .important && $0.status != .completed }.count
         s.q3Tasks = projectTasks.filter { $0.priority == .urgent && $0.status != .completed }.count
         s.q4Tasks = projectTasks.filter { $0.priority == .low && $0.status != .completed }.count
         s.todayMustDo = projectTasks.filter { $0.isToday && ($0.priority == .urgentImportant || $0.priority == .urgent) && $0.status != .completed }.count
         s.todayShouldDo = projectTasks.filter { $0.isToday && $0.priority == .important && $0.status != .completed }.count
+        return s
+    }
+
+    func computeThesisBoardStats() -> ThesisBoardStats {
+        var s = ThesisBoardStats()
+        let activeTheses = thesisInfos.filter { !$0.isArchived }
+        let activeThesisIds = Set(activeTheses.map(\.id))
+        let thesisTasks = tasks.filter { task in
+            guard let thesisId = task.thesisId else { return false }
+            return activeThesisIds.contains(thesisId) && task.projectId == nil && task.affairId == nil
+        }
+        s.totalTheses = activeTheses.count
+        s.activeTheses = activeTheses.filter { $0.stage != .submitted }.count
+        s.completedTheses = activeTheses.filter { $0.stage == .submitted }.count
+        s.totalTasks = thesisTasks.count
+        s.incompleteTasks = thesisTasks.filter { $0.status != .completed }.count
+        s.completedTasks = thesisTasks.filter { $0.status == .completed }.count
+        s.dueWithin7Days = thesisTasks.filter(\.isDueWithin7Days).count
+        s.q1Tasks = thesisTasks.filter { $0.priority == .urgentImportant && $0.status != .completed }.count
+        s.q2Tasks = thesisTasks.filter { $0.priority == .important && $0.status != .completed }.count
+        s.q3Tasks = thesisTasks.filter { $0.priority == .urgent && $0.status != .completed }.count
+        s.q4Tasks = thesisTasks.filter { $0.priority == .low && $0.status != .completed }.count
+        s.todayMustDo = thesisTasks.filter { $0.isToday && ($0.priority == .urgentImportant || $0.priority == .urgent) && $0.status != .completed }.count
+        s.todayShouldDo = thesisTasks.filter { $0.isToday && $0.priority == .important && $0.status != .completed }.count
+        return s
+    }
+
+    func computeAffairBoardStats() -> AffairBoardStats {
+        var s = AffairBoardStats()
+        let activeAffairs = affairs.filter { !$0.isArchived }
+        let activeAffairIds = Set(activeAffairs.map(\.id))
+        let affairTasks = tasks.filter { task in
+            guard let affairId = task.affairId else { return false }
+            return activeAffairIds.contains(affairId) && task.projectId == nil && task.thesisId == nil
+        }
+        s.totalAffairs = activeAffairs.count
+        s.activeAffairs = activeAffairs.count
+        s.completedAffairs = affairs.filter(\.isArchived).count
+        s.totalTasks = affairTasks.count
+        s.incompleteTasks = affairTasks.filter { $0.status != .completed }.count
+        s.completedTasks = affairTasks.filter { $0.status == .completed }.count
+        s.dueWithin7Days = affairTasks.filter(\.isDueWithin7Days).count
+        s.q1Tasks = affairTasks.filter { $0.priority == .urgentImportant && $0.status != .completed }.count
+        s.q2Tasks = affairTasks.filter { $0.priority == .important && $0.status != .completed }.count
+        s.q3Tasks = affairTasks.filter { $0.priority == .urgent && $0.status != .completed }.count
+        s.q4Tasks = affairTasks.filter { $0.priority == .low && $0.status != .completed }.count
+        s.todayMustDo = affairTasks.filter { $0.isToday && ($0.priority == .urgentImportant || $0.priority == .urgent) && $0.status != .completed }.count
+        s.todayShouldDo = affairTasks.filter { $0.isToday && $0.priority == .important && $0.status != .completed }.count
+        return s
+    }
+
+    func computeTodoBoardStats() -> TodoBoardStats {
+        var s = TodoBoardStats()
+        let todoTasks = tasks.filter { $0.projectId == nil && $0.thesisId == nil && $0.affairId == nil }
+        s.totalTasks = todoTasks.count
+        s.incompleteTasks = todoTasks.filter { $0.status != .completed }.count
+        s.completedTasks = todoTasks.filter { $0.status == .completed }.count
+        s.dueWithin7Days = todoTasks.filter(\.isDueWithin7Days).count
+        s.overdueTasks = todoTasks.filter(\.isOverdue).count
+        s.q1Tasks = todoTasks.filter { $0.priority == .urgentImportant && $0.status != .completed }.count
+        s.q2Tasks = todoTasks.filter { $0.priority == .important && $0.status != .completed }.count
+        s.q3Tasks = todoTasks.filter { $0.priority == .urgent && $0.status != .completed }.count
+        s.q4Tasks = todoTasks.filter { $0.priority == .low && $0.status != .completed }.count
+        s.todayMustDo = todoTasks.filter { $0.isToday && ($0.priority == .urgentImportant || $0.priority == .urgent) && $0.status != .completed }.count
+        s.todayShouldDo = todoTasks.filter { $0.isToday && $0.priority == .important && $0.status != .completed }.count
         return s
     }
 }

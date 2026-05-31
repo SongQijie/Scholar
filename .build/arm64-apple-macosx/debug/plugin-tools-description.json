@@ -113,10 +113,6 @@
         },
         {
           "kind" : "file",
-          "name" : "/Users/songqijie/STISec/phd/Scholar/Scholar/Services/ReminderSyncService.swift"
-        },
-        {
-          "kind" : "file",
           "name" : "/Users/songqijie/STISec/phd/Scholar/Scholar/Utilities/Animations.swift"
         },
         {
@@ -205,10 +201,6 @@
         },
         {
           "kind" : "file",
-          "name" : "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/Overview/TodayScheduleView.swift"
-        },
-        {
-          "kind" : "file",
           "name" : "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/Overview/TodaySnapshotView.swift"
         },
         {
@@ -238,6 +230,10 @@
         {
           "kind" : "file",
           "name" : "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/ThesisManagement/ThesisTasksSectionView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/TodoManagement/TodoManagementView.swift"
         },
         {
           "kind" : "file",
@@ -283,7 +279,6 @@
         "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ThesisLog.swift.o",
         "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ScholarApp.swift.o",
         "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/AppDataStore.swift.o",
-        "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ReminderSyncService.swift.o",
         "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Animations.swift.o",
         "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Extensions.swift.o",
         "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Theme.swift.o",
@@ -306,7 +301,6 @@
         "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/MentalCareView.swift.o",
         "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/OverviewView.swift.o",
         "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodayExecutionView.swift.o",
-        "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodayScheduleView.swift.o",
         "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodaySnapshotView.swift.o",
         "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ProjectManagementView.swift.o",
         "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ProjectsSectionView.swift.o",
@@ -315,6 +309,7 @@
         "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ThesesSectionView.swift.o",
         "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ThesisManagementView.swift.o",
         "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ThesisTasksSectionView.swift.o",
+        "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodoManagementView.swift.o",
         "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/WorkspaceSelectionView.swift.o",
         "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/resource_bundle_accessor.swift.o"
       ],
@@ -339,12 +334,13 @@
         "-entry-point-function-name",
         "-Xfrontend",
         "ScholarApp_main",
+        "-color-diagnostics",
         "-swift-version",
         "5",
         "-plugin-path",
         "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
         "-sdk",
-        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.4.sdk",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
         "-F",
         "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
         "-I",
@@ -355,7 +351,7 @@
         "-Xcc",
         "-isysroot",
         "-Xcc",
-        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.4.sdk",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
         "-Xcc",
         "-F",
         "-Xcc",
@@ -447,10 +443,6 @@
         },
         {
           "kind" : "file",
-          "name" : "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ReminderSyncService.swift.o"
-        },
-        {
-          "kind" : "file",
           "name" : "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/Animations.swift.o"
         },
         {
@@ -539,10 +531,6 @@
         },
         {
           "kind" : "file",
-          "name" : "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodayScheduleView.swift.o"
-        },
-        {
-          "kind" : "file",
           "name" : "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodaySnapshotView.swift.o"
         },
         {
@@ -572,6 +560,10 @@
         {
           "kind" : "file",
           "name" : "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ThesisTasksSectionView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodoManagementView.swift.o"
         },
         {
           "kind" : "file",
@@ -607,7 +599,6 @@
         "/Users/songqijie/STISec/phd/Scholar/Scholar/Models/ThesisLog.swift",
         "/Users/songqijie/STISec/phd/Scholar/Scholar/ScholarApp.swift",
         "/Users/songqijie/STISec/phd/Scholar/Scholar/Services/AppDataStore.swift",
-        "/Users/songqijie/STISec/phd/Scholar/Scholar/Services/ReminderSyncService.swift",
         "/Users/songqijie/STISec/phd/Scholar/Scholar/Utilities/Animations.swift",
         "/Users/songqijie/STISec/phd/Scholar/Scholar/Utilities/Extensions.swift",
         "/Users/songqijie/STISec/phd/Scholar/Scholar/Utilities/Theme.swift",
@@ -630,7 +621,6 @@
         "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/MentalCare/MentalCareView.swift",
         "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/Overview/OverviewView.swift",
         "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/Overview/TodayExecutionView.swift",
-        "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/Overview/TodayScheduleView.swift",
         "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/Overview/TodaySnapshotView.swift",
         "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/ProjectManagement/ProjectManagementView.swift",
         "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/ProjectManagement/ProjectsSectionView.swift",
@@ -639,6 +629,7 @@
         "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/ThesisManagement/ThesesSectionView.swift",
         "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/ThesisManagement/ThesisManagementView.swift",
         "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/ThesisManagement/ThesisTasksSectionView.swift",
+        "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/TodoManagement/TodoManagementView.swift",
         "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/WorkspaceSelectionView.swift",
         "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/DerivedSources/resource_bundle_accessor.swift"
       ],
@@ -676,7 +667,6 @@
       "/Users/songqijie/STISec/phd/Scholar/Scholar/Models/ThesisLog.swift",
       "/Users/songqijie/STISec/phd/Scholar/Scholar/ScholarApp.swift",
       "/Users/songqijie/STISec/phd/Scholar/Scholar/Services/AppDataStore.swift",
-      "/Users/songqijie/STISec/phd/Scholar/Scholar/Services/ReminderSyncService.swift",
       "/Users/songqijie/STISec/phd/Scholar/Scholar/Utilities/Animations.swift",
       "/Users/songqijie/STISec/phd/Scholar/Scholar/Utilities/Extensions.swift",
       "/Users/songqijie/STISec/phd/Scholar/Scholar/Utilities/Theme.swift",
@@ -699,7 +689,6 @@
       "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/MentalCare/MentalCareView.swift",
       "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/Overview/OverviewView.swift",
       "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/Overview/TodayExecutionView.swift",
-      "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/Overview/TodayScheduleView.swift",
       "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/Overview/TodaySnapshotView.swift",
       "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/ProjectManagement/ProjectManagementView.swift",
       "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/ProjectManagement/ProjectsSectionView.swift",
@@ -708,6 +697,7 @@
       "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/ThesisManagement/ThesesSectionView.swift",
       "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/ThesisManagement/ThesisManagementView.swift",
       "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/ThesisManagement/ThesisTasksSectionView.swift",
+      "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/TodoManagement/TodoManagementView.swift",
       "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/WorkspaceSelectionView.swift",
       "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/DerivedSources/resource_bundle_accessor.swift",
       "-I",
@@ -732,12 +722,13 @@
       "-entry-point-function-name",
       "-Xfrontend",
       "ScholarApp_main",
+      "-color-diagnostics",
       "-swift-version",
       "5",
       "-plugin-path",
       "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
       "-sdk",
-      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.4.sdk",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
       "-F",
       "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
       "-I",
@@ -748,7 +739,7 @@
       "-Xcc",
       "-isysroot",
       "-Xcc",
-      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.4.sdk",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.5.sdk",
       "-Xcc",
       "-F",
       "-Xcc",
@@ -927,10 +918,6 @@
         },
         {
           "kind" : "file",
-          "name" : "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ReminderSyncService.swift.o"
-        },
-        {
-          "kind" : "file",
           "name" : "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/ScheduleBlock.swift.o"
         },
         {
@@ -999,11 +986,11 @@
         },
         {
           "kind" : "file",
-          "name" : "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodayScheduleView.swift.o"
+          "name" : "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodaySnapshotView.swift.o"
         },
         {
           "kind" : "file",
-          "name" : "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodaySnapshotView.swift.o"
+          "name" : "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/ScholarApp.build/TodoManagementView.swift.o"
         },
         {
           "kind" : "file",
@@ -1101,10 +1088,6 @@
         },
         {
           "kind" : "file",
-          "name" : "/Users/songqijie/STISec/phd/Scholar/Scholar/Services/ReminderSyncService.swift"
-        },
-        {
-          "kind" : "file",
           "name" : "/Users/songqijie/STISec/phd/Scholar/Scholar/Utilities/Animations.swift"
         },
         {
@@ -1193,10 +1176,6 @@
         },
         {
           "kind" : "file",
-          "name" : "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/Overview/TodayScheduleView.swift"
-        },
-        {
-          "kind" : "file",
           "name" : "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/Overview/TodaySnapshotView.swift"
         },
         {
@@ -1226,6 +1205,10 @@
         {
           "kind" : "file",
           "name" : "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/ThesisManagement/ThesisTasksSectionView.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/TodoManagement/TodoManagementView.swift"
         },
         {
           "kind" : "file",

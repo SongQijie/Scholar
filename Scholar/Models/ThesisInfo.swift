@@ -7,7 +7,8 @@ struct ThesisInfo: Codable, Identifiable, Hashable {
     var currentVersion: String
     var notes: String
     var sharedDocumentLink: String
-    var reminderCalendarIdentifier: String?
+    var dueDate: Date?
+    var isArchived: Bool
     var students: [Student] // 关联学生
     var milestones: [Milestone]
     var chapters: [Chapter]
@@ -20,7 +21,8 @@ struct ThesisInfo: Codable, Identifiable, Hashable {
         currentVersion: String = "",
         notes: String = "",
         sharedDocumentLink: String = "",
-        reminderCalendarIdentifier: String? = nil,
+        dueDate: Date? = nil,
+        isArchived: Bool = false,
         students: [Student] = []
     ) {
         self.id = id
@@ -29,7 +31,8 @@ struct ThesisInfo: Codable, Identifiable, Hashable {
         self.currentVersion = currentVersion
         self.notes = notes
         self.sharedDocumentLink = sharedDocumentLink
-        self.reminderCalendarIdentifier = reminderCalendarIdentifier
+        self.dueDate = dueDate
+        self.isArchived = isArchived
         self.students = students
         self.milestones = []
         self.chapters = []
@@ -43,7 +46,7 @@ struct ThesisInfo: Codable, Identifiable, Hashable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case id, title, stage, defenseDate, currentVersion, notes, sharedDocumentLink, reminderCalendarIdentifier, content, students, milestones, chapters, logs
+        case id, title, stage, defenseDate, currentVersion, notes, sharedDocumentLink, dueDate, isArchived, content, students, milestones, chapters, logs
     }
 
     init(from decoder: Decoder) throws {
@@ -56,7 +59,8 @@ struct ThesisInfo: Codable, Identifiable, Hashable {
         sharedDocumentLink = try container.decodeIfPresent(String.self, forKey: .sharedDocumentLink)
             ?? container.decodeIfPresent(String.self, forKey: .content)
             ?? ""
-        reminderCalendarIdentifier = try container.decodeIfPresent(String.self, forKey: .reminderCalendarIdentifier)
+        dueDate = try container.decodeIfPresent(Date.self, forKey: .dueDate)
+        isArchived = try container.decodeIfPresent(Bool.self, forKey: .isArchived) ?? false
         students = try container.decodeIfPresent([Student].self, forKey: .students) ?? []
         milestones = try container.decodeIfPresent([Milestone].self, forKey: .milestones) ?? []
         chapters = try container.decodeIfPresent([Chapter].self, forKey: .chapters) ?? []
@@ -71,7 +75,8 @@ struct ThesisInfo: Codable, Identifiable, Hashable {
         try container.encode(currentVersion, forKey: .currentVersion)
         try container.encode(notes, forKey: .notes)
         try container.encode(sharedDocumentLink, forKey: .sharedDocumentLink)
-        try container.encodeIfPresent(reminderCalendarIdentifier, forKey: .reminderCalendarIdentifier)
+        try container.encodeIfPresent(dueDate, forKey: .dueDate)
+        try container.encode(isArchived, forKey: .isArchived)
         try container.encode(students, forKey: .students)
         try container.encode(milestones, forKey: .milestones)
         try container.encode(chapters, forKey: .chapters)

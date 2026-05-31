@@ -6,7 +6,7 @@
 	<integer>12</integer>
 	<key>logs</key>
 	<dict>
-		<key>48F6EBAE-A438-48FF-BF6A-87D856D2A2EC</key>
+		<key>9F16F798-EEBB-490B-B4C9-A2DBA836CC55</key>
 		<dict>
 			<key>className</key>
 			<string>IDECommandLineBuildLog</string>
@@ -15,7 +15,7 @@
 			<key>domainType</key>
 			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
 			<key>fileName</key>
-			<string>48F6EBAE-A438-48FF-BF6A-87D856D2A2EC.xcactivitylog</string>
+			<string>9F16F798-EEBB-490B-B4C9-A2DBA836CC55.xcactivitylog</string>
 			<key>hasPrimaryLog</key>
 			<true/>
 			<key>primaryObservable</key>
@@ -40,13 +40,55 @@
 			<key>signature</key>
 			<string>Building project Scholar with scheme Scholar and configuration Debug</string>
 			<key>timeStartedRecording</key>
-			<real>799925415.71038902</real>
+			<real>801658512.94981205</real>
 			<key>timeStoppedRecording</key>
-			<real>799925420.927477</real>
+			<real>801658517.90554595</real>
 			<key>title</key>
 			<string>Building project Scholar with scheme Scholar and configuration Debug</string>
 			<key>uniqueIdentifier</key>
-			<string>48F6EBAE-A438-48FF-BF6A-87D856D2A2EC</string>
+			<string>9F16F798-EEBB-490B-B4C9-A2DBA836CC55</string>
+		</dict>
+		<key>B8E4C4F9-0263-43A1-9D08-C8B9F38501E3</key>
+		<dict>
+			<key>className</key>
+			<string>IDECommandLineBuildLog</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>B8E4C4F9-0263-43A1-9D08-C8B9F38501E3.xcactivitylog</string>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>S</string>
+				<key>totalNumberOfAnalyzerIssues</key>
+				<integer>0</integer>
+				<key>totalNumberOfErrors</key>
+				<integer>0</integer>
+				<key>totalNumberOfTestFailures</key>
+				<integer>0</integer>
+				<key>totalNumberOfWarnings</key>
+				<integer>0</integer>
+			</dict>
+			<key>schemeIdentifier-containerName</key>
+			<string>Scholar project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>Scholar</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Building project Scholar with scheme Scholar and configuration Debug</string>
+			<key>timeStartedRecording</key>
+			<real>801732940.84207797</real>
+			<key>timeStoppedRecording</key>
+			<real>801732945.69126403</real>
+			<key>title</key>
+			<string>Building project Scholar with scheme Scholar and configuration Debug</string>
+			<key>uniqueIdentifier</key>
+			<string>B8E4C4F9-0263-43A1-9D08-C8B9F38501E3</string>
 		</dict>
 	</dict>
 </dict>

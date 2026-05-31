@@ -24,7 +24,7 @@ struct ModernCard<Content: View>: View {
                         RoundedRectangle(cornerRadius: cornerRadius)
                             .fill(
                                 LinearGradient(
-                                    colors: [Color.white.opacity(0.20), AppTheme.surfaceElevated.opacity(0.20)],
+                                    colors: [Color.white.opacity(0.22), AppTheme.surfaceElevated.opacity(0.14)],
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
                                 )
@@ -32,14 +32,14 @@ struct ModernCard<Content: View>: View {
                     )
                     .overlay(
                         RoundedRectangle(cornerRadius: cornerRadius)
-                            .stroke(AppTheme.border, lineWidth: 0.5)
+                            .stroke(AppTheme.border.opacity(0.75), lineWidth: 0.75)
                     )
             )
             .shadow(
                 color: isElevated ? AppTheme.cardShadow : Color.clear,
-                radius: isElevated ? 14 : 0,
+                radius: isElevated ? 10 : 0,
                 x: 0,
-                y: isElevated ? 6 : 0
+                y: isElevated ? 4 : 0
             )
     }
 }
@@ -134,7 +134,112 @@ struct StatCard: View {
             RoundedRectangle(cornerRadius: AppTheme.radiusMd)
                 .stroke(AppTheme.border, lineWidth: 0.5)
         )
-        .shadow(color: AppTheme.cardShadow, radius: 8, x: 0, y: 2)
+        .shadow(color: AppTheme.cardShadow, radius: 6, x: 0, y: 2)
+    }
+}
+
+struct CompactDashboardMetric: Identifiable {
+    let id = UUID()
+    let title: String
+    let value: String
+    let color: Color
+}
+
+struct CompactDashboardQuadrant: Identifiable {
+    let id = UUID()
+    let title: String
+    let value: String
+    let icon: String
+    let color: Color
+}
+
+struct CompactDashboardPanel: View {
+    let metrics: [CompactDashboardMetric]
+    let quadrants: [CompactDashboardQuadrant]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: AppTheme.spacingMd) {
+            HStack(spacing: AppTheme.spacingSm) {
+                ForEach(metrics) { item in
+                    CompactMetricChip(item: item)
+                }
+            }
+            .frame(maxWidth: .infinity)
+
+            if !quadrants.isEmpty {
+                HStack(spacing: AppTheme.spacingSm) {
+                    ForEach(quadrants) { item in
+                        CompactQuadrantChip(item: item)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+            }
+        }
+        .padding(.horizontal, AppTheme.spacingMd)
+        .padding(.vertical, AppTheme.spacingSm)
+        .frame(maxWidth: .infinity, minHeight: 118, alignment: .center)
+        .background(AppTheme.background.opacity(0.5))
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusMd))
+        .overlay(
+            RoundedRectangle(cornerRadius: AppTheme.radiusMd)
+                .stroke(AppTheme.border.opacity(0.45), lineWidth: 0.75)
+        )
+    }
+}
+
+private struct CompactMetricChip: View {
+    let item: CompactDashboardMetric
+
+    var body: some View {
+        VStack(alignment: .center, spacing: 2) {
+            Text(item.value)
+                .font(.system(size: 22, weight: .bold, design: .rounded))
+                .foregroundStyle(item.color)
+            Text(item.title)
+                .font(.system(size: 11, weight: .medium))
+                .foregroundStyle(AppTheme.textSecondary)
+                .lineLimit(1)
+        }
+        .padding(.horizontal, AppTheme.spacingSm)
+        .padding(.vertical, AppTheme.spacingXs)
+        .frame(minWidth: 86, maxWidth: .infinity, minHeight: 50, alignment: .center)
+        .background(item.color.opacity(0.08))
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusMd))
+        .overlay(
+            RoundedRectangle(cornerRadius: AppTheme.radiusMd)
+                .stroke(item.color.opacity(0.18), lineWidth: 0.75)
+        )
+    }
+}
+
+private struct CompactQuadrantChip: View {
+    let item: CompactDashboardQuadrant
+
+    var body: some View {
+        HStack(spacing: AppTheme.spacingSm) {
+            Image(systemName: item.icon)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(item.color)
+            Text(item.value)
+                .font(.system(size: 18, weight: .bold, design: .rounded))
+                .foregroundStyle(item.color)
+            Text(item.title)
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(AppTheme.textSecondary)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(maxWidth: .infinity, alignment: .center)
+        .padding(.horizontal, AppTheme.spacingMd)
+        .padding(.vertical, 9)
+        .frame(maxWidth: .infinity, minHeight: 50)
+        .background(item.color.opacity(0.09))
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusMd))
+        .overlay(
+            RoundedRectangle(cornerRadius: AppTheme.radiusMd)
+                .stroke(item.color.opacity(0.14), lineWidth: 0.75)
+        )
     }
 }
 
@@ -368,6 +473,23 @@ struct Badge: View {
             .padding(size.padding)
             .background(color.opacity(0.12))
             .cornerRadius(AppTheme.radiusPill)
+    }
+}
+
+struct SidebarCountBadge: View {
+    let numerator: Int
+    let denominator: Int
+    var showsDenominator: Bool = true
+    let isSelected: Bool
+
+    var body: some View {
+        Text(showsDenominator ? "\(numerator)/\(denominator)" : "\(numerator)")
+            .font(.system(size: 12, weight: .bold, design: .rounded))
+            .foregroundStyle(isSelected ? AppTheme.primary : AppTheme.textSecondary)
+            .monospacedDigit()
+            .lineLimit(1)
+            .minimumScaleFactor(0.8)
+            .frame(width: showsDenominator ? 42 : 22, alignment: .trailing)
     }
 }
 

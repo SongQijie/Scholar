@@ -1,8 +1,11 @@
+import AppKit
 import SwiftUI
 
 struct ProjectsSectionView: View {
     @EnvironmentObject private var store: AppDataStore
     @ObservedObject var viewModel: ProjectManagementViewModel
+    @State private var projectToDelete: Project?
+    @State private var showDeleteProjectConfirmation = false
     private var language: AppLanguage { store.appLanguage }
 
     var body: some View {
@@ -41,20 +44,19 @@ struct ProjectsSectionView: View {
                         ForEach(projects) { project in
                             ProjectRowView(
                                 project: project,
-                                taskCount: AppDataStore.shared.tasks.filter { $0.projectId == project.id && $0.thesisId == nil }.count,
-                                reminderListName: viewModel.reminderLists.first { $0.id == project.reminderCalendarIdentifier }?.title,
                                 onSelect: {
                                     viewModel.selectedProjectFilter = project.id
                                     viewModel.loadTasks()
                                 },
-                                onSync: {
-                                    viewModel.syncProjectToReminders(project)
+                                onArchive: {
+                                    viewModel.archiveProject(project)
                                 },
                                 onEdit: {
                                     viewModel.beginEditingProject(project)
                                 },
                                 onDelete: {
-                                    viewModel.deleteProject(project)
+                                    projectToDelete = project
+                                    showDeleteProjectConfirmation = true
                                 }
                             )
                         }
@@ -66,6 +68,17 @@ struct ProjectsSectionView: View {
         .background(AppTheme.surface)
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusLg))
         .shadow(color: AppTheme.cardShadow, radius: 4, x: 0, y: 2)
+        .alert(language.text("删除项目", "Delete Project"), isPresented: $showDeleteProjectConfirmation) {
+            Button(language.text("取消", "Cancel"), role: .cancel) {}
+            Button(language.text("删除", "Delete"), role: .destructive) {
+                if let project = projectToDelete {
+                    viewModel.deleteProject(project)
+                }
+                projectToDelete = nil
+            }
+        } message: {
+            Text(language.text("确定删除这个项目及其关联任务吗？此操作不可撤销。", "Delete this project and its linked tasks? This cannot be undone."))
+        }
     }
 
     private var projectForm: some View {
@@ -79,50 +92,47 @@ struct ProjectsSectionView: View {
 
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: AppTheme.spacingSm) {
                 formField(language.text("项目名称", "Project Name"), text: $viewModel.projectFormTitle)
-                formField(language.text("预期成果", "Expected Outcome"), text: $viewModel.projectFormResult)
                 formField(language.text("负责人", "Owner"), text: $viewModel.projectFormOwner)
                 formField(language.text("合作方 / 合作者", "Partners / Collaborators"), text: $viewModel.projectFormCollaborators)
                 formField(language.text("共享文档链接", "Shared Doc Link"), text: $viewModel.projectFormSharedDocumentLink)
-                formField(language.text("经费来源", "Funding Source"), text: $viewModel.projectFormFundingSource)
-                formField(language.text("关键词（逗号分隔）", "Keywords (comma separated)"), text: $viewModel.projectFormKeywords)
+                formField(language.text("项目来源", "Project Source"), text: $viewModel.projectFormFundingSource)
                 formField(language.text("预算", "Budget"), text: $viewModel.projectFormBudget)
             }
 
-            reminderListPicker
+            HStack(alignment: .bottom, spacing: AppTheme.spacingSm) {
+                compactPickerField(language.text("分类", "Category"), width: 120) {
+                    Picker("", selection: $viewModel.projectFormCategory) {
+                        ForEach(ProjectCategory.allCases, id: \.self) { item in
+                            Text(item.displayName).tag(item)
+                        }
+                    }
+                }
 
-            HStack(spacing: AppTheme.spacingSm) {
-                Picker(language.text("分类", "Category"), selection: $viewModel.projectFormCategory) {
-                    ForEach(ProjectCategory.allCases, id: \.self) { item in
-                        Text(item.displayName).tag(item)
+                compactPickerField(language.text("阶段", "Stage"), width: 120) {
+                    Picker("", selection: $viewModel.projectFormStage) {
+                        ForEach(ProjectStage.allCases, id: \.self) { item in
+                            Text(item.displayName).tag(item)
+                        }
                     }
                 }
-                .pickerStyle(.menu)
-                .workspaceControl()
-                Picker(language.text("阶段", "Stage"), selection: $viewModel.projectFormStage) {
-                    ForEach(ProjectStage.allCases, id: \.self) { item in
-                        Text(item.displayName).tag(item)
-                    }
-                }
-                .pickerStyle(.menu)
-                .workspaceControl()
-                Picker(language.text("优先级", "Priority"), selection: $viewModel.projectFormPriority) {
-                    ForEach(ProjectPriority.allCases, id: \.self) { item in
-                        Text(item.displayName).tag(item)
-                    }
-                }
-                .pickerStyle(.menu)
-                .workspaceControl()
-            }
 
-            HStack(spacing: AppTheme.spacingSm) {
-                DatePicker(language.text("开始", "Start"), selection: $viewModel.projectFormStartDate, displayedComponents: [.date, .hourAndMinute])
-                    .workspaceControl()
-                DatePicker(language.text("截止", "Deadline"), selection: $viewModel.projectFormDeadline, displayedComponents: [.date, .hourAndMinute])
-                    .workspaceControl()
+                compactOptionalDateField(
+                    language.text("开始时间", "Start"),
+                    hasDate: $viewModel.projectFormHasStartDate,
+                    date: $viewModel.projectFormStartDate
+                )
+                .frame(width: 170)
+
+                compactOptionalDateField(
+                    language.text("截止时间", "Due"),
+                    hasDate: $viewModel.projectFormHasDeadline,
+                    date: $viewModel.projectFormDeadline
+                )
+                .frame(width: 170)
             }
 
             multilineField(language.text("项目摘要", "Summary"), text: $viewModel.projectFormSummary)
-            multilineField(language.text("阶段性交付物", "Deliverables"), text: $viewModel.projectFormExpectedDeliverables)
+            multilineField(language.text("预期成果", "Expected Outcome"), text: $viewModel.projectFormExpectedDeliverables)
             multilineField(language.text("备注", "Notes"), text: $viewModel.projectFormNotes)
 
             HStack {
@@ -164,20 +174,36 @@ struct ProjectsSectionView: View {
         }
     }
 
-    private var reminderListPicker: some View {
+    private func compactOptionalDateField(_ title: String, hasDate: Binding<Bool>, date: Binding<Date>) -> some View {
         VStack(alignment: .leading, spacing: AppTheme.spacingXs) {
-            Text(language.text("关联提醒事项列表", "Linked Reminders List"))
+            Text(title)
                 .font(AppTheme.captionFont)
                 .foregroundStyle(AppTheme.textSecondary)
-            Picker(language.text("关联提醒事项列表", "Linked Reminders List"), selection: $viewModel.projectFormReminderCalendarIdentifier) {
-                Text(language.text("不关联", "Not Linked")).tag(nil as String?)
-                ForEach(viewModel.reminderLists) { list in
-                    Text(list.title).tag(list.id as String?)
-                }
+            HStack(spacing: AppTheme.spacingXs) {
+                Toggle(title, isOn: hasDate)
+                    .labelsHidden()
+                    .toggleStyle(.checkbox)
+
+                DatePicker(title, selection: date, displayedComponents: .date)
+                    .labelsHidden()
+                    .disabled(!hasDate.wrappedValue)
+                    .opacity(hasDate.wrappedValue ? 1 : 0.45)
             }
-            .pickerStyle(.menu)
             .workspaceControl()
         }
+    }
+
+    private func compactPickerField<Content: View>(_ title: String, width: CGFloat, @ViewBuilder picker: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: AppTheme.spacingXs) {
+            Text(title)
+                .font(AppTheme.captionFont)
+                .foregroundStyle(AppTheme.textSecondary)
+            picker()
+                .labelsHidden()
+                .pickerStyle(.menu)
+                .workspaceControl()
+        }
+        .frame(width: width)
     }
 
     private func emptyState(_ text: String) -> some View {
@@ -194,80 +220,115 @@ struct ProjectsSectionView: View {
 struct ProjectRowView: View {
     @EnvironmentObject private var store: AppDataStore
     let project: Project
-    let taskCount: Int
-    let reminderListName: String?
     var onSelect: () -> Void
-    var onSync: () -> Void
+    var onArchive: () -> Void
     var onEdit: () -> Void
     var onDelete: () -> Void
     private var language: AppLanguage { store.appLanguage }
+    private var taskCount: Int {
+        store.tasks.filter { $0.projectId == project.id && $0.thesisId == nil && $0.affairId == nil }.count
+    }
+    private var projectProgress: Double {
+        let tasks = store.tasks.filter { $0.projectId == project.id && $0.thesisId == nil && $0.affairId == nil }
+        guard !tasks.isEmpty else { return 0 }
+        let completed = tasks.filter { $0.status == .completed }.count
+        return Double(completed) / Double(tasks.count)
+    }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.spacingSm) {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: AppTheme.spacingXs) {
+        HStack(spacing: 0) {
+            Rectangle()
+                .fill(AppTheme.primary)
+                .frame(width: 4)
+
+            VStack(alignment: .leading, spacing: AppTheme.spacingSm) {
+                HStack(spacing: AppTheme.spacingMd) {
                     Text(project.name)
                         .font(AppTheme.bodyFont)
                         .foregroundStyle(AppTheme.textPrimary)
-                    Text(project.summary.isEmpty ? project.result : project.summary)
+                    
+                    infoChip(project.category.displayName, color: AppTheme.secondary)
+                    infoChip(project.stage.displayName, color: AppTheme.primary)
+                    
+                    if let start = project.startDate, let end = project.deadline {
+                        infoChip("\(start.formatted("yyyy-MM-dd")) ~ \(end.formatted("yyyy-MM-dd"))", color: AppTheme.warning)
+                    } else if let end = project.deadline {
+                        infoChip(language.text("截止 \(end.formatted("yyyy-MM-dd"))", "Due \(end.formatted("yyyy-MM-dd"))"), color: AppTheme.warning)
+                    }
+                    
+                    if !project.sharedDocumentLink.isEmpty {
+                        sharedDocumentChip(project.sharedDocumentLink)
+                    }
+                    
+                    Spacer()
+                    
+                    infoChip(language.text("进度 \(Int(projectProgress * 100))%", "Progress \(Int(projectProgress * 100))%"), color: AppTheme.primary)
+                    infoChip(language.text("\(taskCount) 个任务", "\(taskCount) tasks"), color: AppTheme.accent)
+                }
+
+                if !project.summary.isEmpty {
+                    Text(project.summary)
                         .font(AppTheme.captionFont)
                         .foregroundStyle(AppTheme.textSecondary)
                         .lineLimit(2)
                 }
-                Spacer()
+
+                if !project.result.isEmpty {
+                    Text(language.text("预期成果", "Expected Outcome") + ": " + project.result)
+                        .font(AppTheme.captionFont)
+                        .foregroundStyle(AppTheme.textSecondary)
+                        .lineLimit(2)
+                }
+
+                HStack(spacing: AppTheme.spacingMd) {
+                    if !project.owner.isEmpty {
+                        detailText(language.text("负责人", "Owner"), value: project.owner)
+                    }
+                    if !project.collaborators.isEmpty {
+                        detailText(language.text("合作方", "Collaborators"), value: project.collaborators)
+                    }
+                    if !project.fundingSource.isEmpty {
+                        detailText(language.text("项目来源", "Source"), value: project.fundingSource)
+                    }
+                    if let budget = project.budget {
+                        detailText(language.text("预算", "Budget"), value: String(format: "%.2f", budget))
+                    }
+                }
+
+                if !project.notes.isEmpty {
+                    Text(project.notes)
+                        .font(.system(size: 10))
+                        .foregroundStyle(AppTheme.textTertiary)
+                        .lineLimit(1)
+                }
+
                 HStack(spacing: AppTheme.spacingXs) {
+                    Spacer()
                     Button(language.text("任务", "Tasks")) { onSelect() }
                         .buttonStyle(.bordered)
-                    if project.reminderCalendarIdentifier != nil {
-                        Button {
-                            onSync()
-                        } label: {
-                            Image(systemName: "arrow.triangle.2.circlepath")
-                        }
-                        .buttonStyle(.bordered)
+                    Button { onArchive() } label: {
+                        Label(language.text("归档", "Archive"), systemImage: "archivebox")
                     }
-                    Button {
-                        onEdit()
-                    } label: {
+                    .buttonStyle(.bordered)
+                    Button { onEdit() } label: {
                         Image(systemName: "square.and.pencil")
                     }
                     .buttonStyle(.bordered)
-                    Button(role: .destructive) {
-                        onDelete()
-                    } label: {
+                    Button(role: .destructive) { onDelete() } label: {
                         Image(systemName: "trash")
                     }
                     .buttonStyle(.bordered)
                 }
                 .controlSize(.small)
             }
-
-            HStack(spacing: AppTheme.spacingSm) {
-                infoChip(project.category.displayName, color: AppTheme.secondary)
-                infoChip(project.stage.displayName, color: AppTheme.primary)
-                infoChip(language.text("优先级 \(project.priority.displayName)", "Priority \(project.priority.displayName)"), color: AppTheme.warning)
-                infoChip(language.text("\(taskCount) 个项目任务", "\(taskCount) project tasks"), color: AppTheme.accent)
-                if let reminderListName {
-                    infoChip(language.text("提醒事项：\(reminderListName)", "Reminders: \(reminderListName)"), color: AppTheme.success)
-                }
-            }
-
-            if project.sharedDocumentLink.isNotEmpty {
-                Text(language.text("共享文档：\(project.sharedDocumentLink)", "Shared doc: \(project.sharedDocumentLink)"))
-                    .font(AppTheme.captionFont)
-                    .foregroundStyle(AppTheme.primary)
-                    .lineLimit(1)
-            }
-
-            HStack(spacing: AppTheme.spacingMd) {
-                detailText(language.text("负责人", "Owner"), value: project.owner.isEmpty ? language.text("未填写", "Not set") : project.owner)
-                detailText(language.text("协作", "Collab"), value: project.collaborators.isEmpty ? language.text("未填写", "Not set") : project.collaborators)
-                detailText(language.text("时间", "Timeline"), value: dateRangeText)
-            }
+            .padding(AppTheme.spacingMd)
         }
-        .padding(AppTheme.spacingMd)
         .background(AppTheme.background)
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusMd))
+        .overlay(
+            RoundedRectangle(cornerRadius: AppTheme.radiusMd)
+                .stroke(AppTheme.divider, lineWidth: 0.5)
+        )
     }
 
     private func infoChip(_ text: String, color: Color) -> some View {
@@ -275,13 +336,36 @@ struct ProjectRowView: View {
             .font(AppTheme.captionFont)
             .padding(.horizontal, AppTheme.spacingSm)
             .padding(.vertical, 2)
-            .background(color.opacity(0.1))
+            .background(color.opacity(0.12))
             .foregroundStyle(color)
             .clipShape(Capsule())
     }
 
+    private func sharedDocumentChip(_ link: String) -> some View {
+        Button {
+            openSharedDocument(link)
+        } label: {
+            infoChip(language.text("📎 共享文档", "📎 Shared Doc"), color: AppTheme.primary)
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func openSharedDocument(_ link: String) {
+        guard let url = sharedDocumentURL(from: link) else { return }
+        NSWorkspace.shared.open(url)
+    }
+
+    private func sharedDocumentURL(from link: String) -> URL? {
+        let trimmed = link.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+        if let url = URL(string: trimmed), url.scheme != nil {
+            return url
+        }
+        return URL(string: "https://\(trimmed)")
+    }
+
     private func detailText(_ title: String, value: String) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
+        HStack(spacing: 4) {
             Text(title)
                 .font(.system(size: 10))
                 .foregroundStyle(AppTheme.textTertiary)
@@ -290,11 +374,5 @@ struct ProjectRowView: View {
                 .foregroundStyle(AppTheme.textSecondary)
                 .lineLimit(1)
         }
-    }
-
-    private var dateRangeText: String {
-        let start = project.startDate?.formatted("MM/dd HH:mm") ?? language.text("未设", "Unset")
-        let end = project.deadline?.formatted("MM/dd HH:mm") ?? language.text("未设", "Unset")
-        return "\(start) - \(end)"
     }
 }

@@ -13,13 +13,6 @@
     "object" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/AchievementView.o",
     "swift-dependencies" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/AchievementView.swiftdeps"
   },
-  "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/DataManagement/DataManagementView.swift" : {
-    "const-values" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/DataManagementView.swiftconstvalues",
-    "dependencies" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/DataManagementView.d",
-    "diagnostics" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/DataManagementView.dia",
-    "object" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/DataManagementView.o",
-    "swift-dependencies" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/DataManagementView.swiftdeps"
-  },
   "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/MainContentView.swift" : {
     "const-values" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/MainContentView.swiftconstvalues",
     "dependencies" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/MainContentView.d",

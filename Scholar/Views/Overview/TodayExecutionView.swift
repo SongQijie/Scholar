@@ -9,13 +9,13 @@ struct TodayExecutionView: View {
     private var language: AppLanguage { store.appLanguage }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppTheme.spacingSm) {
+        VStack(alignment: .leading, spacing: AppTheme.spacingMd) {
             HStack {
                 Text(language.text("今日执行", "Today's Execution"))
                     .font(AppTheme.subtitleFont)
                     .foregroundStyle(AppTheme.textPrimary)
                 Spacer()
-                Text(language.text("进行中 \(viewModel.inProgressTasks.count)", "In Progress \(viewModel.inProgressTasks.count)"))
+                Text(language.text("持续推进 \(viewModel.todayTasks.count)", "Keep Active \(viewModel.todayTasks.count)"))
                     .font(AppTheme.captionFont)
                     .padding(.horizontal, AppTheme.spacingSm)
                     .padding(.vertical, 2)
@@ -81,8 +81,6 @@ struct TodayExecutionView: View {
             } else {
                 ForEach(viewModel.todayTasks) { task in
                     TaskRowView(task: task) {
-                        viewModel.startTask(task)
-                    } onEnd: {
                         viewModel.endTask(task)
                     }
                 }
@@ -91,7 +89,10 @@ struct TodayExecutionView: View {
         .padding(AppTheme.spacingMd)
         .background(AppTheme.surface)
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusLg))
-        .shadow(color: AppTheme.cardShadow, radius: 4, x: 0, y: 2)
+        .overlay(
+            RoundedRectangle(cornerRadius: AppTheme.radiusLg)
+                .stroke(AppTheme.border.opacity(0.55), lineWidth: 0.75)
+        )
     }
 
     private func submitTask() {
@@ -105,11 +106,19 @@ struct TodayExecutionView: View {
 
 struct TaskRowView: View {
     let task: Task
-    var onStart: () -> Void
     var onEnd: () -> Void
 
     var body: some View {
-        HStack {
+        HStack(spacing: AppTheme.spacingMd) {
+            Button {
+                onEnd()
+            } label: {
+                Image(systemName: "circle")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(AppTheme.textSecondary)
+            }
+            .buttonStyle(.plain)
+
             VStack(alignment: .leading, spacing: 4) {
                 Text(task.title)
                     .font(AppTheme.bodyFont)
@@ -133,25 +142,6 @@ struct TaskRowView: View {
             }
 
             Spacer()
-
-            switch task.status {
-            case .notStarted:
-                Button(AppLanguage.storedPreference.text("开始", "Start")) {
-                    onStart()
-                }
-                .buttonStyle(.borderedProminent)
-                .controlSize(.small)
-            case .inProgress:
-                Button(AppLanguage.storedPreference.text("结束", "End")) {
-                    onEnd()
-                }
-                .buttonStyle(.bordered)
-                .tint(AppTheme.success)
-                .controlSize(.small)
-            case .completed:
-                Image(systemName: "checkmark.circle.fill")
-                    .foregroundStyle(AppTheme.success)
-            }
         }
         .padding(.horizontal, AppTheme.spacingSm)
         .padding(.vertical, AppTheme.spacingXs)

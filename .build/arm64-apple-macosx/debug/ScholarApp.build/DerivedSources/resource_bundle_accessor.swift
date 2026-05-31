@@ -1,7 +1,7 @@
 import Foundation
 
 extension Foundation.Bundle {
-    static let module: Bundle = {
+    static nonisolated let module: Bundle = {
         let mainPath = Bundle.main.bundleURL.appendingPathComponent("Scholar_ScholarApp.bundle").path
         let buildPath = "/Users/songqijie/STISec/phd/Scholar/.build/arm64-apple-macosx/debug/Scholar_ScholarApp.bundle"
 

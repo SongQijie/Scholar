@@ -99,6 +99,8 @@ enum TaskRecurrence: String, Codable, CaseIterable {
 
 // MARK: - 项目分类
 enum ProjectCategory: String, Codable, CaseIterable {
+    case horizontal = "horizontal"
+    case vertical = "vertical"
     case thesis = "thesis"
     case publication = "publication"
     case teaching = "teaching"
@@ -108,8 +110,14 @@ enum ProjectCategory: String, Codable, CaseIterable {
     case health = "health"
     case other = "other"
 
+    static var allCases: [ProjectCategory] {
+        [.horizontal, .vertical]
+    }
+
     var displayName: String {
         switch self {
+        case .horizontal: return appLanguage.text("横向项目", "Horizontal Project")
+        case .vertical: return appLanguage.text("纵向项目", "Vertical Project")
         case .thesis: return appLanguage.text("科研/课题", "Research / Topics")
         case .publication: return appLanguage.text("成果/投稿", "Outcomes / Submission")
         case .teaching: return appLanguage.text("教学/课程", "Teaching / Courses")
@@ -230,8 +238,30 @@ enum SubmissionStage: String, Codable, CaseIterable {
     }
 }
 
+// MARK: - 论文状态
+enum PaperStatus: String, Codable, CaseIterable {
+    case submitted = "submitted"
+    case underReview = "under_review"
+    case firstRound = "first_round"
+    case secondRound = "second_round"
+    case thirdRound = "third_round"
+    case accepted = "accepted"
+
+    var displayName: String {
+        switch self {
+        case .submitted: return appLanguage.text("投递", "Submitted")
+        case .underReview: return appLanguage.text("审稿", "Under Review")
+        case .firstRound: return appLanguage.text("一轮", "First Round")
+        case .secondRound: return appLanguage.text("二轮", "Second Round")
+        case .thirdRound: return appLanguage.text("三轮", "Third Round")
+        case .accepted: return appLanguage.text("录用", "Accepted")
+        }
+    }
+}
+
 // MARK: - 专利状态
 enum PatentStatus: String, Codable, CaseIterable {
+    case fastPreliminary = "fast_preliminary"
     case submitted = "submitted"
     case accepted = "accepted"
     case published = "published"
@@ -239,6 +269,7 @@ enum PatentStatus: String, Codable, CaseIterable {
 
     var displayName: String {
         switch self {
+        case .fastPreliminary: return appLanguage.text("快速预审", "Fast Preliminary")
         case .submitted: return appLanguage.text("提交", "Submitted")
         case .accepted: return appLanguage.text("受理", "Accepted")
         case .published: return appLanguage.text("公开", "Published")

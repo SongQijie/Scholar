@@ -3,16 +3,16 @@ import SwiftUI
 // MARK: - App Theme
 enum AppTheme {
     // MARK: - Brand Colors (Modern Gradient Palette)
-    static let primary = Color(hex: "2563EB")      // Blue
-    static let primaryLight = Color(hex: "38BDF8") // Sky
+    static let primary = Color(hex: "2F6FED")      // Scholarly Blue
+    static let primaryLight = Color(hex: "60A5FA") // Sky
     static let primaryDark = Color(hex: "1D4ED8")  // Deep Blue
     
-    static let secondary = Color(hex: "06B6D4")    // Cyan
-    static let accent = Color(hex: "F59E0B")       // Amber
-    static let success = Color(hex: "10B981")      // Emerald
-    static let warning = Color(hex: "F97316")      // Orange
-    static let danger = Color(hex: "EF4444")       // Red
-    static let info = Color(hex: "3B82F6")         // Blue
+    static let secondary = Color(hex: "0891B2")    // Cyan
+    static let accent = Color(hex: "D97706")       // Amber
+    static let success = Color(hex: "059669")      // Emerald
+    static let warning = Color(hex: "EA580C")      // Orange
+    static let danger = Color(hex: "DC2626")       // Red
+    static let info = Color(hex: "2563EB")         // Blue
     
     // MARK: - Achievement Category Colors
     static let executionColor = Color(hex: "8B5CF6")  // Violet
@@ -21,15 +21,15 @@ enum AppTheme {
     static let supportColor = Color(hex: "06B6D4")    // Cyan
     
     // MARK: - Semantic Colors (Light/Dark Mode Adaptive)
-    static let background = Color(light: Color(hex: "F4F7FB"), dark: Color(hex: "101418"))
+    static let background = Color(light: Color(hex: "F6F8FC"), dark: Color(hex: "101418"))
     static let surface = Color(light: Color(hex: "FFFFFF"), dark: Color(hex: "171C22"))
-    static let surfaceElevated = Color(light: Color(hex: "EEF4FA"), dark: Color(hex: "202832"))
+    static let surfaceElevated = Color(light: Color(hex: "F0F5FB"), dark: Color(hex: "202832"))
     static let textPrimary = Color(light: Color(hex: "111827"), dark: Color(hex: "F8FAFC"))
-    static let textSecondary = Color(light: Color(hex: "526071"), dark: Color(hex: "B6C2D1"))
-    static let textTertiary = Color(light: Color(hex: "8996A8"), dark: Color(hex: "718093"))
+    static let textSecondary = Color(light: Color(hex: "4B5B70"), dark: Color(hex: "B6C2D1"))
+    static let textTertiary = Color(light: Color(hex: "8391A5"), dark: Color(hex: "718093"))
     static let textInverse = Color(light: Color(hex: "FFFFFF"), dark: Color(hex: "0F172A"))
-    static let border = Color(light: Color(hex: "D9E2EC"), dark: Color(hex: "2A3441"))
-    static let divider = Color(light: Color(hex: "E6EDF5"), dark: Color(hex: "26313D"))
+    static let border = Color(light: Color(hex: "D8E1EE"), dark: Color(hex: "2A3441"))
+    static let divider = Color(light: Color(hex: "E7EDF6"), dark: Color(hex: "26313D"))
     
     // MARK: - Gradient Presets
     static var primaryGradient: LinearGradient {
@@ -68,8 +68,8 @@ enum AppTheme {
         LinearGradient(
             colors: [
                 background,
-                primary.opacity(0.08),
-                secondary.opacity(0.08)
+                primary.opacity(0.055),
+                success.opacity(0.045)
             ],
             startPoint: .topLeading,
             endPoint: .bottomTrailing
@@ -105,11 +105,11 @@ enum AppTheme {
     static let radiusPill: CGFloat = 9999
     
     // MARK: - Shadows
-    static let shadowSm = Color.black.opacity(0.05)
-    static let shadowMd = Color.black.opacity(0.08)
-    static let shadowLg = Color.black.opacity(0.12)
-    static let shadowXl = Color.black.opacity(0.16)
-    static let cardShadow = Color.black.opacity(0.09)
+    static let shadowSm = Color.black.opacity(0.035)
+    static let shadowMd = Color.black.opacity(0.055)
+    static let shadowLg = Color.black.opacity(0.085)
+    static let shadowXl = Color.black.opacity(0.12)
+    static let cardShadow = Color.black.opacity(0.065)
     
     // MARK: - Typography
     static let fontDisplay: Font = .system(size: 32, weight: .bold, design: .rounded)
@@ -217,47 +217,39 @@ struct WorkspaceTextFieldStyle: TextFieldStyle {
             .font(AppTheme.fontCallout)
             .foregroundStyle(AppTheme.textPrimary)
             .padding(.horizontal, AppTheme.spacing12)
-            .padding(.vertical, AppTheme.spacing10)
+            .padding(.vertical, AppTheme.spacing8)
             .background(
                 RoundedRectangle(cornerRadius: AppTheme.radiusMd)
                     .fill(AppTheme.surface)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: AppTheme.radiusMd)
-                            .fill(AppTheme.surfaceElevated.opacity(0.28))
-                    )
             )
             .overlay(
                 RoundedRectangle(cornerRadius: AppTheme.radiusMd)
-                    .stroke(AppTheme.border, lineWidth: 1)
+                    .stroke(AppTheme.border.opacity(0.70), lineWidth: 0.75)
             )
-            .shadow(color: AppTheme.shadowSm, radius: 5, x: 0, y: 2)
+            .shadow(color: AppTheme.shadowSm, radius: 1.5, x: 0, y: 1)
     }
 }
 
 struct WorkspaceControlSurface: ViewModifier {
-    var minHeight: CGFloat = 38
+    var minHeight: CGFloat = 34
 
     func body(content: Content) -> some View {
         content
-            .font(AppTheme.fontCalloutMedium)
+            .font(AppTheme.fontCallout)
             .foregroundStyle(AppTheme.textPrimary)
             .controlSize(.regular)
-            .padding(.horizontal, AppTheme.spacing10)
-            .padding(.vertical, AppTheme.spacing6)
+            .padding(.horizontal, AppTheme.spacing8)
+            .padding(.vertical, AppTheme.spacing4)
             .frame(minHeight: minHeight)
             .background(
                 RoundedRectangle(cornerRadius: AppTheme.radiusMd)
                     .fill(AppTheme.surface)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: AppTheme.radiusMd)
-                            .fill(AppTheme.surfaceElevated.opacity(0.25))
-                    )
             )
             .overlay(
                 RoundedRectangle(cornerRadius: AppTheme.radiusMd)
-                    .stroke(AppTheme.border, lineWidth: 1)
+                    .stroke(AppTheme.border.opacity(0.70), lineWidth: 0.75)
             )
-            .shadow(color: AppTheme.shadowSm, radius: 4, x: 0, y: 1)
+            .shadow(color: AppTheme.shadowSm, radius: 1.5, x: 0, y: 1)
     }
 }
 
@@ -265,12 +257,12 @@ struct WorkspaceSegmentedSurface: ViewModifier {
     func body(content: Content) -> some View {
         content
             .controlSize(.regular)
-            .padding(AppTheme.spacing4)
-            .background(AppTheme.surfaceElevated.opacity(0.65))
+            .padding(AppTheme.spacing2)
+            .background(AppTheme.surface)
             .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusMd))
             .overlay(
                 RoundedRectangle(cornerRadius: AppTheme.radiusMd)
-                    .stroke(AppTheme.border.opacity(0.8), lineWidth: 1)
+                    .stroke(AppTheme.border.opacity(0.75), lineWidth: 0.75)
             )
     }
 }

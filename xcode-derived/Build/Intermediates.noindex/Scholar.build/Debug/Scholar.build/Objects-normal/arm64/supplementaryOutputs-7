@@ -6,13 +6,6 @@
     "object" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/OverviewView.o",
     "swift-dependencies" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/OverviewView.swiftdeps"
   },
-  "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/Overview/TodayExecutionView.swift" : {
-    "const-values" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/TodayExecutionView.swiftconstvalues",
-    "dependencies" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/TodayExecutionView.d",
-    "diagnostics" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/TodayExecutionView.dia",
-    "object" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/TodayExecutionView.o",
-    "swift-dependencies" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/TodayExecutionView.swiftdeps"
-  },
   "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/ProjectManagement/ProjectManagementView.swift" : {
     "const-values" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/ProjectManagementView.swiftconstvalues",
     "dependencies" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/ProjectManagementView.d",
@@ -33,6 +26,13 @@
     "diagnostics" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/TasksSectionView.dia",
     "object" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/TasksSectionView.o",
     "swift-dependencies" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/TasksSectionView.swiftdeps"
+  },
+  "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/ThesisManagement/ThesisManagementView.swift" : {
+    "const-values" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/ThesisManagementView.swiftconstvalues",
+    "dependencies" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/ThesisManagementView.d",
+    "diagnostics" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/ThesisManagementView.dia",
+    "object" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/ThesisManagementView.o",
+    "swift-dependencies" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/ThesisManagementView.swiftdeps"
   },
   "/Users/songqijie/STISec/phd/Scholar/Scholar/Views/ThesisManagement/ThesisTasksSectionView.swift" : {
     "const-values" : "/Users/songqijie/STISec/phd/Scholar/xcode-derived/Build/Intermediates.noindex/Scholar.build/Debug/Scholar.build/Objects-normal/arm64/ThesisTasksSectionView.swiftconstvalues",
