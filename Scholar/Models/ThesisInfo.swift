@@ -13,6 +13,8 @@ struct ThesisInfo: Codable, Identifiable, Hashable {
     var milestones: [Milestone]
     var chapters: [Chapter]
     var logs: [ThesisLog]
+    var createdAt: Date
+    var updatedAt: Date
 
     init(
         id: UUID = UUID(),
@@ -23,7 +25,9 @@ struct ThesisInfo: Codable, Identifiable, Hashable {
         sharedDocumentLink: String = "",
         dueDate: Date? = nil,
         isArchived: Bool = false,
-        students: [Student] = []
+        students: [Student] = [],
+        createdAt: Date = Date(),
+        updatedAt: Date = Date()
     ) {
         self.id = id
         self.title = title
@@ -37,6 +41,8 @@ struct ThesisInfo: Codable, Identifiable, Hashable {
         self.milestones = []
         self.chapters = []
         self.logs = []
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
     }
 
     var overallProgress: Double {
@@ -46,7 +52,7 @@ struct ThesisInfo: Codable, Identifiable, Hashable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case id, title, stage, defenseDate, currentVersion, notes, sharedDocumentLink, dueDate, isArchived, content, students, milestones, chapters, logs
+        case id, title, stage, defenseDate, currentVersion, notes, sharedDocumentLink, dueDate, isArchived, content, students, milestones, chapters, logs, createdAt, updatedAt
     }
 
     init(from decoder: Decoder) throws {
@@ -65,6 +71,8 @@ struct ThesisInfo: Codable, Identifiable, Hashable {
         milestones = try container.decodeIfPresent([Milestone].self, forKey: .milestones) ?? []
         chapters = try container.decodeIfPresent([Chapter].self, forKey: .chapters) ?? []
         logs = try container.decodeIfPresent([ThesisLog].self, forKey: .logs) ?? []
+        createdAt = try container.decodeIfPresent(Date.self, forKey: .createdAt) ?? Date()
+        updatedAt = try container.decodeIfPresent(Date.self, forKey: .updatedAt) ?? createdAt
     }
 
     func encode(to encoder: Encoder) throws {
@@ -81,6 +89,8 @@ struct ThesisInfo: Codable, Identifiable, Hashable {
         try container.encode(milestones, forKey: .milestones)
         try container.encode(chapters, forKey: .chapters)
         try container.encode(logs, forKey: .logs)
+        try container.encode(createdAt, forKey: .createdAt)
+        try container.encode(updatedAt, forKey: .updatedAt)
     }
 }
 

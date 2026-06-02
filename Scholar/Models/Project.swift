@@ -21,6 +21,7 @@ struct Project: Codable, Identifiable, Hashable {
     var isArchived: Bool
     var createdAt: Date
     var updatedAt: Date
+    var timelineLogs: [WorkspaceTimelineLog]
 
     init(
         id: UUID = UUID(),
@@ -64,6 +65,7 @@ struct Project: Codable, Identifiable, Hashable {
         self.isArchived = isArchived
         self.createdAt = createdAt
         self.updatedAt = updatedAt
+        self.timelineLogs = []
     }
 
     var isActive: Bool {
@@ -75,7 +77,7 @@ struct Project: Codable, Identifiable, Hashable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case id, name, result, sharedDocumentLink, category, stage, priority, owner, collaborators, summary, keywords, fundingSource, expectedDeliverables, budget, startDate, deadline, notes, isArchived, createdAt, updatedAt
+        case id, name, result, sharedDocumentLink, category, stage, priority, owner, collaborators, summary, keywords, fundingSource, expectedDeliverables, budget, startDate, deadline, notes, isArchived, createdAt, updatedAt, timelineLogs
     }
 
     init(from decoder: Decoder) throws {
@@ -100,6 +102,7 @@ struct Project: Codable, Identifiable, Hashable {
         isArchived = try container.decodeIfPresent(Bool.self, forKey: .isArchived) ?? false
         createdAt = try container.decodeIfPresent(Date.self, forKey: .createdAt) ?? Date()
         updatedAt = try container.decodeIfPresent(Date.self, forKey: .updatedAt) ?? Date()
+        timelineLogs = try container.decodeIfPresent([WorkspaceTimelineLog].self, forKey: .timelineLogs) ?? []
     }
 }
 
@@ -113,6 +116,7 @@ struct Affair: Codable, Identifiable, Hashable {
     var isArchived: Bool
     var createdAt: Date
     var updatedAt: Date
+    var timelineLogs: [WorkspaceTimelineLog]
 
     init(
         id: UUID = UUID(),
@@ -134,6 +138,7 @@ struct Affair: Codable, Identifiable, Hashable {
         self.isArchived = isArchived
         self.createdAt = createdAt
         self.updatedAt = updatedAt
+        self.timelineLogs = []
     }
 
     var tagText: String {
@@ -146,7 +151,7 @@ struct Affair: Codable, Identifiable, Hashable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case id, title, details, dueDate, source, tags, isArchived, createdAt, updatedAt
+        case id, title, details, dueDate, source, tags, isArchived, createdAt, updatedAt, timelineLogs
     }
 
     init(from decoder: Decoder) throws {
@@ -160,5 +165,6 @@ struct Affair: Codable, Identifiable, Hashable {
         isArchived = try container.decodeIfPresent(Bool.self, forKey: .isArchived) ?? false
         createdAt = try container.decodeIfPresent(Date.self, forKey: .createdAt) ?? Date()
         updatedAt = try container.decodeIfPresent(Date.self, forKey: .updatedAt) ?? Date()
+        timelineLogs = try container.decodeIfPresent([WorkspaceTimelineLog].self, forKey: .timelineLogs) ?? []
     }
 }

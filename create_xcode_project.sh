@@ -36,10 +36,14 @@ cat > "$APP_DIR/Info.plist" << 'PLIST'
     <string>1.0</string>
     <key>CFBundleVersion</key>
     <string>1</string>
+    <key>LSApplicationCategoryType</key>
+    <string>public.app-category.productivity</string>
     <key>LSMinimumSystemVersion</key>
     <string>$(MACOSX_DEPLOYMENT_TARGET)</string>
     <key>NSRemindersUsageDescription</key>
     <string>Scholar 需要访问提醒事项，以便把项目任务同步到 Apple 提醒事项。</string>
+    <key>NSAppleEventsUsageDescription</key>
+    <string>Scholar 需要控制提醒事项，以便把事务任务同步为提醒事项中的缩进子项。</string>
     <key>NSMainStoryboardFile</key>
     <string></string>
     <key>NSPrincipalClass</key>
@@ -50,24 +54,11 @@ PLIST
 
 echo "✅ Info.plist 已创建"
 
-# 收集所有 Swift 源文件
-SWIFT_FILES=()
-while IFS= read -r -d '' file; do
-    SWIFT_FILES+=("$file")
-done < <(find "$APP_DIR" -name "*.swift" -print0 | sort -z)
-
-# 收集资源文件
-RESOURCE_FILES=()
-while IFS= read -r -d '' file; do
-    RESOURCE_FILES+=("$file")
-done < <(find "$APP_DIR" \( -path "*/Resources/*" -o -path "*/Assets.xcassets" \) -print0 | sort -z)
-
 # 生成 PBX 文件
 SCRIPT_DIR_ENV="$SCRIPT_DIR" APP_DIR_ENV="$APP_DIR" PROJECT_NAME_ENV="$PROJECT_NAME" python3 << 'PYTHON_SCRIPT'
 import os
 import uuid
 import plistlib
-import hashlib
 
 script_dir = os.environ["SCRIPT_DIR_ENV"]
 app_dir = os.environ["APP_DIR_ENV"]
@@ -106,7 +97,6 @@ build_config_list_id = make_uuid()
 debug_config_id = make_uuid()
 release_config_id = make_uuid()
 native_target_id = make_uuid()
-build_phases_id = make_uuid()
 sources_build_phase_id = make_uuid()
 resources_build_phase_id = make_uuid()
 frameworks_build_phase_id = make_uuid()
@@ -115,7 +105,6 @@ info_plist_id = make_uuid()
 
 # File references
 file_refs = {}
-file_ref_to_product = {}
 build_files = {}
 resource_file_refs = {}
 resource_build_files = {}

@@ -149,6 +149,7 @@ struct SubmissionView: View {
                         .font(AppTheme.captionFont)
                 }
                 .buttonStyle(.borderedProminent)
+                .workspaceButton()
                 .tint(AppTheme.primary)
                 .controlSize(.small)
             }
@@ -246,6 +247,7 @@ struct SubmissionView: View {
                             Image(systemName: "archivebox")
                         }
                         .buttonStyle(.borderedProminent)
+                .workspaceButton()
                         .tint(AppTheme.success)
                         .controlSize(.mini)
                     }
@@ -256,6 +258,7 @@ struct SubmissionView: View {
                         Image(systemName: "trash")
                     }
                     .buttonStyle(.bordered)
+                .workspaceButton()
                     .tint(AppTheme.textTertiary)
                     .controlSize(.mini)
                 }
@@ -391,6 +394,7 @@ struct SubmissionView: View {
                         Image(systemName: "archivebox")
                     }
                     .buttonStyle(.borderedProminent)
+                .workspaceButton()
                     .tint(AppTheme.success)
                     .controlSize(.mini)
                 }
@@ -401,6 +405,7 @@ struct SubmissionView: View {
                     Image(systemName: "trash")
                 }
                 .buttonStyle(.bordered)
+                .workspaceButton()
                 .tint(AppTheme.textTertiary)
                 .controlSize(.mini)
             }
@@ -457,6 +462,21 @@ struct SubmissionView: View {
                     .workspaceSegmented()
                 }
                 .frame(width: 340)
+
+                VStack(alignment: .leading, spacing: AppTheme.spacingXs) {
+                    Text(language.text("关联课题", "Related Topic"))
+                        .font(AppTheme.captionFont)
+                        .foregroundStyle(AppTheme.textSecondary)
+                    Picker(language.text("关联课题", "Related Topic"), selection: $viewModel.newThesisId) {
+                        Text(language.text("暂不关联", "Not Linked")).tag(nil as UUID?)
+                        ForEach(store.thesisInfos.filter { !$0.isArchived }) { thesis in
+                            Text(thesis.title).tag(thesis.id as UUID?)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .workspaceControl()
+                }
+                .frame(width: 180)
             }
 
             if viewModel.newOutcomeType == .paper {
@@ -726,6 +746,7 @@ struct SubmissionView: View {
                         importAttachmentForDraft()
                     }
                     .buttonStyle(.bordered)
+                .workspaceButton()
                     .controlSize(.small)
                 }
                 if !viewModel.pendingAttachmentURLs.isEmpty {
@@ -743,6 +764,7 @@ struct SubmissionView: View {
                     viewModel.addSubmission()
                 }
                 .buttonStyle(.borderedProminent)
+                .workspaceButton()
                 .tint(AppTheme.primary)
                 .controlSize(.small)
                 .disabled(viewModel.newSubmissionName.trimmingCharacters(in: .whitespaces).isEmpty)
@@ -752,6 +774,7 @@ struct SubmissionView: View {
                     resetForm()
                 }
                 .buttonStyle(.bordered)
+                .workspaceButton()
                 .tint(AppTheme.textSecondary)
                 .controlSize(.small)
 
@@ -783,6 +806,7 @@ struct SubmissionView: View {
         viewModel.newRelatedStudents = ""
         viewModel.newSubmissionDate = nil
         viewModel.newAcceptanceDate = nil
+        viewModel.newThesisId = nil
         viewModel.pendingAttachmentURLs = []
     }
 
@@ -1149,13 +1173,14 @@ struct SubmissionView: View {
     @ViewBuilder
     private func unarchiveButtonIfNeeded(_ submission: Submission) -> some View {
         HStack(spacing: AppTheme.spacingXs) {
-            if submission.isArchived {
+            if submission.isArchived && (submission.type == .paper || submission.type == .patent) {
                 Button {
                     viewModel.unarchiveSubmission(submission)
                 } label: {
                     Image(systemName: "tray.and.arrow.up")
                 }
                 .buttonStyle(.bordered)
+                .workspaceButton()
                 .tint(AppTheme.secondary)
                 .controlSize(.mini)
             }
@@ -1166,6 +1191,7 @@ struct SubmissionView: View {
                 Image(systemName: "trash")
             }
             .buttonStyle(.bordered)
+                .workspaceButton()
             .tint(AppTheme.textTertiary)
             .controlSize(.mini)
         }

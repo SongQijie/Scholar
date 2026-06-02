@@ -27,6 +27,7 @@ struct Submission: Codable, Identifiable, Hashable {
     var createdAt: Date
     var updatedAt: Date
     var logs: [SubmissionLog]
+    var thesisId: UUID?
 
     init(
         id: UUID = UUID(),
@@ -52,6 +53,7 @@ struct Submission: Codable, Identifiable, Hashable {
         acceptanceDate: Date? = nil,
         isArchived: Bool = false,
         attachments: [FileAttachment] = [],
+        thesisId: UUID? = nil,
         createdAt: Date = Date(),
         updatedAt: Date = Date()
     ) {
@@ -78,6 +80,7 @@ struct Submission: Codable, Identifiable, Hashable {
         self.acceptanceDate = acceptanceDate
         self.isArchived = isArchived
         self.attachments = attachments
+        self.thesisId = thesisId
         self.createdAt = createdAt
         self.updatedAt = updatedAt
         self.logs = []
@@ -86,7 +89,7 @@ struct Submission: Codable, Identifiable, Hashable {
     enum CodingKeys: String, CodingKey {
         case id, name, type, personalRank, targetJournal, targetIdentifier, collaborators, awardLevel, summary
         case ccfGrade, sciGrade, isEI, isCorrespondingAuthor, authors, authorOrder, patentStatus, relatedStudents
-        case stage, paperStatus, submissionDate, acceptanceDate, isArchived, attachments, createdAt, updatedAt, logs
+        case stage, paperStatus, submissionDate, acceptanceDate, isArchived, attachments, thesisId, createdAt, updatedAt, logs
     }
 
     init(from decoder: Decoder) throws {
@@ -114,6 +117,7 @@ struct Submission: Codable, Identifiable, Hashable {
         acceptanceDate = try container.decodeIfPresent(Date.self, forKey: .acceptanceDate)
         isArchived = try container.decodeIfPresent(Bool.self, forKey: .isArchived) ?? false
         attachments = try container.decodeIfPresent([FileAttachment].self, forKey: .attachments) ?? []
+        thesisId = try container.decodeIfPresent(UUID.self, forKey: .thesisId)
         createdAt = try container.decodeIfPresent(Date.self, forKey: .createdAt) ?? Date()
         updatedAt = try container.decodeIfPresent(Date.self, forKey: .updatedAt) ?? Date()
         logs = try container.decodeIfPresent([SubmissionLog].self, forKey: .logs) ?? []

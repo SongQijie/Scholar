@@ -161,6 +161,7 @@ struct TodoManagementView: View {
                     Label(language.text("新建待办", "New Todo"), systemImage: "plus")
                 }
                 .buttonStyle(.borderedProminent)
+                .workspaceButton()
                 .tint(AppTheme.accent)
             }
 
@@ -180,6 +181,7 @@ struct TodoManagementView: View {
                             onToggle: { viewModel.toggleTaskCompletion(task) },
                             onToggleToday: { viewModel.toggleTaskToday(task) },
                             onEdit: { viewModel.beginEditingTask(task) },
+                            onDelaySaved: { viewModel.loadData() },
                             onDelete: {
                                 taskToDelete = task
                                 showDeleteTaskConfirmation = true
@@ -256,10 +258,10 @@ struct TodoManagementView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
                 VStack(alignment: .leading, spacing: AppTheme.spacingXs) {
-                    Text(language.text("持续推进", "Keep Active"))
+                    Text(language.text("关注", "Watched"))
                         .font(AppTheme.captionFont)
                         .foregroundStyle(AppTheme.textSecondary)
-                    Toggle(language.text("持续推进", "Keep Active"), isOn: $viewModel.taskFormIsToday)
+                    Toggle(language.text("关注", "Watched"), isOn: $viewModel.taskFormIsToday)
                         .labelsHidden()
                         .toggleStyle(.checkbox)
                         .frame(height: 38, alignment: .center)
@@ -269,16 +271,27 @@ struct TodoManagementView: View {
 
             multilineField(language.text("任务内容", "Task Content"), text: $viewModel.taskFormDetails)
 
+            TaskDependencyFormFields(
+                blockedReason: $viewModel.taskFormBlockedReason,
+                waitingFor: $viewModel.taskFormWaitingFor,
+                prerequisiteTaskId: $viewModel.taskFormPrerequisiteTaskId,
+                shouldPostpone: $viewModel.taskFormShouldPostpone,
+                postponementDuration: $viewModel.taskFormPostponementDuration,
+                editingTaskId: viewModel.editingTaskId
+            )
+
             HStack {
                 Button(viewModel.editingTaskId == nil ? language.text("保存待办", "Save Todo") : language.text("更新待办", "Update Todo")) {
                     viewModel.saveTask()
                 }
                 .buttonStyle(.borderedProminent)
+                .workspaceButton()
                 .tint(AppTheme.accent)
                 Button(language.text("取消", "Cancel")) {
                     viewModel.resetTaskForm()
                 }
                 .buttonStyle(.bordered)
+                .workspaceButton()
             }
         }
         .padding(AppTheme.spacingMd)
@@ -356,6 +369,7 @@ private struct TodoTaskRowView: View {
     var onToggle: () -> Void
     var onToggleToday: () -> Void
     var onEdit: () -> Void
+    var onDelaySaved: () -> Void
     var onDelete: () -> Void
     private var language: AppLanguage { store.appLanguage }
 
@@ -382,7 +396,7 @@ private struct TodoTaskRowView: View {
                         badge(task.recurrence.displayName, color: AppTheme.secondary)
                     }
                     if task.isToday {
-                        badge(language.text("持续推进", "Keep Active"), color: AppTheme.primary)
+                        badge(language.text("关注", "Watched"), color: AppTheme.primary)
                     }
 
                     if let deadline = task.dueDate {
@@ -398,6 +412,8 @@ private struct TodoTaskRowView: View {
                         .foregroundStyle(AppTheme.textSecondary)
                         .lineLimit(2)
                 }
+
+                TaskDependencySummary(task: task)
             }
 
             Spacer()
@@ -409,6 +425,7 @@ private struct TodoTaskRowView: View {
                     Image(systemName: task.isToday ? "flag.fill" : "flag")
                 }
                 .buttonStyle(.bordered)
+                .workspaceButton()
                 .controlSize(.small)
 
                 Button {
@@ -417,7 +434,10 @@ private struct TodoTaskRowView: View {
                     Image(systemName: "square.and.pencil")
                 }
                 .buttonStyle(.bordered)
+                .workspaceButton()
                 .controlSize(.small)
+
+                TaskDelayButton(task: task, onSaved: onDelaySaved)
 
                 Button(role: .destructive) {
                     onDelete()
@@ -425,6 +445,7 @@ private struct TodoTaskRowView: View {
                     Image(systemName: "trash")
                 }
                 .buttonStyle(.bordered)
+                .workspaceButton()
                 .controlSize(.small)
             }
         }
@@ -471,6 +492,11 @@ final class TodoManagementViewModel: ObservableObject {
     @Published var taskFormHasDueDate: Bool = false
     @Published var taskFormRecurrence: TaskRecurrence = .none
     @Published var taskFormIsToday: Bool = false
+    @Published var taskFormBlockedReason: String = ""
+    @Published var taskFormWaitingFor: String = ""
+    @Published var taskFormPrerequisiteTaskId: UUID? = nil
+    @Published var taskFormShouldPostpone: Bool = false
+    @Published var taskFormPostponementDuration: TaskPostponementDuration = .oneDay
     @Published var showTaskForm: Bool = false
     @Published var editingTaskId: UUID? = nil
 
@@ -518,6 +544,9 @@ final class TodoManagementViewModel: ObservableObject {
         taskFormHasDueDate = task.dueDate != nil
         taskFormRecurrence = task.recurrence
         taskFormIsToday = task.isToday
+        taskFormBlockedReason = task.blockedReason
+        taskFormWaitingFor = task.waitingFor
+        taskFormPrerequisiteTaskId = task.prerequisiteTaskId
         showTaskForm = true
     }
 
@@ -536,9 +565,13 @@ final class TodoManagementViewModel: ObservableObject {
             store.tasks[index].dueDate = dueDate
             store.tasks[index].recurrence = taskFormRecurrence
             store.tasks[index].isToday = taskFormIsToday
+            store.tasks[index].updateDependencyState(blockedReason: taskFormBlockedReason, waitingFor: taskFormWaitingFor, prerequisiteTaskId: taskFormPrerequisiteTaskId)
+            if taskFormShouldPostpone {
+                store.tasks[index].postpone(by: taskFormPostponementDuration, reason: taskFormBlockedReason, waitingFor: taskFormWaitingFor)
+            }
             store.tasks[index].updatedAt = Date()
         } else {
-            let task = Task(
+            var task = Task(
                 title: taskFormTitle.trimmingCharacters(in: .whitespacesAndNewlines),
                 details: taskFormDetails.trimmingCharacters(in: .whitespacesAndNewlines),
                 collaborator: "本人",
@@ -548,8 +581,14 @@ final class TodoManagementViewModel: ObservableObject {
                 priority: taskFormPriority,
                 dueDate: dueDate,
                 recurrence: taskFormRecurrence,
-                isToday: taskFormIsToday
+                isToday: taskFormIsToday,
+                blockedReason: taskFormBlockedReason,
+                waitingFor: taskFormWaitingFor,
+                prerequisiteTaskId: taskFormPrerequisiteTaskId
             )
+            if taskFormShouldPostpone {
+                task.postpone(by: taskFormPostponementDuration, reason: taskFormBlockedReason, waitingFor: taskFormWaitingFor)
+            }
             store.tasks.append(task)
         }
 
@@ -596,6 +635,11 @@ final class TodoManagementViewModel: ObservableObject {
         taskFormHasDueDate = false
         taskFormRecurrence = .none
         taskFormIsToday = false
+        taskFormBlockedReason = ""
+        taskFormWaitingFor = ""
+        taskFormPrerequisiteTaskId = nil
+        taskFormShouldPostpone = false
+        taskFormPostponementDuration = .oneDay
         editingTaskId = nil
         showTaskForm = false
     }

@@ -267,6 +267,18 @@ struct WorkspaceSegmentedSurface: ViewModifier {
     }
 }
 
+struct WorkspaceButtonSurface: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .font(AppTheme.fontCalloutMedium)
+            .buttonBorderShape(.roundedRectangle(radius: AppTheme.radiusMd))
+            .frame(minHeight: 36)
+            .shadow(color: AppTheme.shadowSm, radius: 3, x: 0, y: 1)
+            .pressScale(0.97)
+            .hoverScale(1.015)
+    }
+}
+
 // MARK: - View Extensions
 extension View {
     func cardStyle(isElevated: Bool = true, padding: CGFloat = AppTheme.spacing16) -> some View {
@@ -291,6 +303,10 @@ extension View {
 
     func workspaceSegmented() -> some View {
         modifier(WorkspaceSegmentedSurface())
+    }
+
+    func workspaceButton() -> some View {
+        modifier(WorkspaceButtonSurface())
     }
 
     func workspacePageBackground() -> some View {

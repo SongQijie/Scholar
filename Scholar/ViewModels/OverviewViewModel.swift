@@ -48,7 +48,6 @@ class OverviewViewModel: ObservableObject {
         var dueTasks: Int = 0
         var overdueTasks: Int = 0
         var continuousTasks: Int = 0
-        var workloadTasks: Int = 0
 
         var completionRate: Double {
             guard totalTasks > 0 else { return 0 }
@@ -56,7 +55,7 @@ class OverviewViewModel: ObservableObject {
         }
 
         var loadSummary: Int {
-            workloadTasks
+            totalTasks
         }
 
         var level: BusyLevel {
@@ -159,15 +158,13 @@ class OverviewViewModel: ObservableObject {
             let dueTasks = snapshot.dueTasks ?? snapshot.totalTasks
             let overdueTasks = snapshot.overdueTasks ?? 0
             let continuousTasks = snapshot.continuousTasks ?? 0
-            let workloadTasks = snapshot.workloadTasks ?? (dueTasks + overdueTasks + continuousTasks)
             return BusyDayInfo(
                 date: snapshot.date,
-                totalTasks: workloadTasks,
+                totalTasks: dueTasks + overdueTasks,
                 completedTasks: snapshot.completedTasks,
                 dueTasks: dueTasks,
                 overdueTasks: overdueTasks,
-                continuousTasks: continuousTasks,
-                workloadTasks: workloadTasks
+                continuousTasks: continuousTasks
             )
         }
 
@@ -178,8 +175,7 @@ class OverviewViewModel: ObservableObject {
             completedTasks: breakdown.completedTodayCount,
             dueTasks: breakdown.dueTasks.count,
             overdueTasks: breakdown.overdueTasks.count,
-            continuousTasks: breakdown.continuousTasks.count,
-            workloadTasks: breakdown.workloadCount
+            continuousTasks: breakdown.continuousTasks.count
         )
     }
 

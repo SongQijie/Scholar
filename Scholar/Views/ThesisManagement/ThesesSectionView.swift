@@ -26,7 +26,10 @@ struct ThesesSectionView: View {
                     Label(language.text("新建课题", "New Thesis"), systemImage: "plus")
                 }
                 .buttonStyle(.borderedProminent)
+                .workspaceButton()
                 .tint(AppTheme.primary)
+
+                ThesisTimelineSectionView(viewModel: viewModel)
             }
 
             if viewModel.showThesisForm {
@@ -126,12 +129,14 @@ struct ThesesSectionView: View {
                     viewModel.saveThesis()
                 }
                 .buttonStyle(.borderedProminent)
+                .workspaceButton()
                 .tint(AppTheme.primary)
 
                 Button(language.text("取消", "Cancel")) {
                     viewModel.resetThesisForm()
                 }
                 .buttonStyle(.bordered)
+                .workspaceButton()
             }
         }
         .padding(AppTheme.spacingMd)
@@ -258,18 +263,22 @@ struct ThesisRowView: View {
                     Spacer()
                     Button(language.text("任务", "Tasks")) { onSelect() }
                         .buttonStyle(.bordered)
+                .workspaceButton()
                     Button { onArchive() } label: {
                         Label(language.text("归档", "Archive"), systemImage: "archivebox")
                     }
                     .buttonStyle(.bordered)
+                .workspaceButton()
                     Button { onEdit() } label: {
                         Image(systemName: "square.and.pencil")
                     }
                     .buttonStyle(.bordered)
+                .workspaceButton()
                     Button(role: .destructive) { onDelete() } label: {
                         Image(systemName: "trash")
                     }
                     .buttonStyle(.bordered)
+                .workspaceButton()
                 }
                 .controlSize(.small)
             }

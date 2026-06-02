@@ -18,6 +18,7 @@ class AppDataStore: ObservableObject {
     @Published var mentalCareRecords: [MentalCareRecord] = []
     @Published var achievements: [Achievement] = []
     @Published var busyDaySnapshots: [BusyDaySnapshot] = []
+    @Published var archivedData: ArchivedData = .init()
     @Published var workspaceURL: URL?
     @Published var lastErrorMessage: String = ""
     @Published var appDisplayName: String
@@ -74,6 +75,15 @@ class AppDataStore: ObservableObject {
         var mentalCareRecords: [MentalCareRecord]
         var achievements: [Achievement]
         var busyDaySnapshots: [BusyDaySnapshot]?
+        var archivedData: ArchivedData?
+    }
+
+    struct ArchivedData: Codable {
+        var projects: [Project] = []
+        var affairs: [Affair] = []
+        var tasks: [Task] = []
+        var thesisInfos: [ThesisInfo] = []
+        var submissions: [Submission] = []
     }
 
     struct BusyDaySnapshot: Codable, Identifiable, Hashable {
@@ -85,7 +95,6 @@ class AppDataStore: ObservableObject {
         var dueTasks: Int?
         var overdueTasks: Int?
         var continuousTasks: Int?
-        var workloadTasks: Int?
         var updatedAt: Date
     }
 
@@ -99,20 +108,12 @@ class AppDataStore: ObservableObject {
             uniqueTasks(dueTasks + overdueTasks)
         }
 
-        var workloadTasks: [Task] {
-            uniqueTasks(dueTasks + overdueTasks + continuousTasks)
-        }
-
         var allDisplayTasks: [Task] {
             uniqueTasks(completedTodayTasks + dueTasks + overdueTasks + continuousTasks)
         }
 
         var denominatorCount: Int {
-            dueTasks.count + overdueTasks.count + continuousTasks.count
-        }
-
-        var workloadCount: Int {
-            denominatorCount
+            denominatorTasks.count
         }
 
         var completedTodayCount: Int {
@@ -158,7 +159,7 @@ class AppDataStore: ObservableObject {
         WorkspaceStorageInfo(
             displayPath: workspaceURL?.path ?? appLanguage.text("启动后请选择一个 workspace 文件夹", "Choose a workspace folder after launch"),
             dataFormat: appLanguage.text("ScholarData 分类目录 + JSON 分片", "ScholarData categorized JSON shards"),
-            dataVersion: "v4"
+            dataVersion: "v5"
         )
     }
 
@@ -236,7 +237,10 @@ class AppDataStore: ObservableObject {
 
         do {
             let decoded = try loadAppData(from: root)
-            applyAppData(decoded)
+            let didMigrateArchive = applyAppData(decoded)
+            if didMigrateArchive {
+                save()
+            }
             lastErrorMessage = ""
         } catch {
             lastErrorMessage = appLanguage.text(
@@ -261,14 +265,14 @@ class AppDataStore: ObservableObject {
             return false
         }
 
-        applyAppData(decoded)
+        _ = applyAppData(decoded)
         save()
         return true
     }
 
     func importLegacyJSON(_ jsonData: Data) -> Bool {
         guard let decoded = try? decoder.decode(AppData.self, from: jsonData) else { return false }
-        applyAppData(decoded)
+        _ = applyAppData(decoded)
         save()
         return true
     }
@@ -333,11 +337,13 @@ class AppDataStore: ObservableObject {
             healthRecords: healthRecords,
             mentalCareRecords: mentalCareRecords,
             achievements: achievements,
-            busyDaySnapshots: busyDaySnapshots
+            busyDaySnapshots: busyDaySnapshots,
+            archivedData: archivedData
         )
     }
 
-    private func applyAppData(_ decoded: AppData) {
+    @discardableResult
+    private func applyAppData(_ decoded: AppData) -> Bool {
         checkInRecords = decoded.checkInRecords
         projects = decoded.projects
         affairs = decoded.affairs ?? []
@@ -351,7 +357,12 @@ class AppDataStore: ObservableObject {
         mentalCareRecords = decoded.mentalCareRecords
         achievements = decoded.achievements
         busyDaySnapshots = decoded.busyDaySnapshots ?? []
+        archivedData = decoded.archivedData ?? .init()
+        let didMigrateArchive = migrateLegacyArchivedData(
+            includeInactiveSubmissions: decoded.archivedData == nil
+        )
         finalizePastBusySnapshots()
+        return didMigrateArchive
     }
 
     private func resetInMemoryData() {
@@ -368,6 +379,7 @@ class AppDataStore: ObservableObject {
         mentalCareRecords = []
         achievements = []
         busyDaySnapshots = []
+        archivedData = .init()
     }
 
     private func dataBuckets(for data: AppData) -> [(relativePath: String, payload: AnyEncodable)] {
@@ -388,7 +400,8 @@ class AppDataStore: ObservableObject {
             (StoragePath.healthRecords, AnyEncodable(data.healthRecords)),
             (StoragePath.mentalCareRecords, AnyEncodable(data.mentalCareRecords)),
             (StoragePath.achievements, AnyEncodable(data.achievements)),
-            (StoragePath.busyDaySnapshots, AnyEncodable(data.busyDaySnapshots ?? []))
+            (StoragePath.busyDaySnapshots, AnyEncodable(data.busyDaySnapshots ?? [])),
+            (StoragePath.archive, AnyEncodable(data.archivedData ?? .init()))
         ]
     }
 
@@ -413,7 +426,8 @@ class AppDataStore: ObservableObject {
             healthRecords: try readArray([HealthRecord].self, from: root, relativePath: StoragePath.healthRecords),
             mentalCareRecords: try readArray([MentalCareRecord].self, from: root, relativePath: StoragePath.mentalCareRecords),
             achievements: try readArray([Achievement].self, from: root, relativePath: StoragePath.achievements),
-            busyDaySnapshots: try readArray([BusyDaySnapshot].self, from: root, relativePath: StoragePath.busyDaySnapshots)
+            busyDaySnapshots: try readArray([BusyDaySnapshot].self, from: root, relativePath: StoragePath.busyDaySnapshots),
+            archivedData: try readObject(ArchivedData.self, from: root, relativePath: StoragePath.archive)
         )
     }
 
@@ -431,6 +445,216 @@ class AppDataStore: ObservableObject {
         )
     }
 
+    // MARK: - Archive Storage
+
+    func archiveProject(_ project: Project) {
+        guard let index = projects.firstIndex(where: { $0.id == project.id }) else { return }
+        var archived = projects.remove(at: index)
+        archived.isArchived = true
+        archived.stage = .completed
+        archived.updatedAt = Date()
+        appendUnique(archived, to: &archivedData.projects)
+        moveTasksToArchive { $0.projectId == archived.id }
+        save()
+    }
+
+    func restoreProject(_ id: UUID) {
+        guard let index = archivedData.projects.firstIndex(where: { $0.id == id }) else { return }
+        var restored = archivedData.projects.remove(at: index)
+        restored.isArchived = false
+        if restored.stage == .completed { restored.stage = .inProgress }
+        restored.updatedAt = Date()
+        appendUnique(restored, to: &projects)
+        restoreTasks { $0.projectId == id }
+        save()
+    }
+
+    func archiveThesis(_ thesis: ThesisInfo) {
+        guard let index = thesisInfos.firstIndex(where: { $0.id == thesis.id }) else { return }
+        var archived = thesisInfos.remove(at: index)
+        archived.isArchived = true
+        archived.stage = .submitted
+        archived.updatedAt = Date()
+        appendUnique(archived, to: &archivedData.thesisInfos)
+        moveTasksToArchive { $0.thesisId == archived.id }
+        save()
+    }
+
+    func restoreThesis(_ id: UUID) {
+        guard let index = archivedData.thesisInfos.firstIndex(where: { $0.id == id }) else { return }
+        var restored = archivedData.thesisInfos.remove(at: index)
+        restored.isArchived = false
+        restored.updatedAt = Date()
+        appendUnique(restored, to: &thesisInfos)
+        restoreTasks { $0.thesisId == id }
+        save()
+    }
+
+    func archiveAffair(_ affair: Affair) {
+        guard let index = affairs.firstIndex(where: { $0.id == affair.id }) else { return }
+        var archived = affairs.remove(at: index)
+        archived.isArchived = true
+        archived.updatedAt = Date()
+        appendUnique(archived, to: &archivedData.affairs)
+        moveTasksToArchive { $0.affairId == archived.id }
+        save()
+    }
+
+    func restoreAffair(_ id: UUID) {
+        guard let index = archivedData.affairs.firstIndex(where: { $0.id == id }) else { return }
+        var restored = archivedData.affairs.remove(at: index)
+        restored.isArchived = false
+        restored.updatedAt = Date()
+        appendUnique(restored, to: &affairs)
+        restoreTasks { $0.affairId == id }
+        save()
+    }
+
+    func archiveSubmission(_ submission: Submission) {
+        guard let index = submissions.firstIndex(where: { $0.id == submission.id }) else { return }
+        var archived = submissions.remove(at: index)
+        archived.isArchived = true
+        archived.updatedAt = Date()
+        appendUnique(archived, to: &archivedData.submissions)
+        save()
+    }
+
+    func restoreSubmission(_ id: UUID) {
+        guard let index = archivedData.submissions.firstIndex(where: { $0.id == id }) else { return }
+        guard archivedData.submissions[index].type == .paper || archivedData.submissions[index].type == .patent else { return }
+        var restored = archivedData.submissions.remove(at: index)
+        restored.isArchived = false
+        restored.updatedAt = Date()
+        appendUnique(restored, to: &submissions)
+        save()
+    }
+
+    @discardableResult
+    func updateTaskBlocker(
+        taskId: UUID,
+        blockedReason: String,
+        waitingFor: String,
+        prerequisiteTaskId: UUID?,
+        shouldPostpone: Bool,
+        duration: TaskPostponementDuration
+    ) -> String? {
+        guard let index = tasks.firstIndex(where: { $0.id == taskId }) else { return nil }
+        if shouldPostpone, let validationMessage = taskPostponementValidationMessage(taskId: taskId, duration: duration) {
+            return validationMessage
+        }
+        tasks[index].updateDependencyState(
+            blockedReason: blockedReason,
+            waitingFor: waitingFor,
+            prerequisiteTaskId: prerequisiteTaskId
+        )
+        if shouldPostpone {
+            tasks[index].postpone(by: duration, reason: blockedReason, waitingFor: waitingFor)
+        }
+        tasks[index].updatedAt = Date()
+        save()
+        return nil
+    }
+
+    func taskPostponementValidationMessage(taskId: UUID, duration: TaskPostponementDuration) -> String? {
+        guard let task = tasks.first(where: { $0.id == taskId }) else { return nil }
+        let baseDate = task.dueDate ?? Date()
+        let postponedDueDate = Calendar.current.date(byAdding: .day, value: duration.days, to: baseDate) ?? baseDate
+
+        if let thesisId = task.thesisId,
+           let thesisDeadline = thesisInfos.first(where: { $0.id == thesisId })?.dueDate,
+           postponedDueDate > thesisDeadline {
+            return appLanguage.text(
+                "延期后的截止时间不能晚于课题 DDL（\(thesisDeadline.formatted("yyyy-MM-dd HH:mm"))）",
+                "The postponed deadline cannot be later than the topic DDL (\(thesisDeadline.formatted("yyyy-MM-dd HH:mm")))."
+            )
+        }
+
+        if let affairId = task.affairId,
+           let affairDeadline = affairs.first(where: { $0.id == affairId })?.dueDate,
+           postponedDueDate > affairDeadline {
+            return appLanguage.text(
+                "延期后的截止时间不能晚于事务截止时间（\(affairDeadline.formatted("yyyy-MM-dd HH:mm"))）",
+                "The postponed deadline cannot be later than the affair deadline (\(affairDeadline.formatted("yyyy-MM-dd HH:mm")))."
+            )
+        }
+
+        return nil
+    }
+
+    private func migrateLegacyArchivedData(includeInactiveSubmissions: Bool) -> Bool {
+        let originalArchiveCount = archivedData.projects.count
+            + archivedData.thesisInfos.count
+            + archivedData.affairs.count
+            + archivedData.submissions.count
+            + archivedData.tasks.count
+        let originalActiveCount = projects.count + thesisInfos.count + affairs.count + submissions.count + tasks.count
+
+        for project in projects.filter(\.isArchived) {
+            appendUnique(project, to: &archivedData.projects)
+        }
+        for thesis in thesisInfos.filter(\.isArchived) {
+            appendUnique(thesis, to: &archivedData.thesisInfos)
+        }
+        for affair in affairs.filter(\.isArchived) {
+            appendUnique(affair, to: &archivedData.affairs)
+        }
+        for submission in submissions.filter({ $0.isArchived || (includeInactiveSubmissions && !$0.isActive) }) {
+            var archived = submission
+            archived.isArchived = true
+            appendUnique(archived, to: &archivedData.submissions)
+        }
+
+        let archivedProjectIds = Set(archivedData.projects.map(\.id))
+        let archivedThesisIds = Set(archivedData.thesisInfos.map(\.id))
+        let archivedAffairIds = Set(archivedData.affairs.map(\.id))
+        let migratedTasks = tasks.filter { task in
+            task.projectId.map(archivedProjectIds.contains) == true
+                || task.thesisId.map(archivedThesisIds.contains) == true
+                || task.affairId.map(archivedAffairIds.contains) == true
+        }
+        for task in migratedTasks {
+            appendUnique(task, to: &archivedData.tasks)
+        }
+
+        projects.removeAll(where: \.isArchived)
+        thesisInfos.removeAll(where: \.isArchived)
+        affairs.removeAll(where: \.isArchived)
+        submissions.removeAll { $0.isArchived || (includeInactiveSubmissions && !$0.isActive) }
+        let migratedTaskIds = Set(migratedTasks.map(\.id))
+        tasks.removeAll { migratedTaskIds.contains($0.id) }
+
+        let archiveCount = archivedData.projects.count
+            + archivedData.thesisInfos.count
+            + archivedData.affairs.count
+            + archivedData.submissions.count
+            + archivedData.tasks.count
+        let activeCount = projects.count + thesisInfos.count + affairs.count + submissions.count + tasks.count
+        return archiveCount != originalArchiveCount || activeCount != originalActiveCount
+    }
+
+    private func moveTasksToArchive(where shouldArchive: (Task) -> Bool) {
+        let movingTasks = tasks.filter(shouldArchive)
+        for task in movingTasks {
+            appendUnique(task, to: &archivedData.tasks)
+        }
+        let movingIds = Set(movingTasks.map(\.id))
+        tasks.removeAll { movingIds.contains($0.id) }
+    }
+
+    private func restoreTasks(where shouldRestore: (Task) -> Bool) {
+        let restoringTasks = archivedData.tasks.filter(shouldRestore)
+        for task in restoringTasks {
+            appendUnique(task, to: &tasks)
+        }
+        let restoringIds = Set(restoringTasks.map(\.id))
+        archivedData.tasks.removeAll { restoringIds.contains($0.id) }
+    }
+
+    private func appendUnique<T: Identifiable>(_ value: T, to values: inout [T]) where T.ID == UUID {
+        values.removeAll { $0.id == value.id }
+        values.append(value)
+    }
+
     private func readArray<T: Decodable>(_ type: [T].Type, from root: URL, relativePath: String) throws -> [T] {
         let preferredURL = root.appendingPathComponent(relativePath).appendingPathExtension(dataFileExtension)
 
@@ -441,6 +665,13 @@ class AppDataStore: ObservableObject {
         }
 
         return []
+    }
+
+    private func readObject<T: Decodable>(_ type: T.Type, from root: URL, relativePath: String) throws -> T? {
+        let preferredURL = root.appendingPathComponent(relativePath).appendingPathExtension(dataFileExtension)
+        guard FileManager.default.fileExists(atPath: preferredURL.path) else { return nil }
+        let raw = try Data(contentsOf: preferredURL)
+        return try decoder.decode(T.self, from: decodeStoredPayload(raw))
     }
 
     private func decodeWorkspaceBundle(_ data: Data) -> AppData? {
@@ -575,6 +806,7 @@ class AppDataStore: ObservableObject {
         static let busyDaySnapshots = "overview/busy_day_snapshots"
         static let todoTasks = "todos/tasks"
         static let attachmentsSubmissions = "attachments/submissions"
+        static let archive = "archive/archive"
     }
 
     // MARK: - Date Range Helpers
@@ -697,7 +929,6 @@ class AppDataStore: ObservableObject {
             dueTasks: breakdown.dueTasks.count,
             overdueTasks: breakdown.overdueTasks.count,
             continuousTasks: breakdown.continuousTasks.count,
-            workloadTasks: breakdown.workloadCount,
             updatedAt: Date()
         )
 
@@ -737,7 +968,6 @@ class AppDataStore: ObservableObject {
                     dueTasks: breakdown.dueTasks.count,
                     overdueTasks: breakdown.overdueTasks.count,
                     continuousTasks: breakdown.continuousTasks.count,
-                    workloadTasks: breakdown.workloadCount,
                     updatedAt: Date()
                 )
             )
@@ -902,7 +1132,7 @@ class AppDataStore: ObservableObject {
         }
         s.totalAffairs = activeAffairs.count
         s.activeAffairs = activeAffairs.count
-        s.completedAffairs = affairs.filter(\.isArchived).count
+        s.completedAffairs = archivedData.affairs.count
         s.totalTasks = affairTasks.count
         s.incompleteTasks = affairTasks.filter { $0.status != .completed }.count
         s.completedTasks = affairTasks.filter { $0.status == .completed }.count

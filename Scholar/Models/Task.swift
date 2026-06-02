@@ -15,6 +15,11 @@ struct Task: Codable, Identifiable, Hashable {
     var recurrence: TaskRecurrence
     var completionRate: Int
     var isToday: Bool
+    var blockedReason: String
+    var waitingFor: String
+    var prerequisiteTaskId: UUID?
+    var blockedSince: Date?
+    var postponementLogs: [TaskPostponementLog]
     var createdAt: Date
     var updatedAt: Date
 
@@ -33,6 +38,11 @@ struct Task: Codable, Identifiable, Hashable {
         recurrence: TaskRecurrence = .none,
         completionRate: Int = 0,
         isToday: Bool = false,
+        blockedReason: String = "",
+        waitingFor: String = "",
+        prerequisiteTaskId: UUID? = nil,
+        blockedSince: Date? = nil,
+        postponementLogs: [TaskPostponementLog] = [],
         createdAt: Date = Date(),
         updatedAt: Date = Date()
     ) {
@@ -50,6 +60,11 @@ struct Task: Codable, Identifiable, Hashable {
         self.recurrence = recurrence
         self.completionRate = completionRate
         self.isToday = isToday
+        self.blockedReason = blockedReason
+        self.waitingFor = waitingFor
+        self.prerequisiteTaskId = prerequisiteTaskId
+        self.blockedSince = blockedSince ?? ((!blockedReason.isEmpty || !waitingFor.isEmpty) ? Date() : nil)
+        self.postponementLogs = postponementLogs
         self.createdAt = createdAt
         self.updatedAt = updatedAt
     }
@@ -72,8 +87,50 @@ struct Task: Codable, Identifiable, Hashable {
         return "未归类任务"
     }
 
+    var isBlocked: Bool {
+        !blockedReason.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            || !waitingFor.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    var isBlockedOverSevenDays: Bool {
+        guard status != .completed, isBlocked, let blockedSince else { return false }
+        let threshold = Calendar.current.date(byAdding: .day, value: -7, to: Date()) ?? Date()
+        return blockedSince <= threshold
+    }
+
+    mutating func updateDependencyState(blockedReason: String, waitingFor: String, prerequisiteTaskId: UUID?) {
+        let wasBlocked = isBlocked
+        self.blockedReason = blockedReason.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.waitingFor = waitingFor.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.prerequisiteTaskId = prerequisiteTaskId
+        if isBlocked {
+            if !wasBlocked || blockedSince == nil {
+                blockedSince = Date()
+            }
+        } else {
+            blockedSince = nil
+        }
+    }
+
+    mutating func postpone(by duration: TaskPostponementDuration, reason: String, waitingFor: String) {
+        let previousDueDate = dueDate
+        let baseDate = previousDueDate ?? Date()
+        let newDueDate = Calendar.current.date(byAdding: .day, value: duration.days, to: baseDate) ?? baseDate
+        dueDate = newDueDate
+        postponementLogs.append(
+            TaskPostponementLog(
+                days: duration.days,
+                previousDueDate: previousDueDate,
+                newDueDate: newDueDate,
+                blockedReason: reason.trimmingCharacters(in: .whitespacesAndNewlines),
+                waitingFor: waitingFor.trimmingCharacters(in: .whitespacesAndNewlines)
+            )
+        )
+    }
+
     enum CodingKeys: String, CodingKey {
-        case id, title, details, collaborator, projectId, thesisId, affairId, priority, status, dueDate, startDate, recurrence, completionRate, isToday, createdAt, updatedAt
+        case id, title, details, collaborator, projectId, thesisId, affairId, priority, status, dueDate, startDate, recurrence, completionRate, isToday
+        case blockedReason, waitingFor, prerequisiteTaskId, blockedSince, postponementLogs, createdAt, updatedAt
     }
 
     init(from decoder: Decoder) throws {
@@ -92,7 +149,59 @@ struct Task: Codable, Identifiable, Hashable {
         recurrence = try container.decodeIfPresent(TaskRecurrence.self, forKey: .recurrence) ?? .none
         completionRate = try container.decodeIfPresent(Int.self, forKey: .completionRate) ?? 0
         isToday = try container.decodeIfPresent(Bool.self, forKey: .isToday) ?? false
+        blockedReason = try container.decodeIfPresent(String.self, forKey: .blockedReason) ?? ""
+        waitingFor = try container.decodeIfPresent(String.self, forKey: .waitingFor) ?? ""
+        prerequisiteTaskId = try container.decodeIfPresent(UUID.self, forKey: .prerequisiteTaskId)
+        blockedSince = try container.decodeIfPresent(Date.self, forKey: .blockedSince)
+        postponementLogs = try container.decodeIfPresent([TaskPostponementLog].self, forKey: .postponementLogs) ?? []
         createdAt = try container.decodeIfPresent(Date.self, forKey: .createdAt) ?? Date()
         updatedAt = try container.decodeIfPresent(Date.self, forKey: .updatedAt) ?? Date()
+    }
+}
+
+enum TaskPostponementDuration: Int, Codable, CaseIterable, Identifiable {
+    case oneDay = 1
+    case twoDays = 2
+    case threeDays = 3
+    case oneWeek = 7
+
+    var id: Int { rawValue }
+    var days: Int { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .oneDay: return AppLanguage.storedPreference.text("延期 1 天", "Postpone 1 Day")
+        case .twoDays: return AppLanguage.storedPreference.text("延期 2 天", "Postpone 2 Days")
+        case .threeDays: return AppLanguage.storedPreference.text("延期 3 天", "Postpone 3 Days")
+        case .oneWeek: return AppLanguage.storedPreference.text("延期 1 周", "Postpone 1 Week")
+        }
+    }
+}
+
+struct TaskPostponementLog: Codable, Identifiable, Hashable {
+    var id: UUID
+    var date: Date
+    var days: Int
+    var previousDueDate: Date?
+    var newDueDate: Date
+    var blockedReason: String
+    var waitingFor: String
+
+    init(
+        id: UUID = UUID(),
+        date: Date = Date(),
+        days: Int,
+        previousDueDate: Date?,
+        newDueDate: Date,
+        blockedReason: String,
+        waitingFor: String
+    ) {
+        self.id = id
+        self.date = date
+        self.days = days
+        self.previousDueDate = previousDueDate
+        self.newDueDate = newDueDate
+        self.blockedReason = blockedReason
+        self.waitingFor = waitingFor
     }
 }

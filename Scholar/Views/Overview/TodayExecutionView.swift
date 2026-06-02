@@ -15,7 +15,7 @@ struct TodayExecutionView: View {
                     .font(AppTheme.subtitleFont)
                     .foregroundStyle(AppTheme.textPrimary)
                 Spacer()
-                Text(language.text("持续推进 \(viewModel.todayTasks.count)", "Keep Active \(viewModel.todayTasks.count)"))
+                Text(language.text("关注任务 \(viewModel.todayTasks.count)", "Watched \(viewModel.todayTasks.count)"))
                     .font(AppTheme.captionFont)
                     .padding(.horizontal, AppTheme.spacingSm)
                     .padding(.vertical, 2)
@@ -58,6 +58,7 @@ struct TodayExecutionView: View {
                         submitTask()
                     }
                     .buttonStyle(.borderedProminent)
+                .workspaceButton()
                     .controlSize(.small)
                     Button(language.text("取消", "Cancel")) {
                         withAnimation(.easeInOut(duration: 0.2)) {
@@ -67,6 +68,7 @@ struct TodayExecutionView: View {
                         }
                     }
                     .buttonStyle(.bordered)
+                .workspaceButton()
                     .controlSize(.small)
                 }
             }

@@ -25,6 +25,7 @@ struct TasksSectionView: View {
                     Label(language.text("新建项目任务", "New Project Task"), systemImage: "plus")
                 }
                 .buttonStyle(.borderedProminent)
+                .workspaceButton()
                 .tint(AppTheme.secondary)
             }
 
@@ -45,6 +46,7 @@ struct TasksSectionView: View {
                             onToggleComplete: { viewModel.toggleTaskCompletion(task) },
                             onToggleToday: { viewModel.toggleTaskToday(task) },
                             onEdit: { viewModel.beginEditingTask(task) },
+                            onDelaySaved: { viewModel.loadData() },
                             onDelete: {
                                 taskToDelete = task
                                 showDeleteConfirmation = true
@@ -155,10 +157,10 @@ struct TasksSectionView: View {
                 )
 
                 VStack(alignment: .leading, spacing: AppTheme.spacingXs) {
-                    Text(language.text("持续推进", "Keep Active"))
+                    Text(language.text("关注", "Watched"))
                         .font(AppTheme.captionFont)
                         .foregroundStyle(AppTheme.textSecondary)
-                    Toggle(language.text("持续推进", "Keep Active"), isOn: $viewModel.taskFormIsToday)
+                    Toggle(language.text("关注", "Watched"), isOn: $viewModel.taskFormIsToday)
                         .labelsHidden()
                         .toggleStyle(.checkbox)
                         .frame(height: 38)
@@ -167,17 +169,28 @@ struct TasksSectionView: View {
 
             multilineField(language.text("任务详情", "Details"), text: $viewModel.taskFormDetails)
 
+            TaskDependencyFormFields(
+                blockedReason: $viewModel.taskFormBlockedReason,
+                waitingFor: $viewModel.taskFormWaitingFor,
+                prerequisiteTaskId: $viewModel.taskFormPrerequisiteTaskId,
+                shouldPostpone: $viewModel.taskFormShouldPostpone,
+                postponementDuration: $viewModel.taskFormPostponementDuration,
+                editingTaskId: viewModel.editingTaskId
+            )
+
             HStack {
                 Button(viewModel.editingTaskId == nil ? language.text("保存任务", "Save Task") : language.text("更新任务", "Update Task")) {
                     viewModel.saveTask()
                 }
                 .buttonStyle(.borderedProminent)
+                .workspaceButton()
                 .tint(AppTheme.secondary)
 
                 Button(language.text("取消", "Cancel")) {
                     viewModel.resetTaskForm()
                 }
                 .buttonStyle(.bordered)
+                .workspaceButton()
             }
         }
         .padding(AppTheme.spacingMd)
@@ -243,6 +256,7 @@ struct ProjectTaskRowView: View {
     var onToggleComplete: () -> Void
     var onToggleToday: () -> Void
     var onEdit: () -> Void
+    var onDelaySaved: () -> Void
     var onDelete: () -> Void
     private var language: AppLanguage { store.appLanguage }
 
@@ -270,7 +284,7 @@ struct ProjectTaskRowView: View {
                         badge(task.recurrence.displayName, color: AppTheme.secondary)
                     }
                     if task.isToday {
-                        badge(language.text("持续推进", "Keep Active"), color: AppTheme.warning)
+                        badge(language.text("关注", "Watched"), color: AppTheme.warning)
                     }
                 }
 
@@ -288,6 +302,8 @@ struct ProjectTaskRowView: View {
                         .foregroundStyle(AppTheme.textSecondary)
                         .lineLimit(2)
                 }
+
+                TaskDependencySummary(task: task)
             }
 
             Spacer()
@@ -299,6 +315,7 @@ struct ProjectTaskRowView: View {
                     Image(systemName: task.isToday ? "flag.fill" : "flag")
                 }
                 .buttonStyle(.bordered)
+                .workspaceButton()
                 .controlSize(.small)
 
                 Button {
@@ -307,7 +324,10 @@ struct ProjectTaskRowView: View {
                     Image(systemName: "square.and.pencil")
                 }
                 .buttonStyle(.bordered)
+                .workspaceButton()
                 .controlSize(.small)
+
+                TaskDelayButton(task: task, onSaved: onDelaySaved)
 
                 Button(role: .destructive) {
                     onDelete()
@@ -315,6 +335,7 @@ struct ProjectTaskRowView: View {
                     Image(systemName: "trash")
                 }
                 .buttonStyle(.bordered)
+                .workspaceButton()
                 .controlSize(.small)
             }
         }

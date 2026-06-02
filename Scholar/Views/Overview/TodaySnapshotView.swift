@@ -17,7 +17,7 @@ struct TodaySnapshotView: View {
 
             let columns = Array(repeating: GridItem(.flexible(), spacing: AppTheme.spacingSm), count: 4)
             LazyVGrid(columns: columns, spacing: AppTheme.spacingSm) {
-                SnapshotItemView(title: language.text("持续推进", "Keep Active"), value: "\(snapshot.todayOpenTasks)", systemImage: "list.bullet.clipboard.fill", color: AppTheme.primary)
+                SnapshotItemView(title: language.text("关注任务", "Watched"), value: "\(snapshot.todayOpenTasks)", systemImage: "list.bullet.clipboard.fill", color: AppTheme.primary)
                 SnapshotItemView(title: language.text("今天截止", "Due Today"), value: "\(snapshot.dueTodayTasks)", systemImage: "calendar.badge.exclamationmark", color: AppTheme.warning)
                 SnapshotItemView(title: language.text("已经逾期", "Overdue"), value: "\(snapshot.inProgressTasks)", systemImage: "exclamationmark.triangle.fill", color: AppTheme.danger)
                 SnapshotItemView(title: language.text("成果推进", "Submission Flow"), value: "\(snapshot.activeSubmissions)", systemImage: "paperplane.fill", color: AppTheme.success)

@@ -27,6 +27,11 @@ class ThesisManagementViewModel: ObservableObject {
     @Published var taskFormHasDueDate: Bool = false
     @Published var taskFormRecurrence: TaskRecurrence = .none
     @Published var taskFormIsToday: Bool = false
+    @Published var taskFormBlockedReason: String = ""
+    @Published var taskFormWaitingFor: String = ""
+    @Published var taskFormPrerequisiteTaskId: UUID? = nil
+    @Published var taskFormShouldPostpone: Bool = false
+    @Published var taskFormPostponementDuration: TaskPostponementDuration = .oneDay
     @Published var showTaskForm: Bool = false
     @Published var editingTaskId: UUID? = nil
     @Published var taskFormError: String? = nil
@@ -89,6 +94,7 @@ class ThesisManagementViewModel: ObservableObject {
             store.thesisInfos[index].dueDate = thesisFormHasDueDate ? thesisFormDueDate : nil
             store.thesisInfos[index].notes = thesisFormNotes.trimmingCharacters(in: .whitespacesAndNewlines)
             store.thesisInfos[index].students = students
+            store.thesisInfos[index].updatedAt = Date()
         } else {
             let thesis = ThesisInfo(
                 title: thesisFormTitle,
@@ -114,13 +120,10 @@ class ThesisManagementViewModel: ObservableObject {
     }
 
     func archiveThesis(_ thesis: ThesisInfo) {
-        guard let index = store.thesisInfos.firstIndex(where: { $0.id == thesis.id }) else { return }
-        store.thesisInfos[index].isArchived = true
-        store.thesisInfos[index].stage = .submitted
+        store.archiveThesis(thesis)
         if selectedThesisFilter == thesis.id {
             selectedThesisFilter = nil
         }
-        store.save()
         loadData()
     }
 
@@ -158,6 +161,9 @@ class ThesisManagementViewModel: ObservableObject {
         taskFormHasDueDate = task.dueDate != nil
         taskFormRecurrence = task.recurrence
         taskFormIsToday = task.isToday
+        taskFormBlockedReason = task.blockedReason
+        taskFormWaitingFor = task.waitingFor
+        taskFormPrerequisiteTaskId = task.prerequisiteTaskId
         showTaskForm = true
     }
 
@@ -165,9 +171,12 @@ class ThesisManagementViewModel: ObservableObject {
         guard taskFormTitle.trimmingCharacters(in: .whitespaces).isNotEmpty else { return }
         guard let thesisId = taskFormThesisId else { return }
         let dueDate = taskFormHasDueDate ? taskFormDueDate : nil
+        let effectiveDueDate = taskFormShouldPostpone
+            ? Calendar.current.date(byAdding: .day, value: taskFormPostponementDuration.days, to: dueDate ?? Date())
+            : dueDate
         if let thesis = store.thesisInfos.first(where: { $0.id == thesisId }),
            let thesisDueDate = thesis.dueDate,
-           let taskDueDate = dueDate,
+           let taskDueDate = effectiveDueDate,
            taskDueDate > thesisDueDate {
             taskFormError = "任务截止时间不能晚于课题 DDL（\(thesisDueDate.formatted("yyyy-MM-dd HH:mm"))）"
             return
@@ -182,9 +191,13 @@ class ThesisManagementViewModel: ObservableObject {
             store.tasks[index].dueDate = dueDate
             store.tasks[index].recurrence = taskFormRecurrence
             store.tasks[index].isToday = taskFormIsToday
+            store.tasks[index].updateDependencyState(blockedReason: taskFormBlockedReason, waitingFor: taskFormWaitingFor, prerequisiteTaskId: taskFormPrerequisiteTaskId)
+            if taskFormShouldPostpone {
+                store.tasks[index].postpone(by: taskFormPostponementDuration, reason: taskFormBlockedReason, waitingFor: taskFormWaitingFor)
+            }
             store.tasks[index].updatedAt = Date()
         } else {
-            let task = Task(
+            var task = Task(
                 title: taskFormTitle,
                 details: taskFormDetails.trimmingCharacters(in: .whitespacesAndNewlines),
                 projectId: nil,
@@ -193,8 +206,14 @@ class ThesisManagementViewModel: ObservableObject {
                 priority: taskFormPriority,
                 dueDate: dueDate,
                 recurrence: taskFormRecurrence,
-                isToday: taskFormIsToday
+                isToday: taskFormIsToday,
+                blockedReason: taskFormBlockedReason,
+                waitingFor: taskFormWaitingFor,
+                prerequisiteTaskId: taskFormPrerequisiteTaskId
             )
+            if taskFormShouldPostpone {
+                task.postpone(by: taskFormPostponementDuration, reason: taskFormBlockedReason, waitingFor: taskFormWaitingFor)
+            }
             store.tasks.append(task)
         }
 
@@ -242,9 +261,35 @@ class ThesisManagementViewModel: ObservableObject {
         taskFormHasDueDate = false
         taskFormRecurrence = .none
         taskFormIsToday = false
+        taskFormBlockedReason = ""
+        taskFormWaitingFor = ""
+        taskFormPrerequisiteTaskId = nil
+        taskFormShouldPostpone = false
+        taskFormPostponementDuration = .oneDay
         taskFormError = nil
         editingTaskId = nil
         showTaskForm = false
+    }
+
+    func addTimelineLog(to thesisId: UUID, title: String, notes: String, date: Date) {
+        guard let index = store.thesisInfos.firstIndex(where: { $0.id == thesisId }) else { return }
+        store.thesisInfos[index].logs.append(ThesisLog(date: date, activityType: title, notes: notes))
+        store.save()
+        loadData()
+    }
+
+    func addTimelineMilestone(to thesisId: UUID, title: String, date: Date) {
+        guard let index = store.thesisInfos.firstIndex(where: { $0.id == thesisId }) else { return }
+        store.thesisInfos[index].milestones.append(Milestone(name: title, deadline: date, order: store.thesisInfos[index].milestones.count))
+        store.save()
+        loadData()
+    }
+
+    func addTimelineChapter(to thesisId: UUID, title: String, progress: Int) {
+        guard let index = store.thesisInfos.firstIndex(where: { $0.id == thesisId }) else { return }
+        store.thesisInfos[index].chapters.append(Chapter(name: title, progress: min(100, max(0, progress)), order: store.thesisInfos[index].chapters.count))
+        store.save()
+        loadData()
     }
 
     var filteredTasks: [Task] {

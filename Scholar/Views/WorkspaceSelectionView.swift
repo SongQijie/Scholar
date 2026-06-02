@@ -74,6 +74,7 @@ struct WorkspaceSelectionView: View {
                         .padding(.vertical, AppTheme.spacingSm)
                 }
                 .buttonStyle(.borderedProminent)
+                .workspaceButton()
                 .tint(AppTheme.primary)
                 .controlSize(.large)
             }

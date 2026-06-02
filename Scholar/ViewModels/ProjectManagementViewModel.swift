@@ -38,6 +38,11 @@ class ProjectManagementViewModel: ObservableObject {
     @Published var taskFormHasDueDate: Bool = false
     @Published var taskFormRecurrence: TaskRecurrence = .none
     @Published var taskFormIsToday: Bool = false
+    @Published var taskFormBlockedReason: String = ""
+    @Published var taskFormWaitingFor: String = ""
+    @Published var taskFormPrerequisiteTaskId: UUID? = nil
+    @Published var taskFormShouldPostpone: Bool = false
+    @Published var taskFormPostponementDuration: TaskPostponementDuration = .oneDay
     @Published var showTaskForm: Bool = false
     @Published var editingTaskId: UUID? = nil
 
@@ -154,14 +159,10 @@ class ProjectManagementViewModel: ObservableObject {
     }
 
     func archiveProject(_ project: Project) {
-        guard let index = store.projects.firstIndex(where: { $0.id == project.id }) else { return }
-        store.projects[index].isArchived = true
-        store.projects[index].stage = .completed
-        store.projects[index].updatedAt = Date()
+        store.archiveProject(project)
         if selectedProjectFilter == project.id {
             selectedProjectFilter = nil
         }
-        store.save()
         loadData()
     }
 
@@ -204,6 +205,9 @@ class ProjectManagementViewModel: ObservableObject {
         taskFormHasDueDate = task.dueDate != nil
         taskFormRecurrence = task.recurrence
         taskFormIsToday = task.isToday
+        taskFormBlockedReason = task.blockedReason
+        taskFormWaitingFor = task.waitingFor
+        taskFormPrerequisiteTaskId = task.prerequisiteTaskId
         showTaskForm = true
     }
 
@@ -221,9 +225,13 @@ class ProjectManagementViewModel: ObservableObject {
             store.tasks[index].dueDate = dueDate
             store.tasks[index].recurrence = taskFormRecurrence
             store.tasks[index].isToday = taskFormIsToday
+            store.tasks[index].updateDependencyState(blockedReason: taskFormBlockedReason, waitingFor: taskFormWaitingFor, prerequisiteTaskId: taskFormPrerequisiteTaskId)
+            if taskFormShouldPostpone {
+                store.tasks[index].postpone(by: taskFormPostponementDuration, reason: taskFormBlockedReason, waitingFor: taskFormWaitingFor)
+            }
             store.tasks[index].updatedAt = Date()
         } else {
-            let task = Task(
+            var task = Task(
                 title: taskFormTitle,
                 details: taskFormDetails.trimmingCharacters(in: .whitespacesAndNewlines),
                 projectId: projectId,
@@ -232,8 +240,14 @@ class ProjectManagementViewModel: ObservableObject {
                 priority: taskFormPriority,
                 dueDate: dueDate,
                 recurrence: taskFormRecurrence,
-                isToday: taskFormIsToday
+                isToday: taskFormIsToday,
+                blockedReason: taskFormBlockedReason,
+                waitingFor: taskFormWaitingFor,
+                prerequisiteTaskId: taskFormPrerequisiteTaskId
             )
+            if taskFormShouldPostpone {
+                task.postpone(by: taskFormPostponementDuration, reason: taskFormBlockedReason, waitingFor: taskFormWaitingFor)
+            }
             store.tasks.append(task)
         }
 
@@ -281,8 +295,21 @@ class ProjectManagementViewModel: ObservableObject {
         taskFormHasDueDate = false
         taskFormRecurrence = .none
         taskFormIsToday = false
+        taskFormBlockedReason = ""
+        taskFormWaitingFor = ""
+        taskFormPrerequisiteTaskId = nil
+        taskFormShouldPostpone = false
+        taskFormPostponementDuration = .oneDay
         editingTaskId = nil
         showTaskForm = false
+    }
+
+    func addTimelineLog(to projectId: UUID, title: String, details: String, date: Date) {
+        guard let index = store.projects.firstIndex(where: { $0.id == projectId }) else { return }
+        store.projects[index].timelineLogs.append(WorkspaceTimelineLog(date: date, title: title, details: details))
+        store.projects[index].updatedAt = Date()
+        store.save()
+        loadData()
     }
 
     var filteredTasks: [Task] {
@@ -328,6 +355,11 @@ class AffairManagementViewModel: ObservableObject {
     @Published var taskFormDueDate: Date = Date()
     @Published var taskFormHasDueDate: Bool = false
     @Published var taskFormIsToday: Bool = false
+    @Published var taskFormBlockedReason: String = ""
+    @Published var taskFormWaitingFor: String = ""
+    @Published var taskFormPrerequisiteTaskId: UUID? = nil
+    @Published var taskFormShouldPostpone: Bool = false
+    @Published var taskFormPostponementDuration: TaskPostponementDuration = .oneDay
     @Published var showTaskForm: Bool = false
     @Published var editingTaskId: UUID? = nil
     @Published var taskFormError: String? = nil
@@ -411,13 +443,10 @@ class AffairManagementViewModel: ObservableObject {
     }
 
     func archiveAffair(_ affair: Affair) {
-        guard let index = store.affairs.firstIndex(where: { $0.id == affair.id }) else { return }
-        store.affairs[index].isArchived = true
-        store.affairs[index].updatedAt = Date()
+        store.archiveAffair(affair)
         if selectedAffairFilter == affair.id {
             selectedAffairFilter = nil
         }
-        store.save()
         loadData()
     }
 
@@ -446,6 +475,9 @@ class AffairManagementViewModel: ObservableObject {
         taskFormDueDate = task.dueDate ?? Date()
         taskFormHasDueDate = task.dueDate != nil
         taskFormIsToday = task.isToday
+        taskFormBlockedReason = task.blockedReason
+        taskFormWaitingFor = task.waitingFor
+        taskFormPrerequisiteTaskId = task.prerequisiteTaskId
         showTaskForm = true
     }
 
@@ -454,9 +486,12 @@ class AffairManagementViewModel: ObservableObject {
         guard let affairId = taskFormAffairId else { return }
         let dueDate = taskFormHasDueDate ? taskFormDueDate : nil
 
+        let effectiveDueDate = taskFormShouldPostpone
+            ? Calendar.current.date(byAdding: .day, value: taskFormPostponementDuration.days, to: dueDate ?? Date())
+            : dueDate
         if let affair = store.affairs.first(where: { $0.id == affairId }),
            let affairDeadline = affair.dueDate,
-           let taskDeadline = dueDate {
+           let taskDeadline = effectiveDueDate {
             if taskDeadline > affairDeadline {
                 taskFormError = "任务截止时间不能晚于事务截止时间（\(affairDeadline.formatted("yyyy-MM-dd HH:mm"))）"
                 return
@@ -473,9 +508,13 @@ class AffairManagementViewModel: ObservableObject {
             store.tasks[index].priority = taskFormPriority
             store.tasks[index].dueDate = dueDate
             store.tasks[index].isToday = taskFormIsToday
+            store.tasks[index].updateDependencyState(blockedReason: taskFormBlockedReason, waitingFor: taskFormWaitingFor, prerequisiteTaskId: taskFormPrerequisiteTaskId)
+            if taskFormShouldPostpone {
+                store.tasks[index].postpone(by: taskFormPostponementDuration, reason: taskFormBlockedReason, waitingFor: taskFormWaitingFor)
+            }
             store.tasks[index].updatedAt = Date()
         } else {
-            let task = Task(
+            var task = Task(
                 title: taskFormTitle.trimmingCharacters(in: .whitespacesAndNewlines),
                 details: taskFormDetails.trimmingCharacters(in: .whitespacesAndNewlines),
                 collaborator: normalizedTaskCollaborator,
@@ -484,8 +523,14 @@ class AffairManagementViewModel: ObservableObject {
                 affairId: affairId,
                 priority: taskFormPriority,
                 dueDate: dueDate,
-                isToday: taskFormIsToday
+                isToday: taskFormIsToday,
+                blockedReason: taskFormBlockedReason,
+                waitingFor: taskFormWaitingFor,
+                prerequisiteTaskId: taskFormPrerequisiteTaskId
             )
+            if taskFormShouldPostpone {
+                task.postpone(by: taskFormPostponementDuration, reason: taskFormBlockedReason, waitingFor: taskFormWaitingFor)
+            }
             store.tasks.append(task)
         }
 
@@ -533,9 +578,22 @@ class AffairManagementViewModel: ObservableObject {
         taskFormDueDate = Date()
         taskFormHasDueDate = false
         taskFormIsToday = false
+        taskFormBlockedReason = ""
+        taskFormWaitingFor = ""
+        taskFormPrerequisiteTaskId = nil
+        taskFormShouldPostpone = false
+        taskFormPostponementDuration = .oneDay
         taskFormError = nil
         editingTaskId = nil
         showTaskForm = false
+    }
+
+    func addTimelineLog(to affairId: UUID, title: String, details: String, date: Date) {
+        guard let index = store.affairs.firstIndex(where: { $0.id == affairId }) else { return }
+        store.affairs[index].timelineLogs.append(WorkspaceTimelineLog(date: date, title: title, details: details))
+        store.affairs[index].updatedAt = Date()
+        store.save()
+        loadData()
     }
 
     var filteredTasks: [Task] {

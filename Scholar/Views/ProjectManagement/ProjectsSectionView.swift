@@ -26,7 +26,10 @@ struct ProjectsSectionView: View {
                     Label(language.text("新建项目", "New Project"), systemImage: "plus")
                 }
                 .buttonStyle(.borderedProminent)
+                .workspaceButton()
                 .tint(AppTheme.primary)
+
+                ProjectTimelineSectionView(viewModel: viewModel)
             }
 
             if viewModel.showProjectForm {
@@ -140,12 +143,14 @@ struct ProjectsSectionView: View {
                     viewModel.saveProject()
                 }
                 .buttonStyle(.borderedProminent)
+                .workspaceButton()
                 .tint(AppTheme.primary)
 
                 Button(language.text("取消", "Cancel")) {
                     viewModel.resetProjectForm()
                 }
                 .buttonStyle(.bordered)
+                .workspaceButton()
             }
         }
         .padding(AppTheme.spacingMd)
@@ -306,18 +311,22 @@ struct ProjectRowView: View {
                     Spacer()
                     Button(language.text("任务", "Tasks")) { onSelect() }
                         .buttonStyle(.bordered)
+                .workspaceButton()
                     Button { onArchive() } label: {
                         Label(language.text("归档", "Archive"), systemImage: "archivebox")
                     }
                     .buttonStyle(.bordered)
+                .workspaceButton()
                     Button { onEdit() } label: {
                         Image(systemName: "square.and.pencil")
                     }
                     .buttonStyle(.bordered)
+                .workspaceButton()
                     Button(role: .destructive) { onDelete() } label: {
                         Image(systemName: "trash")
                     }
                     .buttonStyle(.bordered)
+                .workspaceButton()
                 }
                 .controlSize(.small)
             }

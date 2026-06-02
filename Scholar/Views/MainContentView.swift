@@ -307,15 +307,15 @@ struct ArchiveManagementView: View {
     private var language: AppLanguage { store.appLanguage }
 
     private var archivedProjects: [Project] {
-        store.projects.filter(\.isArchived).sorted { $0.updatedAt > $1.updatedAt }
+        store.archivedData.projects.sorted { $0.updatedAt > $1.updatedAt }
     }
 
     private var archivedTheses: [ThesisInfo] {
-        store.thesisInfos.filter(\.isArchived).sorted { $0.title.localizedStandardCompare($1.title) == .orderedAscending }
+        store.archivedData.thesisInfos.sorted { $0.title.localizedStandardCompare($1.title) == .orderedAscending }
     }
 
     private var archivedAffairs: [Affair] {
-        store.affairs.filter(\.isArchived).sorted { $0.updatedAt > $1.updatedAt }
+        store.archivedData.affairs.sorted { $0.updatedAt > $1.updatedAt }
     }
 
     var body: some View {
@@ -543,6 +543,7 @@ struct ArchiveManagementView: View {
                 Label(language.text("查看详情", "Details"), systemImage: "doc.text.magnifyingglass")
             }
             .buttonStyle(.borderedProminent)
+                .workspaceButton()
             .tint(AppTheme.primary)
             .controlSize(.small)
 
@@ -552,6 +553,7 @@ struct ArchiveManagementView: View {
                 Label(language.text("恢复", "Restore"), systemImage: "arrow.uturn.backward")
             }
             .buttonStyle(.bordered)
+                .workspaceButton()
             .controlSize(.small)
         }
         .padding(AppTheme.spacingMd)
@@ -565,26 +567,15 @@ struct ArchiveManagementView: View {
     }
 
     private func restoreProject(_ id: UUID) {
-        guard let index = store.projects.firstIndex(where: { $0.id == id }) else { return }
-        store.projects[index].isArchived = false
-        if store.projects[index].stage == .completed {
-            store.projects[index].stage = .inProgress
-        }
-        store.projects[index].updatedAt = Date()
-        store.save()
+        store.restoreProject(id)
     }
 
     private func restoreThesis(_ id: UUID) {
-        guard let index = store.thesisInfos.firstIndex(where: { $0.id == id }) else { return }
-        store.thesisInfos[index].isArchived = false
-        store.save()
+        store.restoreThesis(id)
     }
 
     private func restoreAffair(_ id: UUID) {
-        guard let index = store.affairs.firstIndex(where: { $0.id == id }) else { return }
-        store.affairs[index].isArchived = false
-        store.affairs[index].updatedAt = Date()
-        store.save()
+        store.restoreAffair(id)
     }
 
     private struct ArchiveRowItem: Identifiable {
@@ -618,7 +609,7 @@ private struct ArchiveDetailSheet: View {
     private var language: AppLanguage { store.appLanguage }
 
     private var linkedTasks: [Task] {
-        store.tasks.filter { task in
+        store.archivedData.tasks.filter { task in
             switch selection {
             case .project(let id): return task.projectId == id
             case .thesis(let id): return task.thesisId == id
@@ -666,6 +657,7 @@ private struct ArchiveDetailSheet: View {
                     Label(language.text("关闭", "Close"), systemImage: "xmark")
                 }
                 .buttonStyle(.bordered)
+                .workspaceButton()
             }
             .padding(AppTheme.spacingLg)
             .background(AppTheme.surface)
@@ -694,9 +686,9 @@ private struct ArchiveDetailSheet: View {
 
     private var headerTitle: String {
         switch selection {
-        case .project(let id): return store.projects.first(where: { $0.id == id })?.name ?? language.text("项目", "Project")
-        case .thesis(let id): return store.thesisInfos.first(where: { $0.id == id })?.title ?? language.text("课题", "Topic")
-        case .affair(let id): return store.affairs.first(where: { $0.id == id })?.title ?? language.text("事务", "Affair")
+        case .project(let id): return store.archivedData.projects.first(where: { $0.id == id })?.name ?? language.text("项目", "Project")
+        case .thesis(let id): return store.archivedData.thesisInfos.first(where: { $0.id == id })?.title ?? language.text("课题", "Topic")
+        case .affair(let id): return store.archivedData.affairs.first(where: { $0.id == id })?.title ?? language.text("事务", "Affair")
         }
     }
 
@@ -712,7 +704,7 @@ private struct ArchiveDetailSheet: View {
     private var detailSection: some View {
         switch selection {
         case .project(let id):
-            if let project = store.projects.first(where: { $0.id == id }) {
+            if let project = store.archivedData.projects.first(where: { $0.id == id }) {
                 archiveCard(title: language.text("项目信息", "Project Information"), icon: "folder") {
                     detailGrid([
                         detail(language.text("类别", "Category"), project.category.displayName),
@@ -733,7 +725,7 @@ private struct ArchiveDetailSheet: View {
                 }
             }
         case .thesis(let id):
-            if let thesis = store.thesisInfos.first(where: { $0.id == id }) {
+            if let thesis = store.archivedData.thesisInfos.first(where: { $0.id == id }) {
                 archiveCard(title: language.text("课题信息", "Topic Information"), icon: "doc.text") {
                     detailGrid([
                         detail(language.text("阶段", "Stage"), thesis.stage.displayName),
@@ -749,7 +741,7 @@ private struct ArchiveDetailSheet: View {
                 }
             }
         case .affair(let id):
-            if let affair = store.affairs.first(where: { $0.id == id }) {
+            if let affair = store.archivedData.affairs.first(where: { $0.id == id }) {
                 archiveCard(title: language.text("事务信息", "Affair Information"), icon: "tray.full") {
                     detailGrid([
                         detail(language.text("来源", "Source"), affair.source),
@@ -1039,7 +1031,10 @@ struct AffairManagementView: View {
                     Label(language.text("新建事务", "New Affair"), systemImage: "plus")
                 }
                 .buttonStyle(.borderedProminent)
+                .workspaceButton()
                 .tint(AppTheme.primary)
+
+                AffairTimelineSectionView(viewModel: viewModel)
             }
 
             if viewModel.showAffairForm {
@@ -1089,7 +1084,7 @@ struct AffairManagementView: View {
                     Text(language.text("事务任务", "Affair Tasks"))
                         .font(AppTheme.subtitleFont)
                         .foregroundStyle(AppTheme.textPrimary)
-                    Text(language.text("事务任务用于拆解短期事项，可按人员、截止时间和今日推进筛选。", "Affair tasks break down short-term work by owner, due time, and today's focus."))
+                    Text(language.text("事务任务用于拆解短期事项，可按人员、截止时间和关注状态筛选。", "Affair tasks break down short-term work by owner, due time, and watched state."))
                         .font(AppTheme.captionFont)
                         .foregroundStyle(AppTheme.textSecondary)
                 }
@@ -1100,6 +1095,7 @@ struct AffairManagementView: View {
                         viewModel.loadTasks()
                     }
                     .buttonStyle(.bordered)
+                .workspaceButton()
                     .controlSize(.small)
                 }
                 Button {
@@ -1108,6 +1104,7 @@ struct AffairManagementView: View {
                     Label(language.text("新建任务", "New Task"), systemImage: "plus")
                 }
                 .buttonStyle(.borderedProminent)
+                .workspaceButton()
                 .tint(AppTheme.accent)
                 .disabled(viewModel.affairs.isEmpty)
             }
@@ -1129,6 +1126,7 @@ struct AffairManagementView: View {
                             onToggle: { viewModel.toggleTaskCompletion(task) },
                             onToggleToday: { viewModel.toggleTaskToday(task) },
                             onEdit: { viewModel.beginEditingTask(task) },
+                            onDelaySaved: { viewModel.loadData() },
                             onDelete: {
                                 taskToDelete = task
                                 showDeleteTaskConfirmation = true
@@ -1199,11 +1197,13 @@ struct AffairManagementView: View {
                     viewModel.saveAffair()
                 }
                 .buttonStyle(.borderedProminent)
+                .workspaceButton()
                 .tint(AppTheme.primary)
                 Button(language.text("取消", "Cancel")) {
                     viewModel.resetAffairForm()
                 }
                 .buttonStyle(.bordered)
+                .workspaceButton()
             }
         }
         .padding(AppTheme.spacingMd)
@@ -1257,10 +1257,10 @@ struct AffairManagementView: View {
                 )
 
                 VStack(alignment: .leading, spacing: AppTheme.spacingXs) {
-                    Text(language.text("持续推进", "Keep Active"))
+                    Text(language.text("关注", "Watched"))
                         .font(AppTheme.captionFont)
                         .foregroundStyle(AppTheme.textSecondary)
-                    Toggle(language.text("持续推进", "Keep Active"), isOn: $viewModel.taskFormIsToday)
+                    Toggle(language.text("关注", "Watched"), isOn: $viewModel.taskFormIsToday)
                         .labelsHidden()
                         .toggleStyle(.checkbox)
                         .frame(height: 38)
@@ -1278,6 +1278,15 @@ struct AffairManagementView: View {
 
             multilineField(language.text("任务内容", "Task Content"), text: $viewModel.taskFormDetails)
 
+            TaskDependencyFormFields(
+                blockedReason: $viewModel.taskFormBlockedReason,
+                waitingFor: $viewModel.taskFormWaitingFor,
+                prerequisiteTaskId: $viewModel.taskFormPrerequisiteTaskId,
+                shouldPostpone: $viewModel.taskFormShouldPostpone,
+                postponementDuration: $viewModel.taskFormPostponementDuration,
+                editingTaskId: viewModel.editingTaskId
+            )
+
             if let error = viewModel.taskFormError {
                 Text(error)
                     .font(AppTheme.captionFont)
@@ -1289,11 +1298,13 @@ struct AffairManagementView: View {
                     viewModel.saveTask()
                 }
                 .buttonStyle(.borderedProminent)
+                .workspaceButton()
                 .tint(AppTheme.accent)
                 Button(language.text("取消", "Cancel")) {
                     viewModel.resetTaskForm()
                 }
                 .buttonStyle(.bordered)
+                .workspaceButton()
             }
         }
         .padding(AppTheme.spacingMd)
@@ -1432,22 +1443,27 @@ private struct AffairRowView: View {
                     Spacer()
                     Button(language.text("任务", "Tasks")) { onSelect() }
                         .buttonStyle(.bordered)
+                .workspaceButton()
                     Button { onNewTask() } label: {
                         Label(language.text("任务", "Task"), systemImage: "plus")
                     }
                     .buttonStyle(.bordered)
+                .workspaceButton()
                     Button { onArchive() } label: {
                         Label(language.text("归档", "Archive"), systemImage: "archivebox")
                     }
                     .buttonStyle(.bordered)
+                .workspaceButton()
                     Button { onEdit() } label: {
                         Image(systemName: "square.and.pencil")
                     }
                     .buttonStyle(.bordered)
+                .workspaceButton()
                     Button(role: .destructive) { onDelete() } label: {
                         Image(systemName: "trash")
                     }
                     .buttonStyle(.bordered)
+                .workspaceButton()
                 }
                 .controlSize(.small)
             }
@@ -1489,6 +1505,7 @@ private struct AffairTaskRowView: View {
     var onToggle: () -> Void
     var onToggleToday: () -> Void
     var onEdit: () -> Void
+    var onDelaySaved: () -> Void
     var onDelete: () -> Void
     private var language: AppLanguage { store.appLanguage }
 
@@ -1521,7 +1538,7 @@ private struct AffairTaskRowView: View {
                     }
 
                     if task.isToday {
-                        badge(language.text("持续推进", "Keep Active"), color: AppTheme.warning)
+                        badge(language.text("关注", "Watched"), color: AppTheme.warning)
                     }
 
                     Text("• \(task.collaborator)")
@@ -1541,6 +1558,8 @@ private struct AffairTaskRowView: View {
                         .foregroundStyle(AppTheme.textSecondary)
                         .lineLimit(2)
                 }
+
+                TaskDependencySummary(task: task)
             }
 
             Spacer()
@@ -1552,6 +1571,7 @@ private struct AffairTaskRowView: View {
                     Image(systemName: task.isToday ? "flag.fill" : "flag")
                 }
                 .buttonStyle(.bordered)
+                .workspaceButton()
                 .controlSize(.small)
 
                 Button {
@@ -1560,13 +1580,18 @@ private struct AffairTaskRowView: View {
                     Image(systemName: "square.and.pencil")
                 }
                 .buttonStyle(.bordered)
+                .workspaceButton()
                 .controlSize(.small)
+
+                TaskDelayButton(task: task, onSaved: onDelaySaved)
+
                 Button(role: .destructive) {
                     onDelete()
                 } label: {
                     Image(systemName: "trash")
                 }
                 .buttonStyle(.bordered)
+                .workspaceButton()
                 .controlSize(.small)
             }
         }

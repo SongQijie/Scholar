@@ -25,6 +25,7 @@ struct ThesisTasksSectionView: View {
                         viewModel.loadTasks()
                     }
                     .buttonStyle(.bordered)
+                .workspaceButton()
                     .controlSize(.small)
                 }
                 Button {
@@ -33,6 +34,7 @@ struct ThesisTasksSectionView: View {
                     Label(language.text("新建课题任务", "New Thesis Task"), systemImage: "plus")
                 }
                 .buttonStyle(.borderedProminent)
+                .workspaceButton()
                 .tint(AppTheme.accent)
             }
 
@@ -53,6 +55,7 @@ struct ThesisTasksSectionView: View {
                             onToggle: { viewModel.toggleTaskCompletion(task) },
                             onToggleToday: { viewModel.toggleTaskToday(task) },
                             onEdit: { viewModel.beginEditingTask(task) },
+                            onDelaySaved: { viewModel.loadData() },
                             onDelete: {
                                 taskToDelete = task
                                 showDeleteConfirmation = true
@@ -163,10 +166,10 @@ struct ThesisTasksSectionView: View {
                 )
 
                 VStack(alignment: .leading, spacing: AppTheme.spacingXs) {
-                    Text(language.text("持续推进", "Keep Active"))
+                    Text(language.text("关注", "Watched"))
                         .font(AppTheme.captionFont)
                         .foregroundStyle(AppTheme.textSecondary)
-                    Toggle(language.text("持续推进", "Keep Active"), isOn: $viewModel.taskFormIsToday)
+                    Toggle(language.text("关注", "Watched"), isOn: $viewModel.taskFormIsToday)
                         .labelsHidden()
                         .toggleStyle(.checkbox)
                         .frame(height: 38)
@@ -181,17 +184,28 @@ struct ThesisTasksSectionView: View {
 
             multilineField(language.text("任务详情", "Details"), text: $viewModel.taskFormDetails)
 
+            TaskDependencyFormFields(
+                blockedReason: $viewModel.taskFormBlockedReason,
+                waitingFor: $viewModel.taskFormWaitingFor,
+                prerequisiteTaskId: $viewModel.taskFormPrerequisiteTaskId,
+                shouldPostpone: $viewModel.taskFormShouldPostpone,
+                postponementDuration: $viewModel.taskFormPostponementDuration,
+                editingTaskId: viewModel.editingTaskId
+            )
+
             HStack {
                 Button(viewModel.editingTaskId == nil ? language.text("保存任务", "Save Task") : language.text("更新任务", "Update Task")) {
                     viewModel.saveTask()
                 }
                 .buttonStyle(.borderedProminent)
+                .workspaceButton()
                 .tint(AppTheme.accent)
 
                 Button(language.text("取消", "Cancel")) {
                     viewModel.resetTaskForm()
                 }
                 .buttonStyle(.bordered)
+                .workspaceButton()
             }
         }
         .padding(AppTheme.spacingMd)
@@ -257,6 +271,7 @@ struct ThesisTaskRowView: View {
     var onToggle: () -> Void
     var onToggleToday: () -> Void
     var onEdit: () -> Void
+    var onDelaySaved: () -> Void
     var onDelete: () -> Void
     private var language: AppLanguage { store.appLanguage }
 
@@ -284,7 +299,7 @@ struct ThesisTaskRowView: View {
                         badge(task.recurrence.displayName, color: AppTheme.accent)
                     }
                     if task.isToday {
-                        badge(language.text("持续推进", "Keep Active"), color: AppTheme.warning)
+                        badge(language.text("关注", "Watched"), color: AppTheme.warning)
                     }
                 }
 
@@ -302,6 +317,8 @@ struct ThesisTaskRowView: View {
                         .foregroundStyle(AppTheme.textSecondary)
                         .lineLimit(2)
                 }
+
+                TaskDependencySummary(task: task)
             }
 
             Spacer()
@@ -313,6 +330,7 @@ struct ThesisTaskRowView: View {
                     Image(systemName: task.isToday ? "flag.fill" : "flag")
                 }
                 .buttonStyle(.bordered)
+                .workspaceButton()
                 .controlSize(.small)
 
                 Button {
@@ -321,7 +339,10 @@ struct ThesisTaskRowView: View {
                     Image(systemName: "square.and.pencil")
                 }
                 .buttonStyle(.bordered)
+                .workspaceButton()
                 .controlSize(.small)
+
+                TaskDelayButton(task: task, onSaved: onDelaySaved)
 
                 Button(role: .destructive) {
                     onDelete()
@@ -329,6 +350,7 @@ struct ThesisTaskRowView: View {
                     Image(systemName: "trash")
                 }
                 .buttonStyle(.bordered)
+                .workspaceButton()
                 .controlSize(.small)
             }
         }

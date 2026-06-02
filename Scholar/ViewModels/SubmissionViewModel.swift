@@ -36,6 +36,7 @@ class SubmissionViewModel: ObservableObject {
     @Published var newRelatedStudents: String = ""
     @Published var newSubmissionDate: Date?
     @Published var newAcceptanceDate: Date?
+    @Published var newThesisId: UUID?
     @Published var pendingAttachmentURLs: [URL] = []
     @Published var showNewLogForm: Bool = false
     @Published var newLogContent: String = ""
@@ -51,13 +52,11 @@ class SubmissionViewModel: ObservableObject {
     // MARK: - Computed Properties
 
     var activeSubmissions: [Submission] {
-        store.submissions.filter { $0.isActive && !$0.isArchived }
+        store.submissions.filter { !$0.isArchived }
     }
 
     var archivedSubmissions: [Submission] {
-        var submissions = store.submissions.filter {
-            !$0.isActive || $0.isArchived || $0.type == .award || $0.type == .other
-        }
+        var submissions = store.archivedData.submissions
         // 应用筛选
         if let filterType = archiveFilterType {
             submissions = submissions.filter { $0.type == filterType }
@@ -90,6 +89,7 @@ class SubmissionViewModel: ObservableObject {
     var selectedSubmission: Submission? {
         guard let id = selectedSubmissionId else { return nil }
         return store.submissions.first { $0.id == id }
+            ?? store.archivedData.submissions.first { $0.id == id }
     }
 
     var selectedSubmissionLogs: [SubmissionLog] {
@@ -97,7 +97,7 @@ class SubmissionViewModel: ObservableObject {
     }
 
     var availableYears: [Int] {
-        let dates = store.submissions.map { $0.acceptanceDate ?? $0.createdAt }
+        let dates = (store.submissions + store.archivedData.submissions).map { $0.acceptanceDate ?? $0.createdAt }
         let years = Set(dates.map { Calendar.current.component(.year, from: $0) })
         return years.sorted(by: >)
     }
@@ -142,37 +142,37 @@ class SubmissionViewModel: ObservableObject {
             submissionDate: newSubmissionDate,
             acceptanceDate: newAcceptanceDate,
             isArchived: isAutomaticallyArchived,
-            attachments: attachments
+            attachments: attachments,
+            thesisId: newThesisId
         )
         store.submissions.append(submission)
+        if isAutomaticallyArchived {
+            store.archiveSubmission(submission)
+        }
         store.save()
         resetForm()
         loadData()
     }
 
     func archiveSubmission(_ submission: Submission) {
-        if let idx = store.submissions.firstIndex(where: { $0.id == submission.id }) {
-            store.submissions[idx].isArchived = true
-            store.submissions[idx].updatedAt = Date()
-            store.save()
-            loadData()
-        }
+        store.archiveSubmission(submission)
+        loadData()
     }
 
     func unarchiveSubmission(_ submission: Submission) {
-        if let idx = store.submissions.firstIndex(where: { $0.id == submission.id }) {
-            store.submissions[idx].isArchived = false
-            store.submissions[idx].updatedAt = Date()
-            store.save()
-            loadData()
-        }
+        store.restoreSubmission(submission.id)
+        loadData()
     }
 
     func updatePaperStatus(_ submission: Submission, status: PaperStatus) {
         if let idx = store.submissions.firstIndex(where: { $0.id == submission.id }) {
             store.submissions[idx].paperStatus = status
             store.submissions[idx].updatedAt = Date()
-            store.save()
+            if status == .accepted {
+                store.archiveSubmission(store.submissions[idx])
+            } else {
+                store.save()
+            }
             loadData()
         }
     }
@@ -182,13 +182,18 @@ class SubmissionViewModel: ObservableObject {
             store.submissions[idx].patentStatus = status
             store.submissions[idx].stage = submissionStage(for: status)
             store.submissions[idx].updatedAt = Date()
-            store.save()
+            if status == .authorized {
+                store.archiveSubmission(store.submissions[idx])
+            } else {
+                store.save()
+            }
             loadData()
         }
     }
 
     func deleteSubmission(_ submission: Submission) {
         store.submissions.removeAll { $0.id == submission.id }
+        store.archivedData.submissions.removeAll { $0.id == submission.id }
         if selectedSubmissionId == submission.id {
             selectedSubmissionId = nil
         }
@@ -258,6 +263,7 @@ class SubmissionViewModel: ObservableObject {
         newRelatedStudents = ""
         newSubmissionDate = nil
         newAcceptanceDate = nil
+        newThesisId = nil
         pendingAttachmentURLs = []
         showNewSubmissionForm = false
     }
@@ -265,7 +271,7 @@ class SubmissionViewModel: ObservableObject {
     // MARK: - Statistics
 
     func computeStats() {
-        let submissions = store.submissions
+        let submissions = store.submissions + store.archivedData.submissions
         
         stats.totalCount = submissions.count
         stats.activeCount = submissions.filter { $0.isActive && !$0.isArchived }.count

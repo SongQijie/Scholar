@@ -176,6 +176,7 @@ struct HealthView: View {
                         .font(AppTheme.captionFont)
                 }
                 .buttonStyle(.borderedProminent)
+                .workspaceButton()
                 .tint(AppTheme.primary)
                 .controlSize(.small)
             }
@@ -233,6 +234,7 @@ struct HealthView: View {
                     viewModel.addHabit()
                 }
                 .buttonStyle(.borderedProminent)
+                .workspaceButton()
                 .tint(AppTheme.primary)
                 .controlSize(.small)
 
@@ -240,6 +242,7 @@ struct HealthView: View {
                     viewModel.showNewHabitForm = false
                 }
                 .buttonStyle(.bordered)
+                .workspaceButton()
                 .controlSize(.small)
 
                 Spacer()
@@ -315,6 +318,7 @@ struct HealthView: View {
                         .font(AppTheme.captionFont)
                 }
                 .buttonStyle(.bordered)
+                .workspaceButton()
                 .controlSize(.small)
             }
 
@@ -335,6 +339,7 @@ struct HealthView: View {
                         viewModel.addWeightRecord()
                     }
                     .buttonStyle(.borderedProminent)
+                .workspaceButton()
                     .tint(AppTheme.primary)
                     .controlSize(.small)
                 }
@@ -416,6 +421,7 @@ struct HealthView: View {
                     viewModel.toggleHabitActive(habit)
                 }
                 .buttonStyle(.bordered)
+                .workspaceButton()
                 .controlSize(.mini)
 
                 Button(language.text("删", "Del")) {
@@ -423,6 +429,7 @@ struct HealthView: View {
                     showDeleteHabitConfirmation = true
                 }
                 .buttonStyle(.bordered)
+                .workspaceButton()
                 .controlSize(.mini)
                 .tint(AppTheme.danger)
             }
@@ -447,6 +454,7 @@ struct HealthView: View {
                 showDeleteWeightRecordConfirmation = true
             }
             .buttonStyle(.bordered)
+                .workspaceButton()
             .controlSize(.mini)
             .tint(AppTheme.danger)
         }

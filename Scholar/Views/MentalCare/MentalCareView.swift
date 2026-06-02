@@ -246,6 +246,7 @@ struct MentalCareView: View {
                     Image(systemName: "chevron.left")
                 }
                 .buttonStyle(.bordered)
+                .workspaceButton()
                 .controlSize(.mini)
                 Button {
                     viewModel.selectDate(Date())
@@ -254,6 +255,7 @@ struct MentalCareView: View {
                         .font(AppTheme.captionFont)
                 }
                 .buttonStyle(.bordered)
+                .workspaceButton()
                 .controlSize(.mini)
                 Button {
                     viewModel.changeMonth(by: 1)
@@ -261,6 +263,7 @@ struct MentalCareView: View {
                     Image(systemName: "chevron.right")
                 }
                 .buttonStyle(.bordered)
+                .workspaceButton()
                 .controlSize(.mini)
                 Text(viewModel.selectedDate.formatted("MM/dd"))
                     .font(AppTheme.captionFont)
@@ -430,12 +433,14 @@ struct MentalCareView: View {
                     viewModel.saveRecord()
                 }
                 .buttonStyle(.borderedProminent)
+                .workspaceButton()
                 .tint(AppTheme.primary)
 
                 Button(language.text("清空当天", "Clear Today")) {
                     viewModel.clearTodayRecord()
                 }
                 .buttonStyle(.bordered)
+                .workspaceButton()
                 .tint(AppTheme.danger)
 
                 Spacer()

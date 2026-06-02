@@ -14,6 +14,9 @@ struct OverviewView: View {
                 researchPulseSection
                     .fadeIn(delay: 0.08)
 
+                blockedTasksSection
+                    .fadeIn(delay: 0.11)
+
                 overviewColumns
                     .fadeIn(delay: 0.14)
             }
@@ -85,7 +88,7 @@ struct OverviewView: View {
                 Text(language.text("工作态势", "Work Pulse"))
                     .font(AppTheme.subtitleFont)
                     .foregroundStyle(AppTheme.textPrimary)
-                    Text(language.text("今日任务、持续推进与成果负载。", "Today tasks, active work, and outcome load."))
+                    Text(language.text("今日任务、关注事项与成果负载。", "Today tasks, watched items, and outcome load."))
                         .font(AppTheme.captionFont)
                         .foregroundStyle(AppTheme.textSecondary)
                         .lineLimit(1)
@@ -100,7 +103,7 @@ struct OverviewView: View {
             }
 
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 104, maximum: 160), spacing: AppTheme.spacingSm)], spacing: AppTheme.spacingSm) {
-                WorkPulseStatTile(title: language.text("持续推进", "Active"), value: "\(viewModel.todaySnapshot.todayOpenTasks)", icon: "list.bullet.clipboard.fill", color: AppTheme.primary)
+                WorkPulseStatTile(title: language.text("关注任务", "Watched"), value: "\(viewModel.todaySnapshot.todayOpenTasks)", icon: "list.bullet.clipboard.fill", color: AppTheme.primary)
                 WorkPulseStatTile(title: language.text("今天截止", "Due"), value: "\(viewModel.todaySnapshot.dueTodayTasks)", icon: "calendar.badge.exclamationmark", color: AppTheme.warning)
                 WorkPulseStatTile(title: language.text("逾期未清", "Overdue"), value: "\(viewModel.todaySnapshot.inProgressTasks)", icon: "exclamationmark.triangle.fill", color: AppTheme.danger)
                 WorkPulseStatTile(title: language.text("在研项目", "Projects"), value: "\(viewModel.workbenchStats.activeProjects)", icon: "folder.fill", color: AppTheme.primary)
@@ -122,11 +125,78 @@ struct OverviewView: View {
         )
     }
 
+    private var blockedTasksSection: some View {
+        let blockedTasks = store.tasks
+            .filter(\.isBlockedOverSevenDays)
+            .sorted { ($0.blockedSince ?? .distantFuture) < ($1.blockedSince ?? .distantFuture) }
+
+        return Group {
+            if !blockedTasks.isEmpty {
+                VStack(alignment: .leading, spacing: AppTheme.spacingMd) {
+                    HStack {
+                        Label(language.text("阻塞超过 7 天", "Blocked for Over 7 Days"), systemImage: "exclamationmark.triangle.fill")
+                            .font(AppTheme.subtitleFont)
+                            .foregroundStyle(AppTheme.warning)
+                        Spacer()
+                        Text(language.text("\(blockedTasks.count) 项待推进", "\(blockedTasks.count) items"))
+                            .font(AppTheme.captionFont)
+                            .foregroundStyle(AppTheme.warning)
+                            .padding(.horizontal, AppTheme.spacingSm)
+                            .padding(.vertical, 3)
+                            .background(AppTheme.warning.opacity(0.12))
+                            .clipShape(Capsule())
+                    }
+
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 280), spacing: AppTheme.spacingSm)], spacing: AppTheme.spacingSm) {
+                        ForEach(blockedTasks) { task in
+                            blockedTaskCard(task)
+                        }
+                    }
+                }
+                .padding(AppTheme.spacingMd)
+                .background(AppTheme.surface)
+                .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusLg))
+                .overlay(
+                    RoundedRectangle(cornerRadius: AppTheme.radiusLg)
+                        .stroke(AppTheme.warning.opacity(0.25), lineWidth: 0.75)
+                )
+            }
+        }
+    }
+
+    private func blockedTaskCard(_ task: Task) -> some View {
+        VStack(alignment: .leading, spacing: AppTheme.spacingXs) {
+            HStack {
+                Text(task.title)
+                    .font(AppTheme.bodyFont)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(AppTheme.textPrimary)
+                    .lineLimit(1)
+                Spacer()
+                Text(language.text("\(blockedDays(task)) 天", "\(blockedDays(task))d"))
+                    .font(AppTheme.captionFont)
+                    .foregroundStyle(AppTheme.danger)
+            }
+            Text(task.ownerLabel)
+                .font(AppTheme.captionFont)
+                .foregroundStyle(AppTheme.textTertiary)
+            TaskDependencySummary(task: task)
+        }
+        .padding(AppTheme.spacingSm)
+        .background(AppTheme.warning.opacity(0.06))
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusMd))
+    }
+
+    private func blockedDays(_ task: Task) -> Int {
+        guard let blockedSince = task.blockedSince else { return 0 }
+        return max(0, Calendar.current.dateComponents([.day], from: blockedSince.startOfDay, to: Date().startOfDay).day ?? 0)
+    }
+
     private var todayTimelinePanel: some View {
         timelinePanel(
             title: language.text("今日时间线", "Today's Timeline"),
             items: viewModel.todayTimelineItems,
-            emptyText: language.text("今天还没有明确任务或时间安排。可以把需要持续推进的任务标记为今天。", "No clear tasks or schedule yet. Mark active work as today.")
+            emptyText: language.text("今天还没有明确任务或时间安排。可以把需要持续关注的任务标记为关注。", "No clear tasks or schedule yet. Mark items to watch.")
         )
     }
 
@@ -267,7 +337,7 @@ struct OverviewView: View {
         case .normal, .schedule:
             return nil
         case .active:
-            return language.text("持续", "Active")
+            return language.text("关注", "Watched")
         case .dueToday:
             return language.text("今日截止", "Due Today")
         case .dueSoon:
@@ -519,7 +589,7 @@ private struct BusyCalendarPanel: View {
                     Text(language.text("忙碌日历", "Load Calendar"))
                         .font(AppTheme.subtitleFont)
                         .foregroundStyle(AppTheme.textPrimary)
-                    Text(language.text("分母与颜色按今天截止、逾期、持续三类负载判断。", "Total and color reflect due, overdue, and ongoing load."))
+                    Text(language.text("分母与颜色只按今天截止和逾期任务判断，关注任务单独展示。", "Total and color reflect due and overdue tasks. Watched items are shown separately."))
                         .font(AppTheme.captionFont)
                         .foregroundStyle(AppTheme.textSecondary)
                         .lineLimit(1)
@@ -533,6 +603,7 @@ private struct BusyCalendarPanel: View {
                     Image(systemName: "chevron.left")
                 }
                 .buttonStyle(.bordered)
+                .workspaceButton()
                 .controlSize(.mini)
 
                 Button {
@@ -542,6 +613,7 @@ private struct BusyCalendarPanel: View {
                         .font(AppTheme.captionFont)
                 }
                 .buttonStyle(.bordered)
+                .workspaceButton()
                 .controlSize(.mini)
 
                 Button {
@@ -550,6 +622,7 @@ private struct BusyCalendarPanel: View {
                     Image(systemName: "chevron.right")
                 }
                 .buttonStyle(.bordered)
+                .workspaceButton()
                 .controlSize(.mini)
             }
 
@@ -587,7 +660,7 @@ private struct BusyCalendarPanel: View {
                     Text(language.text("今天：\(label(for: todayInfo.level))", "Today: \(label(for: todayInfo.level))"))
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundStyle(AppTheme.textPrimary)
-                    Text(language.text("\(todayInfo.completedTasks)/\(todayInfo.totalTasks) 已完成 · 今 \(todayInfo.dueTasks) / 逾 \(todayInfo.overdueTasks) / 续 \(todayInfo.continuousTasks)", "\(todayInfo.completedTasks)/\(todayInfo.totalTasks) done · due \(todayInfo.dueTasks) / overdue \(todayInfo.overdueTasks) / ongoing \(todayInfo.continuousTasks)"))
+                    Text(language.text("\(todayInfo.completedTasks)/\(todayInfo.totalTasks) 已完成 · 今 \(todayInfo.dueTasks) / 逾 \(todayInfo.overdueTasks) / 关注 \(todayInfo.continuousTasks)", "\(todayInfo.completedTasks)/\(todayInfo.totalTasks) done · due \(todayInfo.dueTasks) / overdue \(todayInfo.overdueTasks) / watched \(todayInfo.continuousTasks)"))
                         .font(AppTheme.captionFont)
                         .foregroundStyle(AppTheme.textSecondary)
                 }
@@ -680,7 +753,7 @@ private struct BusyDayCellView: View {
 
                 HStack(spacing: 2) {
                     BusyLoadBadge(systemImage: "exclamationmark.triangle.fill", value: "\(info.overdueTasks)", color: AppTheme.danger, helpText: language.text("逾期", "Overdue"))
-                    BusyLoadBadge(systemImage: "arrow.triangle.2.circlepath", value: "\(info.continuousTasks)", color: AppTheme.secondary, helpText: language.text("持续跟进", "Ongoing"))
+                    BusyLoadBadge(systemImage: "flag.fill", value: "\(info.continuousTasks)", color: AppTheme.secondary, helpText: language.text("关注任务", "Watched"))
                 }
             }
             .frame(maxWidth: .infinity)
@@ -794,7 +867,7 @@ private struct BusyDayTaskPopover: View {
                     .foregroundStyle(AppTheme.textPrimary)
             }
 
-            Text(language.text("完成 \(info.completedTasks) · 当日 \(info.dueTasks) · 逾期 \(info.overdueTasks) · 持续 \(info.continuousTasks)", "\(info.completedTasks) done · \(info.dueTasks) due · \(info.overdueTasks) overdue · \(info.continuousTasks) ongoing"))
+            Text(language.text("完成 \(info.completedTasks) · 当日 \(info.dueTasks) · 逾期 \(info.overdueTasks) · 关注 \(info.continuousTasks)", "\(info.completedTasks) done · \(info.dueTasks) due · \(info.overdueTasks) overdue · \(info.continuousTasks) watched"))
                 .font(.system(size: 11))
                 .foregroundStyle(AppTheme.textSecondary)
 
@@ -811,7 +884,7 @@ private struct BusyDayTaskPopover: View {
                     taskSection(title: language.text("今天做完", "Done Today"), icon: "checkmark.circle.fill", color: AppTheme.success, tasks: completedTodayTasks)
                     taskSection(title: language.text("今天截止", "Due Today"), icon: "calendar.badge.clock", color: AppTheme.warning, tasks: dueTasks)
                     taskSection(title: language.text("逾期待处理", "Overdue"), icon: "exclamationmark.triangle.fill", color: AppTheme.danger, tasks: overdueTasks)
-                    taskSection(title: language.text("持续跟进", "Ongoing"), icon: "arrow.triangle.2.circlepath", color: AppTheme.secondary, tasks: continuousTasks)
+                    taskSection(title: language.text("关注任务", "Watched"), icon: "flag.fill", color: AppTheme.secondary, tasks: continuousTasks)
                 }
                 .frame(width: 240, alignment: .leading)
             }
