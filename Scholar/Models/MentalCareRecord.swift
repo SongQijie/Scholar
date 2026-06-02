@@ -29,6 +29,11 @@ struct MentalCareRecord: Codable, Identifiable, Hashable {
         case 8: return "🙂"
         case 9: return "😊"
         case 10: return "🤩"
+        case 11: return "🥺"
+        case 12: return "😑"
+        case 13: return "🥱"
+        case 14: return "😣"
+        case 15: return "😄"
         default: return "😐"
         }
     }

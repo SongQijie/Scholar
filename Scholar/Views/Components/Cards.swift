@@ -95,22 +95,35 @@ struct StatCard: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: AppTheme.spacing8) {
-            HStack(alignment: .firstTextBaseline, spacing: AppTheme.spacing8) {
+            HStack(alignment: .top, spacing: AppTheme.spacing8) {
                 Text(value)
                     .font(.system(size: 28, weight: .bold, design: .rounded))
                     .foregroundColor(color)
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
 
-                if showTrend {
+                Spacer(minLength: 0)
+
+                Image(systemName: icon)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(color)
+                    .frame(width: 28, height: 28)
+                    .background(color.opacity(0.10))
+                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusSm))
+            }
+
+            if showTrend {
+                HStack(spacing: AppTheme.spacing4) {
+                    Image(systemName: isPositive ? "arrow.up.right" : "arrow.down.right")
+                        .font(.system(size: 9, weight: .bold))
                     Text(trendValue)
                         .font(AppTheme.fontCaptionMedium)
-                        .foregroundColor(isPositive ? AppTheme.success : AppTheme.danger)
-                        .padding(.horizontal, AppTheme.spacing6)
-                        .padding(.vertical, 2)
-                        .background((isPositive ? AppTheme.success : AppTheme.danger).opacity(0.1))
-                        .cornerRadius(AppTheme.radiusPill)
                 }
+                .foregroundColor(isPositive ? AppTheme.success : AppTheme.danger)
+                .padding(.horizontal, AppTheme.spacing6)
+                .padding(.vertical, 2)
+                .background((isPositive ? AppTheme.success : AppTheme.danger).opacity(0.1))
+                .cornerRadius(AppTheme.radiusPill)
             }
 
             Text(title)
@@ -127,12 +140,22 @@ struct StatCard: View {
                 .clipShape(Capsule())
         }
         .padding(AppTheme.spacing12)
-        .frame(minWidth: 118, maxWidth: 150, minHeight: 86, alignment: .topLeading)
-        .background(AppTheme.surface)
-        .cornerRadius(AppTheme.radiusMd)
+        .frame(minWidth: 128, maxWidth: 160, minHeight: 96, alignment: .topLeading)
+        .background(
+            RoundedRectangle(cornerRadius: AppTheme.radiusMd)
+                .fill(AppTheme.surface)
+                .overlay(
+                    LinearGradient(
+                        colors: [color.opacity(0.06), Color.clear],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusMd))
+                )
+        )
         .overlay(
             RoundedRectangle(cornerRadius: AppTheme.radiusMd)
-                .stroke(AppTheme.border, lineWidth: 0.5)
+                .stroke(color.opacity(0.16), lineWidth: 0.75)
         )
         .shadow(color: AppTheme.cardShadow, radius: 6, x: 0, y: 2)
     }
@@ -209,6 +232,7 @@ private struct CompactMetricChip: View {
             RoundedRectangle(cornerRadius: AppTheme.radiusMd)
                 .stroke(item.color.opacity(0.18), lineWidth: 0.75)
         )
+        .hoverScale(1.015)
     }
 }
 
@@ -240,6 +264,7 @@ private struct CompactQuadrantChip: View {
             RoundedRectangle(cornerRadius: AppTheme.radiusMd)
                 .stroke(item.color.opacity(0.14), lineWidth: 0.75)
         )
+        .hoverScale(1.01)
     }
 }
 

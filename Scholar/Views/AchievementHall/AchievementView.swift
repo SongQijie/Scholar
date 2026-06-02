@@ -22,7 +22,7 @@ struct AchievementView: View {
             }
             .padding(AppTheme.spacingLg)
         }
-        .background(AppTheme.background)
+        .workspacePageBackground()
         .onAppear {
             viewModel.loadData()
         }

@@ -48,7 +48,12 @@ class MentalCareViewModel: ObservableObject {
             (7, "😤", AppLanguage.storedPreference.text("愤怒", "Angry")),
             (8, "🙂", AppLanguage.storedPreference.text("不错", "Good")),
             (9, "😊", AppLanguage.storedPreference.text("轻松", "Relaxed")),
-            (10, "🤩", AppLanguage.storedPreference.text("很好", "Great"))
+            (10, "🤩", AppLanguage.storedPreference.text("很好", "Great")),
+            (11, "🥺", AppLanguage.storedPreference.text("委屈", "Hurt")),
+            (12, "😑", AppLanguage.storedPreference.text("无语", "Speechless")),
+            (13, "🥱", AppLanguage.storedPreference.text("困倦", "Sleepy")),
+            (14, "😣", AppLanguage.storedPreference.text("烦躁", "Irritated")),
+            (15, "😄", AppLanguage.storedPreference.text("开心", "Happy"))
         ]
     }
 

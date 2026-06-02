@@ -14,15 +14,12 @@ struct MentalCareView: View {
                 dashboardSection
                     .fadeIn(delay: 0.1)
 
-                journalFormSection
+                entryAndDetailSection
                     .fadeIn(delay: 0.15)
-
-                calendarDetailSection
-                    .fadeIn(delay: 0.2)
             }
             .padding(AppTheme.spacingLg)
         }
-        .background(AppTheme.background)
+        .workspacePageBackground()
         .onAppear {
             viewModel.loadData()
         }
@@ -45,57 +42,46 @@ struct MentalCareView: View {
     }
 
     private var dashboardSection: some View {
-        HStack(alignment: .top, spacing: AppTheme.spacingLg) {
-            ModernCard {
-                VStack(alignment: .leading, spacing: AppTheme.spacingMd) {
-                    Text(language.text("统计概览", "Statistics"))
-                        .font(AppTheme.subtitleFont)
-                        .foregroundStyle(AppTheme.textPrimary)
+        GeometryReader { geometry in
+            let summaryWidth = min(380, max(320, geometry.size.width * 0.31))
 
-                    Divider()
-                        .background(AppTheme.divider)
+            HStack(alignment: .top, spacing: AppTheme.spacingLg) {
+                ModernCard {
+                    VStack(alignment: .leading, spacing: AppTheme.spacingMd) {
+                        Text(language.text("统计概览", "Statistics"))
+                            .font(AppTheme.subtitleFont)
+                            .foregroundStyle(AppTheme.textPrimary)
 
-                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], alignment: .leading, spacing: AppTheme.spacingMd) {
-                        StatCard(
-                            title: language.text("记录天数", "Recorded Days"),
-                            value: "\(viewModel.stats.recordDays)",
-                            icon: "calendar",
-                            color: AppTheme.primary
-                        )
+                        Divider()
+                            .background(AppTheme.divider)
 
-                        StatCard(
-                            title: language.text("平均压力", "Avg Stress"),
-                            value: String(format: "%.1f", viewModel.stats.avgStress),
-                            icon: "exclamationmark.triangle",
-                            color: AppTheme.warning
-                        )
+                        LazyVGrid(
+                            columns: [
+                                GridItem(.flexible(), spacing: AppTheme.spacingSm),
+                                GridItem(.flexible(), spacing: AppTheme.spacingSm)
+                            ],
+                            alignment: .leading,
+                            spacing: AppTheme.spacingMd
+                        ) {
+                            StatCard(title: language.text("记录天数", "Recorded Days"), value: "\(viewModel.stats.recordDays)", icon: "calendar", color: AppTheme.primary)
+                            StatCard(title: language.text("平均压力 · \(averageStressLabel)", "Avg Stress · \(averageStressLabel)"), value: String(format: "%.1f", viewModel.stats.avgStress), icon: "exclamationmark.triangle", color: AppTheme.warning)
+                            StatCard(title: language.text("平均能量 · \(averageEnergyLabel)", "Avg Energy · \(averageEnergyLabel)"), value: String(format: "%.1f", viewModel.stats.avgEnergy), icon: "bolt.fill", color: AppTheme.secondary)
+                            StatCard(title: language.text("写下记录", "Notes"), value: "\(viewModel.stats.noteCount)", icon: "text.quote", color: AppTheme.success)
+                        }
 
-                        StatCard(
-                            title: language.text("平均能量", "Avg Energy"),
-                            value: String(format: "%.1f", viewModel.stats.avgEnergy),
-                            icon: "bolt.fill",
-                            color: AppTheme.secondary
-                        )
+                        Divider()
+                            .background(AppTheme.divider)
 
-                        StatCard(
-                            title: language.text("写下记录", "Notes"),
-                            value: "\(viewModel.stats.noteCount)",
-                            icon: "text.quote",
-                            color: AppTheme.success
-                        )
+                        selectedDetailCardContent
                     }
-
-                    Divider()
-                        .background(AppTheme.divider)
-
-                    selectedDetailCardContent
                 }
-            }
-            .frame(width: 280, alignment: .topLeading)
+                .frame(width: summaryWidth, height: geometry.size.height, alignment: .topLeading)
 
-            calendarSection
-                .frame(maxWidth: .infinity, alignment: .topLeading)
+                calendarSection
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            }
         }
+        .frame(height: 540)
     }
 
     private var selectedDetailCardContent: some View {
@@ -119,10 +105,25 @@ struct MentalCareView: View {
                     }
                 }
 
-                HStack(spacing: AppTheme.spacingSm) {
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 108), alignment: .leading)], alignment: .leading, spacing: AppTheme.spacingXs) {
                     capsule(text: language.text("心情 \(moodLabel(for: record.mood))", "Mood \(moodLabel(for: record.mood))"), color: AppTheme.primary)
                     capsule(text: viewModel.weatherLabel(record.weather), color: AppTheme.secondary)
+                    capsule(text: language.text("压力 \(record.stressLevel) · \(stressLabel(for: record.stressLevel))", "Stress \(record.stressLevel) · \(stressLabel(for: record.stressLevel))"), color: AppTheme.warning)
+                    capsule(text: language.text("能量 \(record.energyLevel) · \(energyLabel(for: record.energyLevel))", "Energy \(record.energyLevel) · \(energyLabel(for: record.energyLevel))"), color: AppTheme.success)
                 }
+
+                Text(recordSummary(record))
+                    .font(AppTheme.captionFont)
+                    .foregroundStyle(AppTheme.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(AppTheme.spacingSm)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                    .background(AppTheme.surfaceElevated.opacity(0.55))
+                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusSm))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: AppTheme.radiusSm)
+                            .stroke(AppTheme.border.opacity(0.65), lineWidth: 0.75)
+                    )
             } else {
                 HStack(spacing: AppTheme.spacingSm) {
                     Text("—")
@@ -135,55 +136,100 @@ struct MentalCareView: View {
                         Text(language.text("点击日历中的日期查看当天状态。", "Click a calendar day to inspect that day's state."))
                             .font(AppTheme.captionFont)
                             .foregroundStyle(AppTheme.textSecondary)
-                            .lineLimit(1)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
                 }
             }
         }
+        .frame(maxHeight: .infinity, alignment: .topLeading)
     }
 
     private var calendarDetailSection: some View {
-        VStack(alignment: .leading, spacing: AppTheme.spacingSm) {
-            Text(language.text("日历详情", "Calendar Detail"))
-                .font(AppTheme.subtitleFont)
-                .foregroundStyle(AppTheme.textPrimary)
+        VStack(alignment: .leading, spacing: AppTheme.spacingMd) {
+            HStack {
+                Label(language.text("日历详情", "Calendar Detail"), systemImage: "calendar.badge.clock")
+                    .font(AppTheme.subtitleFont)
+                    .foregroundStyle(AppTheme.textPrimary)
+                Spacer()
+                Text(viewModel.selectedDate.formatted("MM/dd"))
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(AppTheme.primary)
+                    .padding(.horizontal, AppTheme.spacingSm)
+                    .padding(.vertical, 3)
+                    .background(AppTheme.primary.opacity(0.10))
+                    .clipShape(Capsule())
+            }
 
             if viewModel.hasSelectedCalendarDate, let record = viewModel.selectedRecord {
-                HStack(spacing: AppTheme.spacingSm) {
+                HStack(spacing: AppTheme.spacingMd) {
                     Text(record.moodEmoji)
-                        .font(.system(size: 30))
+                        .font(.system(size: 38))
+                        .frame(width: 58, height: 58)
+                        .background(AppTheme.primary.opacity(0.08))
+                        .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusMd))
+
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("\(record.date.formatted("MM/dd")) · \(viewModel.weatherLabel(record.weather))")
-                            .font(.system(size: 14, weight: .semibold))
+                        Text(record.date.formatted("yyyy/MM/dd"))
+                            .font(.system(size: 16, weight: .semibold))
                             .foregroundStyle(AppTheme.textPrimary)
                             .lineLimit(1)
-                        Text(language.text("压力 \(record.stressLevel) / 能量 \(record.energyLevel)", "Stress \(record.stressLevel) / Energy \(record.energyLevel)"))
+                        Text(language.text("心情 \(moodLabel(for: record.mood))", "Mood: \(moodLabel(for: record.mood))"))
                             .font(AppTheme.captionFont)
                             .foregroundStyle(AppTheme.textSecondary)
                     }
                 }
 
-                HStack(spacing: AppTheme.spacingSm) {
-                    capsule(text: language.text("心情 \(moodLabel(for: record.mood))", "Mood \(moodLabel(for: record.mood))"), color: AppTheme.primary)
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 118), alignment: .leading)], alignment: .leading, spacing: AppTheme.spacingXs) {
                     capsule(text: viewModel.weatherLabel(record.weather), color: AppTheme.secondary)
-                    capsule(text: language.text("压力 \(record.stressLevel)", "Stress \(record.stressLevel)"), color: AppTheme.warning)
-                    capsule(text: language.text("能量 \(record.energyLevel)", "Energy \(record.energyLevel)"), color: AppTheme.success)
+                    capsule(text: language.text("压力 \(record.stressLevel) · \(stressLabel(for: record.stressLevel))", "Stress \(record.stressLevel) · \(stressLabel(for: record.stressLevel))"), color: AppTheme.warning)
+                    capsule(text: language.text("能量 \(record.energyLevel) · \(energyLabel(for: record.energyLevel))", "Energy \(record.energyLevel) · \(energyLabel(for: record.energyLevel))"), color: AppTheme.success)
                 }
+
+                Text(recordSummary(record))
+                    .font(AppTheme.bodyFont)
+                    .foregroundStyle(AppTheme.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Divider()
+                    .background(AppTheme.divider)
+
+                detailNoteBlock(
+                    title: language.text("日记", "Journal"),
+                    icon: "book.closed",
+                    value: record.selfTalk,
+                    emptyText: language.text("当天没有写日记。", "No journal entry for this day."),
+                    color: AppTheme.primary
+                )
+
+                detailNoteBlock(
+                    title: language.text("吐槽", "Rant"),
+                    icon: "bubble.left.and.bubble.right",
+                    value: record.drainSource,
+                    emptyText: language.text("当天没有留下吐槽。", "No rant for this day."),
+                    color: AppTheme.warning
+                )
             } else if viewModel.hasSelectedCalendarDate {
-                Text(language.text("这一天还没有心情记录。", "No mood record for this day."))
-                    .font(AppTheme.bodyFont)
-                    .foregroundStyle(AppTheme.textTertiary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                detailEmptyState(
+                    icon: "calendar.badge.exclamationmark",
+                    text: language.text("这一天还没有心情记录。", "No mood record for this day.")
+                )
             } else {
-                Text(language.text("点击上方日历日期后，这里会显示当天心情、天气、压力和能量。", "Click a calendar day above to show mood, weather, stress, and energy here."))
-                    .font(AppTheme.bodyFont)
-                    .foregroundStyle(AppTheme.textTertiary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                detailEmptyState(
+                    icon: "calendar.badge.plus",
+                    text: language.text("点击上方日历日期后，这里会显示当天状态、日记和吐槽。", "Select a calendar day to show its status, journal, and rant.")
+                )
             }
+
+            Spacer(minLength: 0)
         }
         .padding(AppTheme.spacingMd)
+        .frame(maxHeight: .infinity, alignment: .topLeading)
         .background(AppTheme.surface)
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusLg))
+        .overlay(
+            RoundedRectangle(cornerRadius: AppTheme.radiusLg)
+                .stroke(AppTheme.border.opacity(0.75), lineWidth: 0.75)
+        )
         .shadow(color: AppTheme.cardShadow, radius: 4, x: 0, y: 2)
     }
 
@@ -239,6 +285,7 @@ struct MentalCareView: View {
                 }
             }
         }
+        .frame(maxHeight: .infinity, alignment: .topLeading)
         .padding(AppTheme.spacingMd)
         .background(AppTheme.surface)
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusLg))
@@ -266,20 +313,30 @@ struct MentalCareView: View {
             }
 
             if let record {
+                Spacer(minLength: 0)
+
                 Text(record.moodEmoji)
-                    .font(.system(size: 16))
-                Text(weatherSymbol)
-                    .font(.system(size: 11))
-                Text(language.text("压\(record.stressLevel) 能\(record.energyLevel)", "S\(record.stressLevel) E\(record.energyLevel)"))
-                    .font(.system(size: 9, weight: .medium))
-                    .foregroundStyle(AppTheme.textSecondary)
-                    .lineLimit(1)
+                    .font(.system(size: 18))
+                    .frame(maxWidth: .infinity, alignment: .center)
+
+                Spacer(minLength: 0)
+
+                Text(
+                    language.text(
+                        "\(weatherSymbol) · 压\(record.stressLevel) · 能\(record.energyLevel)",
+                        "\(weatherSymbol) · S\(record.stressLevel) · E\(record.energyLevel)"
+                    )
+                )
+                .font(.system(size: 8, weight: .medium))
+                .foregroundStyle(AppTheme.textSecondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.65)
             } else {
                 Spacer(minLength: 0)
             }
         }
         .padding(6)
-        .frame(maxWidth: .infinity, minHeight: 68, alignment: .topLeading)
+        .frame(maxWidth: .infinity, minHeight: 64, alignment: .topLeading)
         .background(isSelected ? AppTheme.primary.opacity(0.14) : isToday ? AppTheme.primary.opacity(0.08) : AppTheme.background)
         .overlay(
             RoundedRectangle(cornerRadius: AppTheme.radiusMd)
@@ -300,7 +357,11 @@ struct MentalCareView: View {
                     .font(AppTheme.bodyFont)
                     .foregroundStyle(AppTheme.textPrimary)
 
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 66, maximum: 76))], alignment: .leading, spacing: AppTheme.spacingSm) {
+                LazyVGrid(
+                    columns: Array(repeating: GridItem(.flexible(), spacing: AppTheme.spacingSm), count: 5),
+                    alignment: .leading,
+                    spacing: AppTheme.spacingSm
+                ) {
                     ForEach(viewModel.moodOptions, id: \.0) { option in
                         Button {
                             viewModel.mood = option.0
@@ -312,7 +373,7 @@ struct MentalCareView: View {
                                     .font(.system(size: 11))
                                     .foregroundStyle(viewModel.mood == option.0 ? AppTheme.primary : AppTheme.textSecondary)
                             }
-                            .frame(width: 66, height: 58)
+                            .frame(maxWidth: .infinity, minHeight: 48)
                             .background(viewModel.mood == option.0 ? AppTheme.primary.opacity(0.12) : AppTheme.background)
                             .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusMd))
                             .overlay(
@@ -325,46 +386,44 @@ struct MentalCareView: View {
                 }
             }
 
-            HStack(alignment: .top, spacing: AppTheme.spacingMd) {
-                VStack(alignment: .leading, spacing: AppTheme.spacingSm) {
-                    Text(language.text("天气", "Weather"))
-                        .font(AppTheme.bodyFont)
-                        .foregroundStyle(AppTheme.textPrimary)
+            VStack(alignment: .leading, spacing: AppTheme.spacingSm) {
+                Text(language.text("天气", "Weather"))
+                    .font(AppTheme.bodyFont)
+                    .foregroundStyle(AppTheme.textPrimary)
 
-                    HStack(spacing: 6) {
-                        ForEach(viewModel.weatherOptions, id: \.self) { item in
-                            Button {
-                                viewModel.weather = item
-                            } label: {
-                                Text(viewModel.weatherLabel(item))
-                                    .font(.system(size: 11, weight: .medium))
-                                    .foregroundStyle(viewModel.weather == item ? AppTheme.primary : AppTheme.textSecondary)
-                                    .lineLimit(1)
-                                    .minimumScaleFactor(0.75)
-                                    .padding(.horizontal, 6)
-                                    .padding(.vertical, 6)
-                                    .frame(width: 58)
-                                    .background(viewModel.weather == item ? AppTheme.primary.opacity(0.12) : AppTheme.background)
-                                    .clipShape(Capsule())
-                                    .overlay(
-                                        Capsule()
-                                            .stroke(viewModel.weather == item ? AppTheme.primary : AppTheme.border, lineWidth: 1)
-                                    )
-                            }
-                            .buttonStyle(.plain)
+                HStack(spacing: 6) {
+                    ForEach(viewModel.weatherOptions, id: \.self) { item in
+                        Button {
+                            viewModel.weather = item
+                        } label: {
+                            Text(viewModel.weatherLabel(item))
+                                .font(.system(size: 11, weight: .medium))
+                                .foregroundStyle(viewModel.weather == item ? AppTheme.primary : AppTheme.textSecondary)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.75)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 6)
+                                .frame(maxWidth: .infinity)
+                                .background(viewModel.weather == item ? AppTheme.primary.opacity(0.12) : AppTheme.background)
+                                .clipShape(Capsule())
+                                .overlay(
+                                    Capsule()
+                                        .stroke(viewModel.weather == item ? AppTheme.primary : AppTheme.border, lineWidth: 1)
+                                )
                         }
+                        .buttonStyle(.plain)
+                        .frame(maxWidth: .infinity)
                     }
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
+            }
 
+            HStack(alignment: .top, spacing: AppTheme.spacingLg) {
                 levelPicker(title: language.text("压力", "Stress"), selection: $viewModel.stressLevel, color: AppTheme.warning)
                 levelPicker(title: language.text("能量", "Energy"), selection: $viewModel.energyLevel, color: AppTheme.secondary)
             }
 
-            HStack(alignment: .top, spacing: AppTheme.spacingMd) {
-                textArea(title: language.text("日记", "Journal"), prompt: language.text("今天发生了什么？", "What happened today?"), text: $viewModel.selfTalk)
-                textArea(title: language.text("吐槽", "Rant"), prompt: language.text("想吐槽什么？", "What do you want to vent about?"), text: $viewModel.drainSource)
-            }
+            textArea(title: language.text("日记", "Journal"), prompt: language.text("今天发生了什么？", "What happened today?"), text: $viewModel.selfTalk)
+            textArea(title: language.text("吐槽", "Rant"), prompt: language.text("想吐槽什么？", "What do you want to vent about?"), text: $viewModel.drainSource)
 
             HStack {
                 Button(language.text("保存记录", "Save Entry")) {
@@ -386,6 +445,17 @@ struct MentalCareView: View {
         .background(AppTheme.surface)
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusLg))
         .shadow(color: AppTheme.cardShadow, radius: 4, x: 0, y: 2)
+    }
+
+    private var entryAndDetailSection: some View {
+        HStack(alignment: .top, spacing: AppTheme.spacingLg) {
+            journalFormSection
+                .frame(maxWidth: .infinity, alignment: .topLeading)
+                .layoutPriority(1)
+
+            calendarDetailSection
+                .frame(width: 390, alignment: .topLeading)
+        }
     }
 
     private func levelPicker(title: String, selection: Binding<Int>, color: Color) -> some View {
@@ -411,10 +481,11 @@ struct MentalCareView: View {
                             )
                     }
                     .buttonStyle(.plain)
+                    .frame(maxWidth: .infinity)
                 }
             }
         }
-        .frame(width: 160, alignment: .leading)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private func textArea(title: String, prompt: String, text: Binding<String>) -> some View {
@@ -443,6 +514,41 @@ struct MentalCareView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
+    private func detailNoteBlock(title: String, icon: String, value: String, emptyText: String, color: Color) -> some View {
+        VStack(alignment: .leading, spacing: AppTheme.spacingXs) {
+            Label(title, systemImage: icon)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(color)
+
+            Text(value.isEmpty ? emptyText : value)
+                .font(AppTheme.captionFont)
+                .foregroundStyle(value.isEmpty ? AppTheme.textTertiary : AppTheme.textSecondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(AppTheme.spacingSm)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(color.opacity(0.06))
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusSm))
+        .overlay(
+            RoundedRectangle(cornerRadius: AppTheme.radiusSm)
+                .stroke(color.opacity(0.12), lineWidth: 0.75)
+        )
+    }
+
+    private func detailEmptyState(icon: String, text: String) -> some View {
+        VStack(spacing: AppTheme.spacingSm) {
+            Image(systemName: icon)
+                .font(.system(size: 24))
+                .foregroundStyle(AppTheme.textTertiary)
+            Text(text)
+                .font(AppTheme.bodyFont)
+                .foregroundStyle(AppTheme.textTertiary)
+                .multilineTextAlignment(.center)
+        }
+        .padding(.vertical, AppTheme.spacingLg)
+        .frame(maxWidth: .infinity)
+    }
+
     private func capsule(text: String, color: Color) -> some View {
         Text(text)
             .font(.system(size: 11, weight: .medium))
@@ -460,5 +566,48 @@ struct MentalCareView: View {
 
     private func moodLabel(for mood: Int) -> String {
         viewModel.moodOptions.first { $0.0 == mood }?.2 ?? language.text("未知", "Unknown")
+    }
+
+    private var averageStressLabel: String {
+        viewModel.stats.recordDays == 0 ? language.text("暂无", "No Data") : stressLabel(for: viewModel.stats.avgStress)
+    }
+
+    private var averageEnergyLabel: String {
+        viewModel.stats.recordDays == 0 ? language.text("暂无", "No Data") : energyLabel(for: viewModel.stats.avgEnergy)
+    }
+
+    private func stressLabel(for value: Int) -> String {
+        stressLabel(for: Double(value))
+    }
+
+    private func stressLabel(for value: Double) -> String {
+        switch value {
+        case ..<1.5: return language.text("轻松", "Low")
+        case ..<2.5: return language.text("较低", "Mild")
+        case ..<3.5: return language.text("适中", "Moderate")
+        case ..<4.5: return language.text("偏高", "High")
+        default: return language.text("较高", "Very High")
+        }
+    }
+
+    private func energyLabel(for value: Int) -> String {
+        energyLabel(for: Double(value))
+    }
+
+    private func energyLabel(for value: Double) -> String {
+        switch value {
+        case ..<1.5: return language.text("疲惫", "Very Low")
+        case ..<2.5: return language.text("偏低", "Low")
+        case ..<3.5: return language.text("平稳", "Steady")
+        case ..<4.5: return language.text("充足", "Good")
+        default: return language.text("充沛", "High")
+        }
+    }
+
+    private func recordSummary(_ record: MentalCareRecord) -> String {
+        language.text(
+            "当天心情为\(moodLabel(for: record.mood))，天气\(viewModel.weatherLabel(record.weather))。压力为 \(record.stressLevel) 分，属于\(stressLabel(for: record.stressLevel))水平；能量为 \(record.energyLevel) 分，整体状态\(energyLabel(for: record.energyLevel))。",
+            "Mood was \(moodLabel(for: record.mood)) with \(viewModel.weatherLabel(record.weather)). Stress was \(record.stressLevel), which is \(stressLabel(for: record.stressLevel)); energy was \(record.energyLevel), which is \(energyLabel(for: record.energyLevel))."
+        )
     }
 }

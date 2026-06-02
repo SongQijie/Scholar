@@ -36,7 +36,7 @@ struct DataManagementView: View {
             }
             .padding(AppTheme.spacingLg)
         }
-        .background(AppTheme.background)
+        .workspacePageBackground()
         .onAppear {
             appNameDraft = store.appDisplayName
         }

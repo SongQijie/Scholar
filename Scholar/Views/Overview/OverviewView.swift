@@ -19,7 +19,7 @@ struct OverviewView: View {
             }
             .padding(AppTheme.spacingLg)
         }
-        .background(AppTheme.background)
+        .workspacePageBackground()
         .onAppear {
             viewModel.loadData()
         }
@@ -327,17 +327,25 @@ private struct RecentMoodPanel: View {
     private var language: AppLanguage { store.appLanguage }
 
     private var recentRecords: [MentalCareRecord] {
-        Array(store.mentalCareRecords.sorted { $0.date > $1.date }.prefix(4))
+        let startDate = Calendar.current.date(byAdding: .day, value: -6, to: Date().startOfDay) ?? Date().startOfDay
+        return store.mentalCareRecords
+            .filter { $0.date >= startDate }
+            .sorted { $0.date > $1.date }
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: AppTheme.spacingMd) {
             HStack {
-                Text(language.text("最近心情", "Recent Mood"))
-                    .font(AppTheme.subtitleFont)
-                    .foregroundStyle(AppTheme.textPrimary)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(language.text("近 7 天状态", "Last 7 Days"))
+                        .font(AppTheme.subtitleFont)
+                        .foregroundStyle(AppTheme.textPrimary)
+                    Text(language.text("汇总近期心情、压力与能量变化。", "A summary of recent mood, stress, and energy."))
+                        .font(AppTheme.captionFont)
+                        .foregroundStyle(AppTheme.textSecondary)
+                }
                 Spacer()
-                Text(language.text("\(recentRecords.count) 条", "\(recentRecords.count) records"))
+                Text(language.text("记录 \(recentRecords.count) 天", "\(recentRecords.count) days"))
                     .font(AppTheme.captionFont)
                     .foregroundStyle(AppTheme.primary)
                     .padding(.horizontal, AppTheme.spacingSm)
@@ -353,11 +361,34 @@ private struct RecentMoodPanel: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.vertical, AppTheme.spacingMd)
             } else {
-                VStack(spacing: AppTheme.spacingSm) {
-                    ForEach(recentRecords) { record in
-                        moodRow(record)
+                VStack(alignment: .leading, spacing: AppTheme.spacingMd) {
+                    HStack(spacing: AppTheme.spacingMd) {
+                        Text(summaryEmoji)
+                            .font(.system(size: 30))
+                            .frame(width: 48, height: 48)
+                            .background(moodColor(Int(avgMood.rounded())).opacity(0.12))
+                            .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusMd))
+
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text(language.text("近期整体状态：\(moodLabel(avgMood))", "Recent state: \(moodLabel(avgMood))"))
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundStyle(AppTheme.textPrimary)
+                            Text(summaryText)
+                                .font(AppTheme.captionFont)
+                                .foregroundStyle(AppTheme.textSecondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                    }
+
+                    HStack(spacing: AppTheme.spacingSm) {
+                        summaryMetric(title: language.text("平均心情", "Avg Mood"), value: String(format: "%.1f", avgMood), detail: moodLabel(avgMood), color: moodColor(Int(avgMood.rounded())))
+                        summaryMetric(title: language.text("平均压力", "Avg Stress"), value: String(format: "%.1f", avgStress), detail: stressLabel(avgStress), color: AppTheme.warning)
+                        summaryMetric(title: language.text("平均能量", "Avg Energy"), value: String(format: "%.1f", avgEnergy), detail: energyLabel(avgEnergy), color: AppTheme.success)
                     }
                 }
+                .padding(AppTheme.spacingMd)
+                .background(AppTheme.background.opacity(0.7))
+                .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusMd))
             }
         }
         .padding(AppTheme.spacingMd)
@@ -369,45 +400,62 @@ private struct RecentMoodPanel: View {
         )
     }
 
-    private func moodRow(_ record: MentalCareRecord) -> some View {
-        HStack(spacing: AppTheme.spacingMd) {
-            Text(record.moodEmoji)
-                .font(.system(size: 24))
-                .frame(width: 34, height: 34)
-                .background(moodColor(record.mood).opacity(0.12))
-                .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusMd))
-
-            VStack(alignment: .leading, spacing: 3) {
-                Text(record.date.formatted("MM/dd"))
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(AppTheme.textPrimary)
-                Text(weatherLabel(record.weather))
-                    .font(AppTheme.captionFont)
-                    .foregroundStyle(AppTheme.textSecondary)
-                    .lineLimit(1)
-            }
-
-            Spacer()
-
-            moodMetric(title: language.text("心情", "Mood"), value: "\(record.mood)", color: moodColor(record.mood))
-            moodMetric(title: language.text("压力", "Stress"), value: "\(record.stressLevel)", color: AppTheme.warning)
-            moodMetric(title: language.text("能量", "Energy"), value: "\(record.energyLevel)", color: AppTheme.success)
-        }
-        .padding(AppTheme.spacingSm)
-        .background(AppTheme.background.opacity(0.7))
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusMd))
+    private var avgMood: Double {
+        Double(recentRecords.reduce(0) { $0 + moodScore($1.mood) }) / Double(recentRecords.count)
     }
 
-    private func moodMetric(title: String, value: String, color: Color) -> some View {
-        VStack(spacing: 1) {
+    private var avgStress: Double {
+        Double(recentRecords.reduce(0) { $0 + $1.stressLevel }) / Double(recentRecords.count)
+    }
+
+    private var avgEnergy: Double {
+        Double(recentRecords.reduce(0) { $0 + $1.energyLevel }) / Double(recentRecords.count)
+    }
+
+    private var summaryEmoji: String {
+        switch Int(avgMood.rounded()) {
+        case 1: return "😫"
+        case 2: return "😟"
+        case 3: return "😕"
+        case 4: return "😐"
+        case 5: return "😬"
+        case 6: return "😠"
+        case 7: return "😤"
+        case 8: return "🙂"
+        case 9: return "😊"
+        case 10: return "🤩"
+        case 11: return "🥺"
+        case 12: return "😑"
+        case 13: return "🥱"
+        case 14: return "😣"
+        case 15: return "😄"
+        default: return "😐"
+        }
+    }
+
+    private var summaryText: String {
+        language.text(
+            "近 7 天记录 \(recentRecords.count) 天。压力\(stressLabel(avgStress))，能量\(energyLabel(avgEnergy))，整体心情\(moodLabel(avgMood))。",
+            "\(recentRecords.count) recorded days. Stress is \(stressLabel(avgStress)), energy is \(energyLabel(avgEnergy)), and mood is \(moodLabel(avgMood))."
+        )
+    }
+
+    private func summaryMetric(title: String, value: String, detail: String, color: Color) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
             Text(value)
                 .font(.system(size: 16, weight: .bold, design: .rounded))
                 .foregroundStyle(color)
             Text(title)
                 .font(.system(size: 10, weight: .medium))
                 .foregroundStyle(AppTheme.textSecondary)
+            Text(detail)
+                .font(.system(size: 10, weight: .semibold))
+                .foregroundStyle(color)
         }
-        .frame(width: 42)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(AppTheme.spacingSm)
+        .background(color.opacity(0.08))
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusSm))
     }
 
     private func moodColor(_ mood: Int) -> Color {
@@ -418,17 +466,43 @@ private struct RecentMoodPanel: View {
         }
     }
 
-    private func weatherLabel(_ key: String) -> String {
-        switch key {
-        case "sunny": return language.text("晴", "Sunny")
-        case "cloudy": return language.text("多云", "Cloudy")
-        case "overcast": return language.text("阴", "Overcast")
-        case "rainy": return language.text("雨", "Rain")
-        case "stormy": return language.text("雷雨", "Storm")
-        case "foggy": return language.text("雾", "Fog")
-        case "windy": return language.text("风", "Wind")
-        case "snowy": return language.text("雪", "Snow")
-        default: return key
+    private func moodScore(_ mood: Int) -> Int {
+        switch mood {
+        case 11: return 3
+        case 12: return 4
+        case 13: return 4
+        case 14: return 3
+        case 15: return 9
+        default: return mood
+        }
+    }
+
+    private func moodLabel(_ value: Double) -> String {
+        switch value {
+        case ..<3.5: return language.text("偏低", "Low")
+        case ..<5.5: return language.text("平稳", "Steady")
+        case ..<7.5: return language.text("有些波动", "Mixed")
+        default: return language.text("较好", "Good")
+        }
+    }
+
+    private func stressLabel(_ value: Double) -> String {
+        switch value {
+        case ..<1.5: return language.text("轻松", "low")
+        case ..<2.5: return language.text("较低", "mild")
+        case ..<3.5: return language.text("适中", "moderate")
+        case ..<4.5: return language.text("偏高", "high")
+        default: return language.text("较高", "very high")
+        }
+    }
+
+    private func energyLabel(_ value: Double) -> String {
+        switch value {
+        case ..<1.5: return language.text("疲惫", "very low")
+        case ..<2.5: return language.text("偏低", "low")
+        case ..<3.5: return language.text("平稳", "steady")
+        case ..<4.5: return language.text("充足", "good")
+        default: return language.text("充沛", "high")
         }
     }
 }

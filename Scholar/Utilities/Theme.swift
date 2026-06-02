@@ -220,13 +220,13 @@ struct WorkspaceTextFieldStyle: TextFieldStyle {
             .padding(.vertical, AppTheme.spacing8)
             .background(
                 RoundedRectangle(cornerRadius: AppTheme.radiusMd)
-                    .fill(AppTheme.surface)
+                    .fill(AppTheme.surfaceElevated.opacity(0.56))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: AppTheme.radiusMd)
-                    .stroke(AppTheme.border.opacity(0.70), lineWidth: 0.75)
+                    .stroke(AppTheme.border.opacity(0.90), lineWidth: 0.75)
             )
-            .shadow(color: AppTheme.shadowSm, radius: 1.5, x: 0, y: 1)
+            .shadow(color: AppTheme.shadowSm, radius: 2, x: 0, y: 1)
     }
 }
 
@@ -243,13 +243,13 @@ struct WorkspaceControlSurface: ViewModifier {
             .frame(minHeight: minHeight)
             .background(
                 RoundedRectangle(cornerRadius: AppTheme.radiusMd)
-                    .fill(AppTheme.surface)
+                    .fill(AppTheme.surfaceElevated.opacity(0.56))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: AppTheme.radiusMd)
-                    .stroke(AppTheme.border.opacity(0.70), lineWidth: 0.75)
+                    .stroke(AppTheme.border.opacity(0.90), lineWidth: 0.75)
             )
-            .shadow(color: AppTheme.shadowSm, radius: 1.5, x: 0, y: 1)
+            .shadow(color: AppTheme.shadowSm, radius: 2, x: 0, y: 1)
     }
 }
 
@@ -291,5 +291,9 @@ extension View {
 
     func workspaceSegmented() -> some View {
         modifier(WorkspaceSegmentedSurface())
+    }
+
+    func workspacePageBackground() -> some View {
+        background(AppTheme.workspaceBackground)
     }
 }

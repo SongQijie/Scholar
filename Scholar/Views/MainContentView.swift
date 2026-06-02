@@ -303,6 +303,7 @@ struct MainContentView: View {
 
 struct ArchiveManagementView: View {
     @EnvironmentObject private var store: AppDataStore
+    @State private var selectedArchiveItem: ArchiveDetailSelection?
     private var language: AppLanguage { store.appLanguage }
 
     private var archivedProjects: [Project] {
@@ -324,13 +325,16 @@ struct ArchiveManagementView: View {
                 archiveSection(
                     title: language.text("归档项目", "Archived Projects"),
                     emptyText: language.text("还没有归档项目。", "No archived projects yet."),
+                    icon: "folder",
+                    color: AppTheme.primary,
                     items: archivedProjects.map { item in
                         ArchiveRowItem(
                             id: item.id,
                             title: item.name,
                             subtitle: item.summary.isEmpty ? item.category.displayName : item.summary,
                             meta: item.deadline.map { language.text("截止 \($0.formatted("yyyy-MM-dd"))", "Due \($0.formatted("yyyy-MM-dd"))") } ?? language.text("未设截止", "No due date"),
-                            icon: "folder"
+                            icon: "folder",
+                            detailSelection: .project(item.id)
                         )
                     },
                     onRestore: restoreProject
@@ -338,13 +342,16 @@ struct ArchiveManagementView: View {
                 archiveSection(
                     title: language.text("归档课题", "Archived Topics"),
                     emptyText: language.text("还没有归档课题。", "No archived topics yet."),
+                    icon: "doc.text",
+                    color: AppTheme.secondary,
                     items: archivedTheses.map { item in
                         ArchiveRowItem(
                             id: item.id,
                             title: item.title,
                             subtitle: item.notes.isEmpty ? item.stage.displayName : item.notes,
                             meta: item.dueDate.map { "DDL \($0.formatted("yyyy-MM-dd"))" } ?? language.text("未设 DDL", "No DDL"),
-                            icon: "doc.text"
+                            icon: "doc.text",
+                            detailSelection: .thesis(item.id)
                         )
                     },
                     onRestore: restoreThesis
@@ -352,13 +359,16 @@ struct ArchiveManagementView: View {
                 archiveSection(
                     title: language.text("归档事务", "Archived Affairs"),
                     emptyText: language.text("还没有归档事务。", "No archived affairs yet."),
+                    icon: "tray.full",
+                    color: AppTheme.accent,
                     items: archivedAffairs.map { item in
                         ArchiveRowItem(
                             id: item.id,
                             title: item.title,
                             subtitle: item.details.isEmpty ? item.tagText : item.details,
                             meta: item.dueDate.map { language.text("截止 \($0.formatted("yyyy-MM-dd"))", "Due \($0.formatted("yyyy-MM-dd"))") } ?? language.text("未设截止", "No due date"),
-                            icon: "tray.full"
+                            icon: "tray.full",
+                            detailSelection: .affair(item.id)
                         )
                     },
                     onRestore: restoreAffair
@@ -366,43 +376,115 @@ struct ArchiveManagementView: View {
             }
             .padding(AppTheme.spacingLg)
         }
-        .background(AppTheme.background)
+        .workspacePageBackground()
+        .sheet(item: $selectedArchiveItem) { selection in
+            ArchiveDetailSheet(selection: selection)
+                .environmentObject(store)
+        }
     }
 
     private var header: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: AppTheme.spacingXs) {
-                Text(language.text("归档管理", "Archive Management"))
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
-                    .foregroundStyle(AppTheme.textPrimary)
-                Text(language.text("查看已完成的项目、课题和事务，也可以恢复到对应管理页。", "Review completed projects, topics, and affairs, or restore them."))
-                    .font(AppTheme.bodyFont)
-                    .foregroundStyle(AppTheme.textSecondary)
+        HStack(spacing: AppTheme.spacingLg) {
+            HStack(spacing: AppTheme.spacingMd) {
+                Image(systemName: "archivebox.fill")
+                    .font(.system(size: 22, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(width: 48, height: 48)
+                    .background(AppTheme.primaryGradient)
+                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusMd))
+                    .shadow(color: AppTheme.primary.opacity(0.22), radius: 8, x: 0, y: 4)
+
+                VStack(alignment: .leading, spacing: AppTheme.spacingXs) {
+                    Text(language.text("归档管理", "Archive Management"))
+                        .font(.system(size: 28, weight: .bold, design: .rounded))
+                        .foregroundStyle(AppTheme.textPrimary)
+                    Text(language.text("查看已完成的项目、课题和事务，也可以恢复到对应管理页。", "Review completed projects, topics, and affairs, or restore them."))
+                        .font(AppTheme.bodyFont)
+                        .foregroundStyle(AppTheme.textSecondary)
+                }
             }
+
             Spacer()
-            Text("\(archivedProjects.count + archivedTheses.count + archivedAffairs.count)")
-                .font(.system(size: 26, weight: .bold, design: .rounded))
-                .foregroundStyle(AppTheme.primary)
-                .padding(.horizontal, AppTheme.spacingMd)
-                .padding(.vertical, AppTheme.spacingSm)
-                .background(AppTheme.primary.opacity(0.10))
-                .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusMd))
+
+            HStack(spacing: AppTheme.spacingSm) {
+                archiveMetric(language.text("项目", "Projects"), archivedProjects.count, color: AppTheme.primary)
+                archiveMetric(language.text("课题", "Topics"), archivedTheses.count, color: AppTheme.secondary)
+                archiveMetric(language.text("事务", "Affairs"), archivedAffairs.count, color: AppTheme.accent)
+            }
         }
-        .padding(AppTheme.spacingMd)
-        .background(AppTheme.surface)
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusLg))
+        .padding(AppTheme.spacingLg)
+        .background(
+            RoundedRectangle(cornerRadius: AppTheme.radiusLg)
+                .fill(AppTheme.surface)
+                .overlay(
+                    RoundedRectangle(cornerRadius: AppTheme.radiusLg)
+                        .fill(
+                            LinearGradient(
+                                colors: [AppTheme.primary.opacity(0.09), Color.clear],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                )
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: AppTheme.radiusLg)
+                .stroke(AppTheme.primary.opacity(0.16), lineWidth: 0.75)
+        )
+        .shadow(color: AppTheme.cardShadow, radius: 6, x: 0, y: 2)
     }
 
-    private func archiveSection(title: String, emptyText: String, items: [ArchiveRowItem], onRestore: @escaping (UUID) -> Void) -> some View {
-        VStack(alignment: .leading, spacing: AppTheme.spacingMd) {
+    private func archiveMetric(_ title: String, _ value: Int, color: Color) -> some View {
+        VStack(spacing: 2) {
+            Text("\(value)")
+                .font(.system(size: 20, weight: .bold, design: .rounded))
+                .foregroundStyle(color)
             Text(title)
-                .font(AppTheme.subtitleFont)
-                .foregroundStyle(AppTheme.textPrimary)
+                .font(.system(size: 11, weight: .medium))
+                .foregroundStyle(AppTheme.textSecondary)
+        }
+        .frame(minWidth: 62)
+        .padding(.horizontal, AppTheme.spacingSm)
+        .padding(.vertical, AppTheme.spacingSm)
+        .background(color.opacity(0.08))
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusMd))
+        .overlay(
+            RoundedRectangle(cornerRadius: AppTheme.radiusMd)
+                .stroke(color.opacity(0.16), lineWidth: 0.75)
+        )
+    }
+
+    private func archiveSection(title: String, emptyText: String, icon: String, color: Color, items: [ArchiveRowItem], onRestore: @escaping (UUID) -> Void) -> some View {
+        VStack(alignment: .leading, spacing: AppTheme.spacingMd) {
+            HStack(spacing: AppTheme.spacingSm) {
+                Image(systemName: icon)
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(color)
+                    .frame(width: 28, height: 28)
+                    .background(color.opacity(0.10))
+                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusSm))
+
+                Text(title)
+                    .font(AppTheme.subtitleFont)
+                    .foregroundStyle(AppTheme.textPrimary)
+
+                Text("\(items.count)")
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundStyle(color)
+                    .padding(.horizontal, AppTheme.spacingSm)
+                    .padding(.vertical, 3)
+                    .background(color.opacity(0.10))
+                    .clipShape(Capsule())
+            }
 
             if items.isEmpty {
-                Text(emptyText)
-                    .font(AppTheme.bodyFont)
-                    .foregroundStyle(AppTheme.textTertiary)
+                HStack(spacing: AppTheme.spacingSm) {
+                    Image(systemName: "archivebox")
+                        .foregroundStyle(AppTheme.textTertiary)
+                    Text(emptyText)
+                        .font(AppTheme.bodyFont)
+                        .foregroundStyle(AppTheme.textTertiary)
+                }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(AppTheme.spacingMd)
                     .background(AppTheme.background)
@@ -418,6 +500,11 @@ struct ArchiveManagementView: View {
         .padding(AppTheme.spacingLg)
         .background(AppTheme.surface)
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusLg))
+        .overlay(
+            RoundedRectangle(cornerRadius: AppTheme.radiusLg)
+                .stroke(AppTheme.border.opacity(0.75), lineWidth: 0.75)
+        )
+        .shadow(color: AppTheme.cardShadow, radius: 4, x: 0, y: 2)
     }
 
     private func archiveRow(_ item: ArchiveRowItem, onRestore: @escaping (UUID) -> Void) -> some View {
@@ -444,7 +531,20 @@ struct ArchiveManagementView: View {
 
             Text(item.meta)
                 .font(AppTheme.captionFont)
-                .foregroundStyle(AppTheme.textTertiary)
+                .foregroundStyle(AppTheme.textSecondary)
+                .padding(.horizontal, AppTheme.spacingSm)
+                .padding(.vertical, AppTheme.spacingXs)
+                .background(AppTheme.surfaceElevated)
+                .clipShape(Capsule())
+
+            Button {
+                selectedArchiveItem = item.detailSelection
+            } label: {
+                Label(language.text("查看详情", "Details"), systemImage: "doc.text.magnifyingglass")
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(AppTheme.primary)
+            .controlSize(.small)
 
             Button {
                 onRestore(item.id)
@@ -457,6 +557,11 @@ struct ArchiveManagementView: View {
         .padding(AppTheme.spacingMd)
         .background(AppTheme.background)
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusMd))
+        .overlay(
+            RoundedRectangle(cornerRadius: AppTheme.radiusMd)
+                .stroke(AppTheme.border.opacity(0.60), lineWidth: 0.75)
+        )
+        .hoverScale(1.003)
     }
 
     private func restoreProject(_ id: UUID) {
@@ -488,6 +593,333 @@ struct ArchiveManagementView: View {
         var subtitle: String
         var meta: String
         var icon: String
+        var detailSelection: ArchiveDetailSelection
+    }
+}
+
+private enum ArchiveDetailSelection: Identifiable {
+    case project(UUID)
+    case thesis(UUID)
+    case affair(UUID)
+
+    var id: String {
+        switch self {
+        case .project(let id): return "project-\(id.uuidString)"
+        case .thesis(let id): return "thesis-\(id.uuidString)"
+        case .affair(let id): return "affair-\(id.uuidString)"
+        }
+    }
+}
+
+private struct ArchiveDetailSheet: View {
+    @EnvironmentObject private var store: AppDataStore
+    @Environment(\.dismiss) private var dismiss
+    let selection: ArchiveDetailSelection
+    private var language: AppLanguage { store.appLanguage }
+
+    private var linkedTasks: [Task] {
+        store.tasks.filter { task in
+            switch selection {
+            case .project(let id): return task.projectId == id
+            case .thesis(let id): return task.thesisId == id
+            case .affair(let id): return task.affairId == id
+            }
+        }
+        .sorted { lhs, rhs in
+            if lhs.status == rhs.status {
+                return (lhs.dueDate ?? .distantFuture) < (rhs.dueDate ?? .distantFuture)
+            }
+            return lhs.status != .completed && rhs.status == .completed
+        }
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: AppTheme.spacingMd) {
+                Image(systemName: headerIcon)
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundStyle(AppTheme.primary)
+                    .frame(width: 42, height: 42)
+                    .background(AppTheme.primary.opacity(0.10))
+                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusMd))
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(headerTitle)
+                        .font(AppTheme.titleFont)
+                        .foregroundStyle(AppTheme.textPrimary)
+                    Text(language.text("归档详情", "Archive Details"))
+                        .font(AppTheme.captionFont)
+                        .foregroundStyle(AppTheme.textSecondary)
+
+                    HStack(spacing: AppTheme.spacingSm) {
+                        archiveBadge(selectionLabel, color: AppTheme.primary)
+                        archiveBadge(language.text("\(linkedTasks.count) 个关联任务", "\(linkedTasks.count) linked tasks"), color: AppTheme.secondary)
+                    }
+                    .padding(.top, AppTheme.spacingXs)
+                }
+
+                Spacer()
+
+                Button {
+                    dismiss()
+                } label: {
+                    Label(language.text("关闭", "Close"), systemImage: "xmark")
+                }
+                .buttonStyle(.bordered)
+            }
+            .padding(AppTheme.spacingLg)
+            .background(AppTheme.surface)
+
+            Divider()
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: AppTheme.spacingLg) {
+                    detailSection
+                    taskSection
+                }
+                .padding(AppTheme.spacingLg)
+            }
+            .background(AppTheme.background)
+        }
+        .frame(minWidth: 760, idealWidth: 860, minHeight: 600, idealHeight: 720)
+    }
+
+    private var headerIcon: String {
+        switch selection {
+        case .project: return "folder"
+        case .thesis: return "doc.text"
+        case .affair: return "tray.full"
+        }
+    }
+
+    private var headerTitle: String {
+        switch selection {
+        case .project(let id): return store.projects.first(where: { $0.id == id })?.name ?? language.text("项目", "Project")
+        case .thesis(let id): return store.thesisInfos.first(where: { $0.id == id })?.title ?? language.text("课题", "Topic")
+        case .affair(let id): return store.affairs.first(where: { $0.id == id })?.title ?? language.text("事务", "Affair")
+        }
+    }
+
+    private var selectionLabel: String {
+        switch selection {
+        case .project: return language.text("归档项目", "Archived Project")
+        case .thesis: return language.text("归档课题", "Archived Topic")
+        case .affair: return language.text("归档事务", "Archived Affair")
+        }
+    }
+
+    @ViewBuilder
+    private var detailSection: some View {
+        switch selection {
+        case .project(let id):
+            if let project = store.projects.first(where: { $0.id == id }) {
+                archiveCard(title: language.text("项目信息", "Project Information"), icon: "folder") {
+                    detailGrid([
+                        detail(language.text("类别", "Category"), project.category.displayName),
+                        detail(language.text("阶段", "Stage"), project.stage.displayName),
+                        detail(language.text("优先级", "Priority"), project.priority.displayName),
+                        detail(language.text("负责人", "Owner"), project.owner),
+                        detail(language.text("协作者", "Collaborators"), project.collaborators),
+                        detail(language.text("起止时间", "Timeline"), dateRange(project.startDate, project.deadline)),
+                        detail(language.text("经费来源", "Funding Source"), project.fundingSource),
+                        detail(language.text("预算", "Budget"), project.budget.map { String(format: "%.2f", $0) } ?? ""),
+                        detail(language.text("关键词", "Keywords"), project.keywordText),
+                        detail(language.text("预期成果", "Expected Deliverables"), project.expectedDeliverables),
+                        detail(language.text("项目简介", "Summary"), project.summary),
+                        detail(language.text("项目成果", "Result"), project.result),
+                        detail(language.text("备注", "Notes"), project.notes),
+                        detail(language.text("共享文档", "Shared Document"), project.sharedDocumentLink)
+                    ])
+                }
+            }
+        case .thesis(let id):
+            if let thesis = store.thesisInfos.first(where: { $0.id == id }) {
+                archiveCard(title: language.text("课题信息", "Topic Information"), icon: "doc.text") {
+                    detailGrid([
+                        detail(language.text("阶段", "Stage"), thesis.stage.displayName),
+                        detail("DDL", thesis.dueDate?.formatted("yyyy-MM-dd HH:mm") ?? ""),
+                        detail(language.text("当前版本", "Current Version"), thesis.currentVersion),
+                        detail(language.text("整体进度", "Overall Progress"), "\(Int(thesis.overallProgress * 100))%"),
+                        detail(language.text("关联学生", "Students"), thesis.students.map(\.name).joined(separator: " / ")),
+                        detail(language.text("里程碑", "Milestones"), "\(thesis.milestones.filter(\.isCompleted).count) / \(thesis.milestones.count)"),
+                        detail(language.text("章节", "Chapters"), "\(thesis.chapters.count)"),
+                        detail(language.text("课题备注", "Notes"), thesis.notes),
+                        detail(language.text("共享文档", "Shared Document"), thesis.sharedDocumentLink)
+                    ])
+                }
+            }
+        case .affair(let id):
+            if let affair = store.affairs.first(where: { $0.id == id }) {
+                archiveCard(title: language.text("事务信息", "Affair Information"), icon: "tray.full") {
+                    detailGrid([
+                        detail(language.text("来源", "Source"), affair.source),
+                        detail(language.text("截止时间", "Due Date"), affair.dueDate?.formatted("yyyy-MM-dd HH:mm") ?? ""),
+                        detail(language.text("标签", "Tags"), affair.tagText),
+                        detail(language.text("详情", "Details"), affair.details),
+                        detail(language.text("创建时间", "Created"), affair.createdAt.formatted("yyyy-MM-dd HH:mm")),
+                        detail(language.text("更新时间", "Updated"), affair.updatedAt.formatted("yyyy-MM-dd HH:mm"))
+                    ])
+                }
+            }
+        }
+    }
+
+    private var taskSection: some View {
+        archiveCard(
+            title: language.text("任务清单（\(linkedTasks.count)）", "Task List (\(linkedTasks.count))"),
+            icon: "checklist"
+        ) {
+            if linkedTasks.isEmpty {
+                HStack(spacing: AppTheme.spacingSm) {
+                    Image(systemName: "checklist")
+                        .foregroundStyle(AppTheme.textTertiary)
+                    Text(language.text("该归档项下没有关联任务。", "No linked tasks for this archived item."))
+                        .font(AppTheme.bodyFont)
+                        .foregroundStyle(AppTheme.textTertiary)
+                }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(AppTheme.spacingMd)
+                    .background(AppTheme.background)
+                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusMd))
+            } else {
+                VStack(spacing: AppTheme.spacingSm) {
+                    ForEach(linkedTasks) { task in
+                        archiveTaskRow(task)
+                    }
+                }
+            }
+        }
+    }
+
+    private func archiveTaskRow(_ task: Task) -> some View {
+        VStack(alignment: .leading, spacing: AppTheme.spacingSm) {
+            HStack(spacing: AppTheme.spacingSm) {
+                Image(systemName: task.status == .completed ? "checkmark.circle.fill" : "circle")
+                    .foregroundStyle(task.status == .completed ? AppTheme.success : AppTheme.textTertiary)
+                Text(task.title)
+                    .font(AppTheme.bodyFont)
+                    .foregroundStyle(AppTheme.textPrimary)
+                Spacer()
+                archiveBadge(task.status.displayName, color: task.status == .completed ? AppTheme.success : AppTheme.warning)
+                archiveBadge(task.priority.displayName, color: Color(hex: task.priority.color))
+            }
+
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), alignment: .leading)], alignment: .leading, spacing: AppTheme.spacingSm) {
+                taskMeta(language.text("负责人", "Owner"), task.collaborator)
+                taskMeta(language.text("截止", "Due"), task.dueDate?.formatted("yyyy-MM-dd HH:mm") ?? language.text("未设", "Unset"))
+                taskMeta(language.text("完成度", "Progress"), "\(task.completionRate)%")
+                if task.recurrence != .none {
+                    taskMeta(language.text("循环", "Recurrence"), task.recurrence.displayName)
+                }
+            }
+
+            if !task.details.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                Text(task.details)
+                    .font(AppTheme.captionFont)
+                    .foregroundStyle(AppTheme.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            GeometryReader { geometry in
+                Capsule()
+                    .fill(AppTheme.surfaceElevated)
+                    .overlay(alignment: .leading) {
+                        Capsule()
+                            .fill(task.status == .completed ? AppTheme.success : AppTheme.primary)
+                            .frame(width: geometry.size.width * CGFloat(task.completionRate) / 100)
+                    }
+            }
+            .frame(height: 3)
+        }
+        .padding(AppTheme.spacingMd)
+        .background(
+            RoundedRectangle(cornerRadius: AppTheme.radiusMd)
+                .fill(AppTheme.background)
+                .overlay(
+                    LinearGradient(
+                        colors: [
+                            (task.status == .completed ? AppTheme.success : AppTheme.primary).opacity(0.045),
+                            Color.clear
+                        ],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusMd))
+                )
+        )
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusMd))
+        .overlay(
+            RoundedRectangle(cornerRadius: AppTheme.radiusMd)
+                .stroke(AppTheme.border.opacity(0.65), lineWidth: 0.75)
+        )
+    }
+
+    private func archiveCard<Content: View>(title: String, icon: String, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: AppTheme.spacingMd) {
+            Label(title, systemImage: icon)
+                .font(AppTheme.subtitleFont)
+                .foregroundStyle(AppTheme.textPrimary)
+            content()
+        }
+        .padding(AppTheme.spacingLg)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(AppTheme.surface)
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusLg))
+        .overlay(
+            RoundedRectangle(cornerRadius: AppTheme.radiusLg)
+                .stroke(AppTheme.border.opacity(0.75), lineWidth: 0.75)
+        )
+        .shadow(color: AppTheme.cardShadow, radius: 5, x: 0, y: 2)
+    }
+
+    private func detailGrid(_ items: [(String, String)]) -> some View {
+        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], alignment: .leading, spacing: AppTheme.spacingMd) {
+            ForEach(Array(items.enumerated()), id: \.offset) { _, item in
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(item.0)
+                        .font(AppTheme.captionFont)
+                        .foregroundStyle(AppTheme.textTertiary)
+                    Text(item.1)
+                        .font(AppTheme.bodyFont)
+                        .foregroundStyle(AppTheme.textPrimary)
+                        .textSelection(.enabled)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                .padding(AppTheme.spacingSm)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(AppTheme.background.opacity(0.72))
+                .clipShape(RoundedRectangle(cornerRadius: AppTheme.radiusSm))
+            }
+        }
+    }
+
+    private func detail(_ title: String, _ value: String) -> (String, String) {
+        (title, value.isEmpty ? language.text("未填写", "Not provided") : value)
+    }
+
+    private func dateRange(_ start: Date?, _ end: Date?) -> String {
+        switch (start, end) {
+        case let (start?, end?): return "\(start.formatted("yyyy-MM-dd")) ~ \(end.formatted("yyyy-MM-dd"))"
+        case let (start?, nil): return language.text("\(start.formatted("yyyy-MM-dd")) 起", "From \(start.formatted("yyyy-MM-dd"))")
+        case let (nil, end?): return language.text("截止 \(end.formatted("yyyy-MM-dd"))", "Due \(end.formatted("yyyy-MM-dd"))")
+        case (nil, nil): return language.text("未设置", "Unset")
+        }
+    }
+
+    private func archiveBadge(_ text: String, color: Color) -> some View {
+        Text(text)
+            .font(.system(size: 11, weight: .medium))
+            .foregroundStyle(color)
+            .padding(.horizontal, AppTheme.spacingSm)
+            .padding(.vertical, 3)
+            .background(color.opacity(0.10))
+            .clipShape(Capsule())
+    }
+
+    private func taskMeta(_ title: String, _ value: String) -> some View {
+        Text("\(title)：\(value)")
+            .font(AppTheme.captionFont)
+            .foregroundStyle(AppTheme.textSecondary)
     }
 }
 
@@ -512,7 +944,7 @@ struct AffairManagementView: View {
             }
             .padding(AppTheme.spacingLg)
         }
-        .background(AppTheme.background)
+        .workspacePageBackground()
         .onAppear {
             viewModel.loadData()
         }

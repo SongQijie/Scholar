@@ -40,6 +40,7 @@ struct PrimaryButton: View {
         }
         .buttonStyle(.plain)
         .pressScale()
+        .hoverScale(1.015)
         .disabled(isLoading)
     }
 }
@@ -75,6 +76,7 @@ struct SecondaryButton: View {
                 RoundedRectangle(cornerRadius: AppTheme.radiusMd)
                     .stroke(AppTheme.border, lineWidth: 1)
             )
+            .shadow(color: AppTheme.shadowSm, radius: 3, x: 0, y: 1)
         }
         .buttonStyle(.plain)
         .pressScale()
@@ -104,6 +106,10 @@ struct GhostButton: View {
             .foregroundColor(color)
             .background(color.opacity(0.1))
             .cornerRadius(AppTheme.radiusMd)
+            .overlay(
+                RoundedRectangle(cornerRadius: AppTheme.radiusMd)
+                    .stroke(color.opacity(0.18), lineWidth: 0.75)
+            )
         }
         .buttonStyle(.plain)
         .pressScale()
